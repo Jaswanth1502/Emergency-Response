@@ -1,0 +1,154 @@
+[
+  {
+    "id": "SNS-TEMP-04",
+    "name": "Sub-Station 11 Temp Monitor",
+    "type": "TEMPERATURE",
+    "status": "WARNING",
+    "currentValue": 72.5,
+    "unit": "°C",
+    "thresholdHigh": 65,
+    "thresholdCritical": 80,
+    "coordinates": { "lat": 45.4121, "lng": -75.6552 },
+    "lastReadingTime": "2026-03-29T15:10:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 42.1 },
+      { "time": "10:00", "value": 45.3 },
+      { "time": "12:00", "value": 52.8 },
+      { "time": "14:00", "value": 69.1 },
+      { "time": "15:00", "value": 72.5 }
+    ]
+  },
+  {
+    "id": "SNS-SMK-12",
+    "name": "Chemical Warehouse Smoke Detector",
+    "type": "SMOKE",
+    "status": "CRITICAL",
+    "currentValue": 94.2,
+    "unit": "% obscuration",
+    "thresholdHigh": 20,
+    "thresholdCritical": 50,
+    "coordinates": { "lat": 45.4111, "lng": -75.6980 },
+    "lastReadingTime": "2026-03-29T15:14:00Z",
+    "historical24h": [
+      { "time": "11:00", "value": 1.2 },
+      { "time": "12:00", "value": 1.5 },
+      { "time": "13:00", "value": 2.1 },
+      { "time": "14:00", "value": 45.8 },
+      { "time": "15:14", "value": 94.2 }
+    ]
+  },
+  {
+    "id": "SNS-GAS-09",
+    "name": "Apartment Basement Gas Sensor",
+    "type": "GAS",
+    "status": "SAFE",
+    "currentValue": 12.0,
+    "unit": "ppm",
+    "thresholdHigh": 50,
+    "thresholdCritical": 150,
+    "coordinates": { "lat": 45.4300, "lng": -75.6880 },
+    "lastReadingTime": "2026-03-29T15:12:00Z",
+    "historical24h": [
+      { "time": "11:00", "value": 85.0 },
+      { "time": "12:00", "value": 72.0 },
+      { "time": "13:00", "value": 45.0 },
+      { "time": "14:00", "value": 22.0 },
+      { "time": "15:00", "value": 12.0 }
+    ]
+  },
+  {
+    "id": "SNS-WTR-01",
+    "name": "Rideau River Gauge RSV-4",
+    "type": "WATER_LEVEL",
+    "status": "CRITICAL",
+    "currentValue": 4.85,
+    "unit": "meters",
+    "thresholdHigh": 3.5,
+    "thresholdCritical": 4.5,
+    "coordinates": { "lat": 45.4215, "lng": -75.6812 },
+    "lastReadingTime": "2026-03-29T15:15:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 2.45 },
+      { "time": "10:00", "value": 3.12 },
+      { "time": "12:00", "value": 3.89 },
+      { "time": "14:00", "value": 4.65 },
+      { "time": "15:15", "value": 4.85 }
+    ]
+  },
+  {
+    "id": "SNS-SEIS-08",
+    "name": "Metro Sub-Level 2 Seismometer",
+    "type": "SEISMIC",
+    "status": "SAFE",
+    "currentValue": 0.08,
+    "unit": "g",
+    "thresholdHigh": 0.15,
+    "thresholdCritical": 0.35,
+    "coordinates": { "lat": 45.4243, "lng": -75.7001 },
+    "lastReadingTime": "2026-03-29T15:11:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 0.01 },
+      { "time": "10:00", "value": 0.02 },
+      { "time": "12:00", "value": 0.01 },
+      { "time": "14:00", "value": 0.18 },
+      { "time": "15:00", "value": 0.08 }
+    ]
+  },
+  {
+    "id": "SNS-TEMP-09",
+    "name": "Downtown Area 9 Air Quality & Temp",
+    "type": "TEMPERATURE",
+    "status": "SAFE",
+    "currentValue": 19.4,
+    "unit": "°C",
+    "thresholdHigh": 38,
+    "thresholdCritical": 45,
+    "coordinates": { "lat": 45.4200, "lng": -75.7100 },
+    "lastReadingTime": "2026-03-29T15:15:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 15.2 },
+      { "time": "10:00", "value": 17.1 },
+      { "time": "12:00", "value": 18.8 },
+      { "time": "14:00", "value": 19.3 },
+      { "time": "15:15", "value": 19.4 }
+    ]
+  },
+  {
+    "id": "SNS-WTR-02",
+    "name": "East Shore Spillway Gauge",
+    "type": "WATER_LEVEL",
+    "status": "WARNING",
+    "currentValue": 3.12,
+    "unit": "meters",
+    "thresholdHigh": 3.0,
+    "thresholdCritical": 4.0,
+    "coordinates": { "lat": 45.4310, "lng": -75.6450 },
+    "lastReadingTime": "2026-03-29T15:05:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 2.1 },
+      { "time": "10:00", "value": 2.3 },
+      { "time": "12:00", "value": 2.7 },
+      { "time": "14:00", "value": 3.05 },
+      { "time": "15:00", "value": 3.12 }
+    ]
+  },
+  {
+    "id": "SNS-SEIS-02",
+    "name": "West Ridge Fault Sensor Group",
+    "type": "SEISMIC",
+    "status": "SAFE",
+    "currentValue": 0.02,
+    "unit": "g",
+    "thresholdHigh": 0.2,
+    "thresholdCritical": 0.4,
+    "coordinates": { "lat": 45.3650, "lng": -75.7500 },
+    "lastReadingTime": "2026-03-29T15:00:00Z",
+    "historical24h": [
+      { "time": "08:00", "value": 0.02 },
+      { "time": "10:00", "value": 0.01 },
+      { "time": "12:00", "value": 0.02 },
+      { "time": "14:00", "value": 0.03 },
+      { "time": "15:00", "value": 0.02 }
+    ]
+  }
+]

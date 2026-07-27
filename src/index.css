@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer utilities {
+  .glass-panel-neutral {
+    background: rgba(255, 255, 255, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+  }
+
+  .glass-panel-rose {
+    background: rgba(254, 242, 242, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 113, 133, 0.3);
+    box-shadow: 0 8px 32px rgba(225, 29, 72, 0.05);
+  }
+
+  .glass-panel-amber {
+    background: rgba(255, 251, 235, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    box-shadow: 0 8px 32px rgba(217, 119, 6, 0.05);
+  }
+
+  .glass-panel-cyan {
+    background: rgba(236, 254, 255, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    box-shadow: 0 8px 32px rgba(8, 145, 178, 0.05);
+  }
+
+  .glass-panel-emerald {
+    background: rgba(236, 253, 245, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    box-shadow: 0 8px 32px rgba(5, 150, 105, 0.05);
+  }
+
+  .glass-panel-indigo {
+    background: rgba(238, 242, 255, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.05);
+  }
+
+  .glass-panel-slate {
+    background: rgba(241, 245, 249, 0.65);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 8px 32px rgba(71, 85, 105, 0.05);
+  }
+
+  /* Custom pulse animations */
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Scrollbar tweaks */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}

@@ -1,0 +1,19 @@
+{
+  "current": {
+    "temp": 12.5,
+    "condition": "Heavy Rain",
+    "humidity": 94,
+    "windSpeed": 28,
+    "windDirection": "ENE",
+    "precipitation": "8.4 mm/h",
+    "barometer": 1008,
+    "activeAlert": "Flash Flood Warning"
+  },
+  "forecast": [
+    { "time": "16:00", "temp": 12.0, "condition": "Heavy Rain", "pop": 95 },
+    { "time": "18:00", "temp": 11.5, "condition": "Moderate Rain", "pop": 80 },
+    { "time": "20:00", "temp": 10.8, "condition": "Light Drizzle", "pop": 60 },
+    { "time": "22:00", "temp": 9.5, "condition": "Cloudy", "pop": 25 },
+    { "time": "00:00", "temp": 8.2, "condition": "Clear", "pop": 5 }
+  ]
+}

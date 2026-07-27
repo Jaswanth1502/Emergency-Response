@@ -1,0 +1,162 @@
+[
+  {
+    "id": "INC-001",
+    "title": "Industrial Warehouse Fire - Sector 4",
+    "type": "Structure Fire",
+    "severity": "CRITICAL",
+    "status": "DISPATCHED",
+    "locationName": "404 Logistics Way, Industrial District",
+    "coordinates": { "lat": 45.4112, "lng": -75.6981 },
+    "reportedAt": "2026-03-29T14:15:00Z",
+    "description": "Thick black smoke emitting from chemical storage unit. Secondary explosions reported. Multi-alarm fire response initiated.",
+    "assignedCommander": "Chief Sarah Jenkins",
+    "affectedRadiusMeter": 500,
+    "reporterName": "Marcus Vance",
+    "reporterContact": "+1 (555) 234-5678",
+    "timeline": [
+      { "id": "T1", "timestamp": "2026-03-29T14:15:00Z", "event": "Incident reported via emergency line", "actor": "Marcus Vance", "type": "alert" },
+      { "id": "T2", "timestamp": "2026-03-29T14:18:00Z", "event": "First-alarm units dispatched (Engine 4, Ladder 2)", "actor": "Dispatch Ops", "type": "dispatch" },
+      { "id": "T3", "timestamp": "2026-03-29T14:22:00Z", "event": "Hazard level escalated to Critical due to solvent tanks", "actor": "Chief Sarah Jenkins", "type": "update" }
+    ],
+    "assignedResources": ["RES-005", "RES-006", "RES-009"]
+  },
+  {
+    "id": "INC-002",
+    "title": "River Heights Flash Flood Zone C",
+    "type": "Flood",
+    "severity": "HIGH",
+    "status": "ACTIVE",
+    "locationName": "River Road & Shoreline Drive",
+    "coordinates": { "lat": 45.4215, "lng": -75.6812 },
+    "reportedAt": "2026-03-29T13:40:00Z",
+    "description": "Rapid water levels rising following intense heavy downpour. Several basements flooded. Residential evacuations required in sub-sector 12.",
+    "assignedCommander": "Captain David Miller",
+    "affectedRadiusMeter": 800,
+    "reporterName": "Automated River Sensor RSV-4",
+    "reporterContact": "TELEMETRY-SYS",
+    "timeline": [
+      { "id": "T11", "timestamp": "2026-03-29T13:40:00Z", "event": "Water level threshold breach detected", "actor": "Sensor RSV-4", "type": "alert" },
+      { "id": "T12", "timestamp": "2026-03-29T13:55:00Z", "event": "Rescue Teams 1 and 4 dispatched with watercraft", "actor": "Dispatch Ops", "type": "dispatch" }
+    ],
+    "assignedResources": ["RES-011", "RES-012"]
+  },
+  {
+    "id": "INC-003",
+    "title": "HazMat Chemical Spill - North Highway Interstate",
+    "type": "HazMat Spill",
+    "severity": "HIGH",
+    "status": "DISPATCHED",
+    "locationName": "Interstate 85, Mile Marker 104",
+    "coordinates": { "lat": 45.4001, "lng": -75.7205 },
+    "reportedAt": "2026-03-29T12:05:00Z",
+    "description": "Tanker truck collision resulting in a corrosive liquid leak on the roadway. Northbound lanes entirely blocked.",
+    "assignedCommander": "Lieut. Rebecca Hall",
+    "affectedRadiusMeter": 300,
+    "reporterName": "Highway Patrol Trooper 411",
+    "reporterContact": "+1 (555) 987-6543",
+    "timeline": [
+      { "id": "T21", "timestamp": "2026-03-29T12:05:00Z", "event": "Accident reported with tanker rupture", "actor": "Highway Patrol", "type": "alert" },
+      { "id": "T22", "timestamp": "2026-03-29T12:15:00Z", "event": "HazMat Response Unit 1 dispatched", "actor": "Dispatch Ops", "type": "dispatch" }
+    ],
+    "assignedResources": ["RES-007", "RES-013"]
+  },
+  {
+    "id": "INC-004",
+    "title": "Subway Station Structural Collapse Risk",
+    "type": "Building Collapse",
+    "severity": "CRITICAL",
+    "status": "ACTIVE",
+    "locationName": "Central Metro Terminal, Sub-Level 2",
+    "coordinates": { "lat": 45.4244, "lng": -75.6999 },
+    "reportedAt": "2026-03-29T15:02:00Z",
+    "description": "Seismic sensor triggered deep vibration alert. Wall cracks expanded by 4cm. Transit authority suspending all trains.",
+    "assignedCommander": "Chief Sarah Jenkins",
+    "affectedRadiusMeter": 400,
+    "reporterName": "Structural Laser Scanner SLS-8",
+    "reporterContact": "METRO-MONITOR",
+    "timeline": [
+      { "id": "T31", "timestamp": "2026-03-29T15:02:00Z", "event": "Vibration and expansion warning received", "actor": "System Monitor", "type": "alert" },
+      { "id": "T32", "timestamp": "2026-03-29T15:05:00Z", "event": "Station evacuation ordered immediately", "actor": "Chief Sarah Jenkins", "type": "update" }
+    ],
+    "assignedResources": ["RES-002", "RES-014"]
+  },
+  {
+    "id": "INC-005",
+    "title": "Multi-Vehicle Collision - City Center Tunnel",
+    "type": "Multi-Vehicle Collision",
+    "severity": "MEDIUM",
+    "status": "CONTAINED",
+    "locationName": "Downtown Express Tunnel Westbound",
+    "coordinates": { "lat": 45.4190, "lng": -75.7110 },
+    "reportedAt": "2026-03-29T10:30:00Z",
+    "description": "5-car pile-up inside the tunnel. Moderate smoke emission. Traffic completely backed up for 4 kilometers.",
+    "assignedCommander": "Sergeant Alan Cruz",
+    "affectedRadiusMeter": 150,
+    "reporterName": "Tunnel CCTV Smart Alert",
+    "reporterContact": "TRAFFIC-CCTV-04",
+    "timeline": [
+      { "id": "T41", "timestamp": "2026-03-29T10:30:00Z", "event": "CCTV incident algorithm detects stoppage", "actor": "Traffic AI", "type": "alert" },
+      { "id": "T42", "timestamp": "2026-03-29T10:45:00Z", "event": "Police patrol and flatbeds on site, bypass initiated", "actor": "Sergeant Alan Cruz", "type": "containment" }
+    ],
+    "assignedResources": ["RES-008", "RES-003"]
+  },
+  {
+    "id": "INC-006",
+    "title": "Seismic Tremor Tremble - Sector 9 Residential",
+    "type": "Earthquake Aftershock",
+    "severity": "LOW",
+    "status": "RESOLVED",
+    "locationName": "Sector 9 South Residential Park",
+    "coordinates": { "lat": 45.3850, "lng": -75.6700 },
+    "reportedAt": "2026-03-29T08:12:00Z",
+    "description": "Magnitude 3.2 minor aftershock felt across south sector. No major infrastructure collapses reported; inspections in progress.",
+    "assignedCommander": "Lieut. Rebecca Hall",
+    "affectedRadiusMeter": 1200,
+    "reporterName": "National Seismic Network",
+    "reporterContact": "+1 (800) 555-0199",
+    "timeline": [
+      { "id": "T51", "timestamp": "2026-03-29T08:12:00Z", "event": "Tremor detected at 3.2 Richters", "actor": "USGS Alert", "type": "alert" },
+      { "id": "T52", "timestamp": "2026-03-29T09:30:00Z", "event": "All visual inspections completed, zero critical structural damage", "actor": "Lieut. Rebecca Hall", "type": "resolution" }
+    ],
+    "assignedResources": []
+  },
+  {
+    "id": "INC-007",
+    "title": "Apartment Complex Gas Leakage - Sector 3",
+    "type": "HazMat Spill",
+    "severity": "HIGH",
+    "status": "CONTAINED",
+    "locationName": "75 Oakwood Gardens, Sector 3",
+    "coordinates": { "lat": 45.4302, "lng": -75.6881 },
+    "reportedAt": "2026-03-29T11:00:00Z",
+    "description": "Strong gas odor reported from basement of a 12-story high rise. Fire marshals on site venting the building.",
+    "assignedCommander": "Captain David Miller",
+    "affectedRadiusMeter": 200,
+    "reporterName": "Evelyn Ross",
+    "reporterContact": "+1 (555) 345-6789",
+    "timeline": [
+      { "id": "T61", "timestamp": "2026-03-29T11:00:00Z", "event": "911 caller reports heavy gas smell", "actor": "Evelyn Ross", "type": "alert" },
+      { "id": "T62", "timestamp": "2026-03-29T11:15:00Z", "event": "Main gas valve isolated, ventilating shaft", "actor": "Captain David Miller", "type": "containment" }
+    ],
+    "assignedResources": ["RES-005"]
+  },
+  {
+    "id": "INC-008",
+    "title": "Power Substation Arcing / Grid Fault",
+    "type": "Structure Fire",
+    "severity": "MEDIUM",
+    "status": "ACTIVE",
+    "locationName": "Hydro Grid Substation 11-A, East Ward",
+    "coordinates": { "lat": 45.4120, "lng": -75.6550 },
+    "reportedAt": "2026-03-29T14:45:00Z",
+    "description": "Arc flashing and smoke spotted from the high-voltage transformer. Grid operators isolation scheduled.",
+    "assignedCommander": "Sergeant Alan Cruz",
+    "affectedRadiusMeter": 100,
+    "reporterName": "Grid Safety SCADA",
+    "reporterContact": "EAST-GRID-SYS",
+    "timeline": [
+      { "id": "T71", "timestamp": "2026-03-29T14:45:00Z", "event": "SCADA transformer lockout fault", "actor": "SCADA Auto", "type": "alert" }
+    ],
+    "assignedResources": ["RES-006"]
+  }
+]

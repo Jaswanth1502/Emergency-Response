@@ -1,0 +1,49 @@
+[
+  {
+    "id": "REP-2026-001",
+    "title": "Q1 Smart City Crisis Response Audit",
+    "type": "Performance Report",
+    "dateRange": "Jan 01, 2026 - Mar 25, 2026",
+    "generatedBy": "Director Charles Kim",
+    "summary": "This report audits agency response times across 142 total logged incidents in Q1. Average arrival time was reduced from 8.2m in 2025 to 6.8m under Digital Twin routing.",
+    "downloadUrl": "#",
+    "status": "APPROVED",
+    "densityDistribution": [
+      { "sector": "Sector 1", "incidents": 12, "avgResponseMins": 5.4, "critical": 2 },
+      { "sector": "Sector 2", "incidents": 24, "avgResponseMins": 6.1, "critical": 4 },
+      { "sector": "Sector 3", "incidents": 45, "avgResponseMins": 8.5, "critical": 12 },
+      { "sector": "Sector 4", "incidents": 38, "avgResponseMins": 7.2, "critical": 9 },
+      { "sector": "Sector 5", "incidents": 18, "avgResponseMins": 5.9, "critical": 3 }
+    ]
+  },
+  {
+    "id": "REP-2026-002",
+    "title": "Industrial Zone Fire Code Violation & Hazard Assessment",
+    "type": "Special Safety Assessment",
+    "dateRange": "Mar 20, 2026",
+    "generatedBy": "Chief Sarah Jenkins",
+    "summary": "Comprehensive telemetry sensor analysis on chemical inventory levels in Sector 4. Highlighting predictive risks of secondary chemical vapor ignitions.",
+    "downloadUrl": "#",
+    "status": "DRAFT",
+    "densityDistribution": [
+      { "sector": "Sector 4-A", "incidents": 8, "avgResponseMins": 4.1, "critical": 3 },
+      { "sector": "Sector 4-B", "incidents": 14, "avgResponseMins": 4.9, "critical": 5 },
+      { "sector": "Sector 4-C", "incidents": 16, "avgResponseMins": 5.5, "critical": 6 }
+    ]
+  },
+  {
+    "id": "REP-2026-003",
+    "title": "Rideau River Drainage & Flooding Runoff Analysis",
+    "type": "Hydrology Study",
+    "dateRange": "Mar 01, 2026 - Mar 29, 2026",
+    "generatedBy": "Hydrologist Brenda Vance",
+    "summary": "Correlating telemetry stream rises with upstream dam gates. Digital Twin models indicate an 84% accuracy in predicting high-water zones 4 hours early.",
+    "downloadUrl": "#",
+    "status": "APPROVED",
+    "densityDistribution": [
+      { "sector": "Zone A", "incidents": 4, "avgResponseMins": 6.8, "critical": 1 },
+      { "sector": "Zone B", "incidents": 9, "avgResponseMins": 7.1, "critical": 3 },
+      { "sector": "Zone C", "incidents": 15, "avgResponseMins": 9.4, "critical": 8 }
+    ]
+  }
+]
