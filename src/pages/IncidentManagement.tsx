@@ -1,239 +1,293 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Flame,
+  Droplets,
+  AlertTriangle,
+  Car,
+  Building,
+  Users,
+  Search,
+  ChevronDown,
+  Table as TableIcon,
+  LayoutGrid,
+  Map as MapIcon,
+  ArrowRight,
+  Filter,
+  Plus
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { GlassCard } from '../components/common/GlassCard';
-import { StatusBadge } from '../components/common/StatusBadge';
 import { IncidentFormDialog } from '../components/dialogs/IncidentFormDialog';
-import { Search, AlertOctagon, SlidersHorizontal, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 
 export const IncidentManagement: React.FC = () => {
   const navigate = useNavigate();
   const { incidents } = useApp();
-
-  const [search, setSearch] = useState('');
-  const [severityFilter, setSeverityFilter] = useState('ALL');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [sortField, setSortField] = useState<'id' | 'reportedAt' | 'severity'>('reportedAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [page, setPage] = useState(1);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('ALL');
+  const [selectedSeverity, setSelectedSeverity] = useState('ALL');
+  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'map'>('table');
   const [formOpen, setFormOpen] = useState(false);
 
-  const itemsPerPage = 6;
-
-  // Sorting priorities for severity
-  const severityValue = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
-
-  // Filter incidents
-  const filtered = incidents.filter(inc => {
-    const matchesSearch = inc.title.toLowerCase().includes(search.toLowerCase()) ||
-                          inc.locationName.toLowerCase().includes(search.toLowerCase()) ||
-                          inc.id.toLowerCase().includes(search.toLowerCase());
-    const matchesSeverity = severityFilter === 'ALL' || inc.severity === severityFilter;
-    const matchesStatus = statusFilter === 'ALL' || inc.status === statusFilter;
-
-    return matchesSearch && matchesSeverity && matchesStatus;
-  });
-
-  // Sort incidents
-  const sorted = [...filtered].sort((a, b) => {
-    let comp = 0;
-    if (sortField === 'id') {
-      comp = a.id.localeCompare(b.id);
-    } else if (sortField === 'reportedAt') {
-      comp = new Date(a.reportedAt).getTime() - new Date(b.reportedAt).getTime();
-    } else if (sortField === 'severity') {
-      comp = severityValue[a.severity] - severityValue[b.severity];
+  const getDisasterIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'fire':
+      case 'structure fire':
+        return <Flame className="w-4 h-4 text-orange-500" />;
+      case 'flood':
+        return <Droplets className="w-4 h-4 text-blue-500" />;
+      case 'gas leak':
+      case 'hazmat spill':
+        return <AlertTriangle className="w-4 h-4 text-purple-600" />;
+      case 'road accident':
+      case 'multi-vehicle collision':
+        return <Car className="w-4 h-4 text-sky-500" />;
+      case 'building collapse':
+        return <Building className="w-4 h-4 text-rose-500" />;
+      case 'crowd emergency':
+        return <Users className="w-4 h-4 text-emerald-500" />;
+      default:
+        return <AlertTriangle className="w-4 h-4 text-slate-500" />;
     }
-
-    return sortOrder === 'asc' ? comp : -comp;
-  });
-
-  // Paginate
-  const totalPages = Math.ceil(sorted.length / itemsPerPage);
-  const paginated = sorted.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
-  const toggleSort = (field: 'id' | 'reportedAt' | 'severity') => {
-    if (sortField === field) {
-      setSortOrder(o => o === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('desc');
-    }
-    setPage(1);
   };
 
+  const getSeverityBadge = (sev: string) => {
+    switch (sev.toUpperCase()) {
+      case 'CRITICAL':
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 text-[11px] font-extrabold">● Critical</span>;
+      case 'HIGH':
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 text-[11px] font-extrabold">▲ High</span>;
+      case 'MEDIUM':
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200 text-[11px] font-extrabold">● Medium</span>;
+      default:
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200 text-[11px] font-extrabold">● Low</span>;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'DISPATCHED':
+      case 'RESPONDING':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-extrabold">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            Responding
+          </span>
+        );
+      case 'ACTIVE':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-extrabold">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            Active
+          </span>
+        );
+      case 'CONTAINED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-extrabold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Contained
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-yellow-50 text-yellow-800 border border-yellow-200 text-[11px] font-extrabold">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-600" />
+            Under Investigation
+          </span>
+        );
+    }
+  };
+
+  const filtered = incidents.filter(i => {
+    const matchSearch = searchTerm === '' ||
+      i.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (i.sector && i.sector.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      i.locationName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchType = selectedType === 'ALL' || i.type.toLowerCase() === selectedType.toLowerCase();
+    const matchSev = selectedSeverity === 'ALL' || i.severity.toUpperCase() === selectedSeverity.toUpperCase();
+    return matchSearch && matchType && matchSev;
+  });
+
   return (
-    <div className="space-y-6">
-      {/* Title */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-300/25 pb-4">
-        <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Tactical Incident Management</h2>
-          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Dashboard / Active Situational Awareness</p>
+    <div className="space-y-4 text-left font-sans">
+      
+      {/* Filter Bar (Apple Liquid Glassmorphism) */}
+      <div className="liquid-glass-card p-3 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        
+        {/* Search Bar */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search incident ID, sector, keywords..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-white/70 border border-white/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 transition-all shadow-2xs"
+          />
         </div>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="mt-3 sm:mt-0 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center space-x-1.5 cursor-pointer"
-        >
-          <AlertOctagon className="w-4.5 h-4.5" />
-          <span>Establish Incident</span>
-        </button>
+
+        {/* Dropdown Filters & View Switchers */}
+        <div className="flex items-center space-x-2.5 overflow-x-auto flex-shrink-0">
+          
+          {/* Disaster Type Filter */}
+          <select
+            value={selectedType}
+            onChange={e => setSelectedType(e.target.value)}
+            className="px-3 py-2 bg-white/80 border border-white/90 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
+          >
+            <option value="ALL">All Disaster Types</option>
+            <option value="Fire">Fire</option>
+            <option value="Flood">Flood</option>
+            <option value="Gas Leak">Gas Leak</option>
+            <option value="Road Accident">Road Accident</option>
+            <option value="Building Collapse">Building Collapse</option>
+            <option value="Crowd Emergency">Crowd Emergency</option>
+          </select>
+
+          {/* Severity Filter */}
+          <select
+            value={selectedSeverity}
+            onChange={e => setSelectedSeverity(e.target.value)}
+            className="px-3 py-2 bg-white/80 border border-white/90 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
+          >
+            <option value="ALL">All Severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+
+          {/* View Toggle */}
+          <div className="flex items-center bg-white/60 p-0.5 rounded-xl border border-white/80 shadow-2xs backdrop-blur-md">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${viewMode === 'table' ? 'liquid-glass-pill text-slate-900 shadow-xs font-extrabold' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              <TableIcon className="w-3.5 h-3.5" />
+              <span>Table</span>
+            </button>
+            <button
+              onClick={() => setViewMode('cards')}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${viewMode === 'cards' ? 'liquid-glass-pill text-slate-900 shadow-xs font-extrabold' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Cards</span>
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${viewMode === 'map' ? 'liquid-glass-pill text-slate-900 shadow-xs font-extrabold' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+              <span>Map View</span>
+            </button>
+          </div>
+
+          <button
+            onClick={() => setFormOpen(true)}
+            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center space-x-1 cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Incident</span>
+          </button>
+
+        </div>
+
       </div>
 
-      {/* Filter Toolbar */}
-      <GlassCard tint="slate">
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          
-          {/* Search bar */}
-          <div className="relative w-full lg:max-w-md">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by Incident ID, title, or location..."
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-9 pr-4 py-2 bg-white/70 border border-slate-300/50 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20"
-            />
-          </div>
-
-          {/* Filters dropdowns */}
-          <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-            <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 uppercase">
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filter:</span>
-            </div>
-            
-            {/* Severity Filter */}
-            <select
-              value={severityFilter}
-              onChange={e => { setSeverityFilter(e.target.value); setPage(1); }}
-              className="px-3 py-1.5 bg-white/70 border border-slate-300/50 rounded-xl text-xs font-bold text-slate-700 focus:outline-none"
-            >
-              <option value="ALL">All Severities</option>
-              <option value="CRITICAL">Critical</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
-            </select>
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-1.5 bg-white/70 border border-slate-300/50 rounded-xl text-xs font-bold text-slate-700 focus:outline-none"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="DISPATCHED">Dispatched</option>
-              <option value="CONTAINED">Contained</option>
-              <option value="RESOLVED">Resolved</option>
-            </select>
-
-            {/* Sort Orders */}
-            <button
-              onClick={() => toggleSort('severity')}
-              className={`px-3 py-1.5 border border-slate-300/50 rounded-xl text-xs font-bold ${sortField === 'severity' ? 'bg-slate-900 text-white' : 'bg-white/70 text-slate-700'}`}
-            >
-              Sort Severity {sortField === 'severity' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </button>
-
-            <button
-              onClick={() => toggleSort('reportedAt')}
-              className={`px-3 py-1.5 border border-slate-300/50 rounded-xl text-xs font-bold ${sortField === 'reportedAt' ? 'bg-slate-900 text-white' : 'bg-white/70 text-slate-700'}`}
-            >
-              Sort Date {sortField === 'reportedAt' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </button>
-          </div>
-
-        </div>
-      </GlassCard>
-
-      {/* Main Datatable */}
-      <GlassCard tint="slate">
+      {/* Main Table View (Apple Liquid Glassmorphism) */}
+      <div className="liquid-glass-card rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-300/30 text-slate-500 text-[10px] uppercase font-extrabold tracking-wider">
-                <th className="py-3 px-4">ID</th>
-                <th className="py-3 px-4">Incident Title</th>
-                <th className="py-3 px-4">Hazard Category</th>
-                <th className="py-3 px-4">Severity</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Reported Time</th>
-                <th className="py-3 px-4">Commander</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-white/60 bg-white/40 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3 px-4">INCIDENT ID</th>
+                <th className="py-3 px-4">DISASTER TYPE</th>
+                <th className="py-3 px-4">TITLE & SECTOR</th>
+                <th className="py-3 px-4">SEVERITY</th>
+                <th className="py-3 px-4">RISK SCORE</th>
+                <th className="py-3 px-4">STATUS</th>
+                <th className="py-3 px-4">RESPONDERS</th>
+                <th className="py-3 px-4 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="text-xs divide-y divide-slate-300/10">
-              {paginated.map((inc) => (
-                <tr key={inc.id} className="hover:bg-slate-500/5 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-rose-600">{inc.id}</td>
-                  <td className="py-3.5 px-4">
-                    <div>
-                      <span className="font-semibold text-slate-800 block leading-tight">{inc.title}</span>
-                      <span className="text-[10px] text-slate-400 font-medium block mt-0.5">{inc.locationName}</span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 text-slate-500 font-semibold">{inc.type}</td>
-                  <td className="py-3.5 px-4">
-                    <StatusBadge severity={inc.severity} />
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <StatusBadge status={inc.status} />
-                  </td>
-                  <td className="py-3.5 px-4 font-mono text-[10px] text-slate-500">
-                    {new Date(inc.reportedAt).toLocaleDateString()} {new Date(inc.reportedAt).toLocaleTimeString()}
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-600">{inc.assignedCommander}</td>
-                  <td className="py-3.5 px-4 text-right">
-                    <button
-                      onClick={() => navigate(`/incidents/${inc.id}`)}
-                      className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] uppercase font-bold tracking-wider inline-flex items-center gap-1 cursor-pointer transition-all hover:bg-slate-800 shadow-sm"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Details</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              
-              {paginated.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 font-medium">
-                    No matching incidents found inside EOC registry. Try adjusting filter query.
-                  </td>
-                </tr>
-              )}
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {filtered.map((inc) => {
+                const score = inc.riskScore || (inc.severity === 'CRITICAL' ? 94 : inc.severity === 'HIGH' ? 82 : 64);
+                const scoreColor = score >= 90 ? 'bg-rose-500' : score >= 75 ? 'bg-orange-500' : 'bg-amber-500';
+                const respondersText = `${inc.assignedResources?.length || 3} units deployed`;
+
+                return (
+                  <tr key={inc.id} className="hover:bg-slate-50/80 transition-colors">
+                    
+                    {/* Incident ID */}
+                    <td className="py-3.5 px-4 font-mono font-extrabold text-slate-900">
+                      {inc.id}
+                    </td>
+
+                    {/* Disaster Type */}
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center space-x-2 font-bold text-slate-900">
+                        {getDisasterIcon(inc.type)}
+                        <span>{inc.type}</span>
+                      </div>
+                    </td>
+
+                    {/* Title & Sector */}
+                    <td className="py-3.5 px-4 max-w-sm">
+                      <p className="font-bold text-slate-900 truncate">{inc.title}</p>
+                      <p className="text-[11px] text-slate-400 truncate flex items-center space-x-1 mt-0.5">
+                        <span>📍</span>
+                        <span>{inc.sector || inc.locationName}</span>
+                      </p>
+                    </td>
+
+                    {/* Severity */}
+                    <td className="py-3.5 px-4">
+                      {getSeverityBadge(inc.severity)}
+                    </td>
+
+                    {/* Risk Score */}
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div className={`h-full ${scoreColor}`} style={{ width: `${score}%` }} />
+                        </div>
+                        <span className="font-extrabold text-slate-900">{score}</span>
+                      </div>
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-3.5 px-4">
+                      {getStatusBadge(inc.status)}
+                    </td>
+
+                    {/* Responders */}
+                    <td className="py-3.5 px-4 text-slate-500">
+                      {respondersText}
+                    </td>
+
+                    {/* Action button */}
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        onClick={() => navigate(`/incidents/${inc.id}`)}
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 font-extrabold text-[11px] rounded-lg transition-all shadow-2xs inline-flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>Workspace</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </td>
+
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-
-        {/* Pagination bar */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-300/20 pt-4 mt-3">
-            <span className="text-[10px] text-slate-500 uppercase font-bold">
-              Showing page {page} of {totalPages} ({filtered.length} total entries)
-            </span>
-            <div className="flex space-x-1">
-              <button
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
-                className="p-1.5 rounded-lg border border-slate-300/30 text-slate-600 disabled:opacity-40 hover:bg-slate-200/50 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-                className="p-1.5 rounded-lg border border-slate-300/30 text-slate-600 disabled:opacity-40 hover:bg-slate-200/50 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </GlassCard>
+      </div>
 
       <IncidentFormDialog isOpen={formOpen} onClose={() => setFormOpen(false)} />
+
     </div>
   );
 };

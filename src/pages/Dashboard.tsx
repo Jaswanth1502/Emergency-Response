@@ -1,359 +1,361 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { GlassCard } from '../components/common/GlassCard';
-import { StatusBadge } from '../components/common/StatusBadge';
-import { QuickActionButton } from '../components/common/QuickActionButton';
-import { MapPlaceholder } from '../components/map/MapPlaceholder';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Cell, PieChart, Pie } from 'recharts';
-import {
-  AlertTriangle,
-  Activity,
-  PlusCircle,
-  Truck,
-  Navigation,
-  Radio,
-  ExternalLink
-} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { IncidentFormDialog } from '../components/dialogs/IncidentFormDialog';
-import { DeployResourceDialog } from '../components/dialogs/DeployResourceDialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Flame,
+  AlertTriangle,
+  Users,
+  Truck,
+  Building2,
+  Bell,
+  Sparkles,
+  Check,
+  X,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Droplets,
+  Activity
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { TacticalGisMap } from '../components/map/TacticalGisMap';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { incidents, resources, notifications, triggerPredictiveSimulation } = useApp();
+  const { incidents, resources, deployResource, addNotification } = useApp();
   
-  const [incidentFormOpen, setIncidentFormOpen] = useState(false);
-  const [deployOpen, setDeployOpen] = useState(false);
-  const [isSimLoading, setIsSimLoading] = useState(false);
+  const [mapViewMode, setMapViewMode] = useState<'2D' | '3D'>('2D');
+  const [agentApproved, setAgentApproved] = useState(false);
+  const [agentDeclined, setAgentDeclined] = useState(false);
 
-  // Severe counting
-  const criticalCount = incidents.filter(i => i.severity === 'CRITICAL' && i.status !== 'RESOLVED').length;
-  const highCount = incidents.filter(i => i.severity === 'HIGH' && i.status !== 'RESOLVED').length;
-  const activeCount = incidents.filter(i => i.status !== 'RESOLVED').length;
+  // Severe counts & calculations
+  const activeIncidentsList = incidents.filter(i => i.status !== 'RESOLVED');
+  const criticalCount = incidents.filter(i => i.severity === 'CRITICAL' && i.status !== 'RESOLVED').length || 2;
+  const deployedFleetCount = 14 + (agentApproved ? 1 : 0);
 
-  // Process data for charts
-  // 1. Incidents by type
-  const typesData = [
-    { name: 'Fire', count: incidents.filter(i => i.type === 'Structure Fire').length },
-    { name: 'Flood', count: incidents.filter(i => i.type === 'Flood').length },
-    { name: 'HazMat', count: incidents.filter(i => i.type === 'HazMat Spill').length },
-    { name: 'Collapse', count: incidents.filter(i => i.type === 'Building Collapse').length },
-    { name: 'Collision', count: incidents.filter(i => i.type === 'Multi-Vehicle Collision').length }
-  ];
+  const handleApproveAgent = () => {
+    setAgentApproved(true);
+    // Execute live tactical dispatch
+    deployResource('RES-005', 'INC-2026-0891');
+    addNotification("AI DISPATCH AUTHORIZED: Foam Carrier 03 & Burn ICU H03 dispatched to Mission Financial Plaza.", "info");
+  };
 
-  // 2. Resource distribution by type
-  const hospitalTotal = resources.filter(r => r.type === 'HOSPITAL').length;
-  const fireTotal = resources.filter(r => r.type === 'FIRE_STATION').length;
-  const policeTotal = resources.filter(r => r.type === 'POLICE_UNIT').length;
-  const rescueTotal = resources.filter(r => r.type === 'RESCUE_TEAM').length;
-
-  const resourcePieData = [
-    { name: 'Hospitals', value: hospitalTotal, color: '#06b6d4' },
-    { name: 'Fire Bases', value: fireTotal, color: '#ef4444' },
-    { name: 'Police Units', value: policeTotal, color: '#f59e0b' },
-    { name: 'Rescue Teams', value: rescueTotal, color: '#10b981' }
-  ];
-
-  // 3. Simulated Incidents Over Time
-  const timelineData = [
-    { time: '08:00', Active: 3, Resolved: 1 },
-    { time: '10:00', Active: 4, Resolved: 2 },
-    { time: '12:00', Active: 5, Resolved: 4 },
-    { time: '14:00', Active: 6, Resolved: 5 },
-    { time: '16:00', Active: activeCount, Resolved: incidents.filter(i => i.status === 'RESOLVED').length }
-  ];
-
-  // Map markers from active incidents
-  const mapMarkers = incidents
-    .filter(i => i.status !== 'RESOLVED')
-    .map(i => ({
-      id: i.id,
-      lat: i.coordinates.lat,
-      lng: i.coordinates.lng,
-      label: i.title,
-      severity: i.severity,
-      type: i.type
-    }));
-
-  const mapZones = incidents
-    .filter(i => i.status === 'ACTIVE' || i.status === 'DISPATCHED')
-    .map(i => ({
-      id: `Z-${i.id}`,
-      center: i.coordinates,
-      radiusMeter: i.affectedRadiusMeter,
-      tint: (i.severity === 'CRITICAL' ? 'rose' : i.severity === 'HIGH' ? 'amber' : 'cyan') as any,
-      label: `${i.id} Buffer`
-    }));
-
-  const handlePredictiveTrigger = async () => {
-    setIsSimLoading(true);
-    await triggerPredictiveSimulation();
-    setIsSimLoading(false);
+  const handleDeclineAgent = () => {
+    setAgentDeclined(true);
+    addNotification("AI RECOMMENDATION DISMISSED by Commander Justin Vance.", "warning");
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 text-left">
       
-      {/* Page Title & Breadcrumbs */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-300/25 pb-4">
-        <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Emergency Command Control Center</h2>
-          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Dashboard / Real-time Platform Overview</p>
-        </div>
-        <div className="mt-3 md:mt-0 flex space-x-2">
-          <button
-            onClick={handlePredictiveTrigger}
-            disabled={isSimLoading}
-            className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
-          >
-            <Activity className="w-4 h-4 animate-spin-slow" />
-            <span>{isSimLoading ? 'Simulating Runoff...' : 'Forecast Threat Model'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics Row (Counts by Severity & status) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <GlassCard tint="rose" subtitle="Critical Incidents" title="Life Threat Alert">
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-3xl font-black text-rose-600 tabular-nums">{criticalCount}</span>
-            <span className="text-[10px] uppercase font-bold text-rose-700 bg-rose-500/10 px-2 py-0.5 rounded-full">Immediate Action</span>
-          </div>
-        </GlassCard>
-
-        <GlassCard tint="amber" subtitle="High Threat Incidents" title="Severe Level Alert">
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-3xl font-black text-amber-600 tabular-nums">{highCount}</span>
-            <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-full">Assigned Commander</span>
-          </div>
-        </GlassCard>
-
-        <GlassCard tint="cyan" subtitle="Active EOC Incidents" title="Operations Level">
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-3xl font-black text-cyan-600 tabular-nums">{activeCount}</span>
-            <span className="text-[10px] uppercase font-bold text-cyan-700 bg-cyan-500/10 px-2 py-0.5 rounded-full">Tactical Teams Assigned</span>
-          </div>
-        </GlassCard>
-
-        <GlassCard tint="emerald" subtitle="Standby Resources" title="Department Fleet">
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-3xl font-black text-emerald-600 tabular-nums">
-              {resources.filter(r => r.status === 'AVAILABLE').length}
-            </span>
-            <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full">Ready for Dispatch</span>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* Map, Live Alerts & Quick Actions Grid */}
-      <div className="grid lg:grid-cols-12 gap-6">
+      {/* 6 Top Metric Cards (Apple Liquid Glassmorphism) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
         
-        {/* Map Placeholder (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col space-y-4">
-          <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-300/30">
-            <MapPlaceholder
-              markers={mapMarkers}
-              zones={mapZones}
-              heightClass="h-[430px]"
-              title="Real-Time EOC Digital Twin GIS Viewer"
+        {/* Metric 1: Active Incidents */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">ACTIVE INCIDENTS</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">4</span>
+                <span className="text-xs text-slate-400 font-semibold">of 6 total</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-orange-50/90 border border-orange-200/60 text-orange-500 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <Flame className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-rose-600">
+            <TrendingUp className="w-3 h-3" />
+            <span>+2 new <span className="text-slate-400 font-normal">vs last hour</span></span>
+          </div>
+        </div>
+
+        {/* Metric 2: Critical Severity */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">CRITICAL SEVERITY</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">{criticalCount}</span>
+                <span className="text-xs text-slate-400 font-semibold">Immediate Action</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-rose-50/90 border border-rose-200/60 text-rose-500 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-emerald-600">
+            <TrendingDown className="w-3 h-3" />
+            <span>Stable <span className="text-slate-400 font-normal">vs last hour</span></span>
+          </div>
+        </div>
+
+        {/* Metric 3: Civilians At Risk */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">CIVILIANS AT RISK</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">28,340</span>
+                <span className="text-[9px] text-slate-400 font-semibold block">Monitored Sectors</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-blue-50/90 border border-blue-200/60 text-blue-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-emerald-600">
+            <TrendingUp className="w-3 h-3" />
+            <span>12.8k safe <span className="text-slate-400 font-normal">vs last hour</span></span>
+          </div>
+        </div>
+
+        {/* Metric 4: Fleet Deployed */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">FLEET DEPLOYED</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">{deployedFleetCount}</span>
+                <span className="text-xs text-slate-400 font-semibold">of 17 units</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-purple-50/90 border border-purple-200/60 text-purple-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <Truck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-emerald-600">
+            <TrendingUp className="w-3 h-3" />
+            <span>74% <span className="text-slate-400 font-normal">rate vs last hour</span></span>
+          </div>
+        </div>
+
+        {/* Metric 5: Hospitals Online */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">HOSPITALS ONLINE</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">4/4</span>
+                <span className="text-[9px] text-slate-400 font-semibold">Surge Ready</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50/90 border border-emerald-200/60 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <Building2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-emerald-600">
+            <TrendingUp className="w-3 h-3" />
+            <span>222 beds <span className="text-slate-400 font-normal">free vs last hour</span></span>
+          </div>
+        </div>
+
+        {/* Metric 6: Active Alerts */}
+        <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">ACTIVE ALERTS</p>
+              <div className="flex items-baseline space-x-1 mt-1">
+                <span className="text-2xl font-black text-slate-900 leading-none">1</span>
+                <span className="text-[9px] text-slate-400 font-semibold">QoS-2 Broadcast</span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-amber-50/90 border border-amber-200/60 text-amber-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <Bell className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center space-x-1 text-[10px] font-bold text-rose-600">
+            <TrendingUp className="w-3 h-3" />
+            <span>2 priority <span className="text-slate-400 font-normal">vs last hour</span></span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Predictive Resource Allocation Agent Banner (Apple Liquid Glassmorphism) */}
+      {!agentDeclined && (
+        <div className="liquid-glass-blue rounded-2xl p-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="flex items-start space-x-3.5">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-600/20">
+              <Sparkles className="w-5 h-5 animate-pulse" />
+            </div>
+            <div className="space-y-0.5 text-left">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-extrabold text-blue-700 uppercase tracking-wider">
+                  PREDICTIVE RESOURCE ALLOCATION AGENT
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-white/90 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
+                  94% Confidence
+                </span>
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">
+                Dispatch Foam Carrier 03 & Pre-alert Burn ICU H03
+              </h3>
+              <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">
+                Based on 485°C thermal surge and hydrocarbon solvent risk in B2, recommend deploying Foam Unit F-04 (ETA 2m) and redirecting ALS Ambulance A-05 from SOMA depot.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 self-end lg:self-center flex-shrink-0">
+            {!agentApproved ? (
+              <>
+                <button
+                  onClick={handleDeclineAgent}
+                  className="px-4 py-2 liquid-glass-pill hover:bg-white text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer shadow-2xs"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Decline</span>
+                </button>
+                <button
+                  onClick={handleApproveAgent}
+                  className="px-5 py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-xs rounded-xl shadow-md shadow-orange-500/20 transition-all flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Approve Dispatch</span>
+                </button>
+              </>
+            ) : (
+              <div className="px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow-2xs">
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span>Dispatch Authorized (Units Dispatched)</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Main 2-Column Command Center Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        
+        {/* Left: GIS Map */}
+        <div className="xl:col-span-8 space-y-4">
+          <div className="rounded-2xl overflow-hidden shadow-xs">
+            <TacticalGisMap
+              viewMode={mapViewMode}
+              onViewModeChange={setMapViewMode}
+              heightClass="h-[560px]"
             />
           </div>
-
-          {/* Quick Actions Panel */}
-          <GlassCard title="Operations Tactical Actions" subtitle="Trigger command directives" tint="slate">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-1">
-              <QuickActionButton
-                icon={<PlusCircle className="w-4 h-4 text-rose-600" />}
-                label="Create Incident"
-                tint="rose"
-                onClick={() => setIncidentFormOpen(true)}
-              />
-              <QuickActionButton
-                icon={<Truck className="w-4 h-4 text-amber-600" />}
-                label="Dispatch Unit"
-                tint="amber"
-                onClick={() => setDeployOpen(true)}
-              />
-              <QuickActionButton
-                icon={<Radio className="w-4 h-4 text-cyan-600" />}
-                label="Poll IoT Sensors"
-                tint="cyan"
-                onClick={() => navigate('/sensors')}
-              />
-              <QuickActionButton
-                icon={<Navigation className="w-4 h-4 text-emerald-600" />}
-                label="Evacuation Routes"
-                tint="emerald"
-                onClick={() => navigate('/evacuation')}
-              />
-            </div>
-          </GlassCard>
         </div>
 
-        {/* Live Alerts & Agencies Sidebar (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col space-y-6">
-          {/* Live Alerts Feed */}
-          <GlassCard title="Live Systems Alerts" subtitle="Auto-animated stream" tint="rose" className="flex-1">
-            <div className="space-y-3 max-h-[310px] overflow-y-auto pr-1">
-              {notifications.slice(0, 4).map((notif) => (
-                <div
-                  key={notif.id}
-                  className={`p-3 rounded-xl border flex items-start space-x-2.5 transition-all ${
-                    notif.severity === 'error'
-                      ? 'border-rose-300/40 bg-rose-500/10'
-                      : 'border-amber-300/40 bg-amber-500/10'
-                  }`}
-                >
-                  <AlertTriangle className={`w-4.5 h-4.5 flex-shrink-0 ${notif.severity === 'error' ? 'text-rose-600' : 'text-amber-600'}`} />
-                  <div className="text-left leading-normal">
-                    <p className="text-[11px] text-slate-800 font-semibold">{notif.message}</p>
-                    <span className="text-[9px] text-slate-500 block mt-1 font-mono">{new Date(notif.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                </div>
-              ))}
+        {/* Right: Active Incidents Sidebar */}
+        <div className="xl:col-span-4 liquid-glass-card rounded-2xl p-4 flex flex-col justify-between h-[520px]">
+          
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">Active Incidents</h3>
+              <p className="text-[10px] text-slate-400 font-semibold">Prioritized by real-time risk score</p>
             </div>
-          </GlassCard>
+            <button
+              onClick={() => navigate('/incidents')}
+              className="text-xs font-extrabold text-blue-600 hover:text-blue-700 flex items-center space-x-1 cursor-pointer"
+            >
+              <span>View All (6)</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
-          {/* Infrastructure Health Status */}
-          <GlassCard title="Static Agencies Status" subtitle="Capacity & Unit availability" tint="slate">
-            <div className="space-y-3">
-              {resources.filter(r => r.type === 'HOSPITAL').slice(0, 2).map((res) => (
-                <div key={res.id} className="flex items-center justify-between text-xs pb-2 border-b border-slate-300/20 last:border-0 last:pb-0">
-                  <div className="text-left">
-                    <span className="font-bold block text-slate-800">{res.name}</span>
-                    <span className="text-[10px] text-slate-500">{res.capacityLabel}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-block px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-700 font-extrabold text-[9px] uppercase">
-                      HOSPITAL
-                    </span>
-                  </div>
+          {/* Incident Cards List */}
+          <div className="space-y-2.5 overflow-y-auto flex-1 pr-1">
+            
+            {/* Incident 1: Fire */}
+            <div
+              onClick={() => navigate('/incidents/INC-2026-0891')}
+              className="p-3 rounded-xl border border-blue-500/80 bg-blue-50/20 hover:bg-blue-50/40 transition-all cursor-pointer space-y-1.5 shadow-2xs group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                  <span className="font-extrabold text-slate-900 text-xs">Fire</span>
+                  <span className="text-[10px] font-mono text-slate-400">INC-2026-0891</span>
                 </div>
-              ))}
-
-              {resources.filter(r => r.type === 'FIRE_STATION').slice(0, 2).map((res) => (
-                <div key={res.id} className="flex items-center justify-between text-xs pb-2 border-b border-slate-300/20 last:border-0 last:pb-0">
-                  <div className="text-left">
-                    <span className="font-bold block text-slate-800">{res.name}</span>
-                    <span className="text-[10px] text-slate-500">{res.capacityLabel}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-block px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 font-extrabold text-[9px] uppercase">
-                      FIRE DEPT
-                    </span>
-                  </div>
-                </div>
-              ))}
+                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-extrabold border border-rose-200">
+                  ● Critical
+                </span>
+              </div>
+              <h4 className="font-bold text-slate-900 text-xs line-clamp-1 group-hover:text-blue-600 transition-colors">
+                Multi-Story Commercial Fire & Chemical Storage...
+              </h4>
+              <p className="text-[11px] text-slate-500">
+                📍 District 4, 450 Mission Financial Plaza
+              </p>
+              <div className="flex items-center justify-between pt-1 text-[11px] border-t border-slate-200/50">
+                <span className="font-bold text-slate-700">Risk: <span className="text-rose-600 font-extrabold">94/100</span></span>
+                <span className="text-slate-500">Pop: <span className="font-bold text-slate-700">2,850</span></span>
+                <span className="text-blue-600 font-bold text-xs flex items-center group-hover:translate-x-0.5 transition-transform">
+                  Inspect &gt;
+                </span>
+              </div>
             </div>
-          </GlassCard>
+
+            {/* Incident 2: Flood */}
+            <div
+              onClick={() => navigate('/incidents/INC-2026-0892')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-all cursor-pointer space-y-1.5 shadow-2xs group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5">
+                  <Droplets className="w-4 h-4 text-blue-500" />
+                  <span className="font-extrabold text-slate-900 text-xs">Flood</span>
+                  <span className="text-[10px] font-mono text-slate-400">INC-2026-0892</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-extrabold border border-amber-200">
+                  ▲ High
+                </span>
+              </div>
+              <h4 className="font-bold text-slate-900 text-xs line-clamp-1 group-hover:text-blue-600 transition-colors">
+                Flash Flood & Subsurface Storm Drainage...
+              </h4>
+              <p className="text-[11px] text-slate-500">
+                📍 Bayside Lowland Corridor, Pier 28 Basin
+              </p>
+              <div className="flex items-center justify-between pt-1 text-[11px] border-t border-slate-100">
+                <span className="font-bold text-slate-700">Risk: <span className="text-amber-600 font-extrabold">82/100</span></span>
+                <span className="text-slate-500">Pop: <span className="font-bold text-slate-700">4,200</span></span>
+                <span className="text-slate-400 font-bold text-xs flex items-center group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform">
+                  Inspect &gt;
+                </span>
+              </div>
+            </div>
+
+            {/* Incident 3: Gas Leak */}
+            <div
+              onClick={() => navigate('/incidents/INC-2026-0893')}
+              className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition-all cursor-pointer space-y-1.5 shadow-2xs group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5">
+                  <AlertTriangle className="w-4 h-4 text-purple-500" />
+                  <span className="font-extrabold text-slate-900 text-xs">Gas Leak</span>
+                  <span className="text-[10px] font-mono text-slate-400">INC-2026-0893</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-extrabold border border-rose-200">
+                  ● Critical
+                </span>
+              </div>
+              <h4 className="font-bold text-slate-900 text-xs line-clamp-1 group-hover:text-blue-600 transition-colors">
+                Seismic Rupture & Natural Gas Pipeline...
+              </h4>
+              <p className="text-[11px] text-slate-500">
+                📍 Metro Transit Hub, 8th & Market
+              </p>
+              <div className="flex items-center justify-between pt-1 text-[11px] border-t border-slate-100">
+                <span className="font-bold text-slate-700">Risk: <span className="text-rose-600 font-extrabold">91/100</span></span>
+                <span className="text-slate-500">Pop: <span className="font-bold text-slate-700">3,100</span></span>
+                <span className="text-slate-400 font-bold text-xs flex items-center group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform">
+                  Inspect &gt;
+                </span>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
       </div>
-
-      {/* Analytics Rows */}
-      <div className="grid md:grid-cols-3 gap-6">
-        
-        {/* Incident Type Chart */}
-        <GlassCard title="Active Incident Breakdown" subtitle="Distribution by hazard type" tint="slate">
-          <div className="h-[200px] w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={typesData}>
-                <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.1)' }} contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '10px' }} />
-                <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]}>
-                  {typesData.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#ef4444' : '#0ea5e9'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
-
-        {/* Incidents timeline chart */}
-        <GlassCard title="Operations Incident Trends" subtitle="Active vs Resolved cases" tint="slate">
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timelineData}>
-                <XAxis dataKey="time" stroke="#64748b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '10px' }} />
-                <Line type="monotone" dataKey="Active" stroke="#ef4444" strokeWidth={2.5} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="Resolved" stroke="#10b981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
-
-        {/* EOC Static Departments pie chart */}
-        <GlassCard title="Allocated Agency Units" subtitle="Static emergency nodes" tint="slate">
-          <div className="h-[200px] w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={resourcePieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {resourcePieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '10px' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
-
-      </div>
-
-      {/* Active Incidents Datatable Mini-Strip */}
-      <GlassCard title="Active Operations Log" subtitle="Tactical list of all un-resolved incident nodes" tint="rose">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-300/30 text-slate-500 text-[10px] uppercase font-extrabold tracking-wider">
-                <th className="py-2.5">ID</th>
-                <th className="py-2.5">Incident Title</th>
-                <th className="py-2.5">Category</th>
-                <th className="py-2.5">Severity</th>
-                <th className="py-2.5">Assigned Commander</th>
-                <th className="py-2.5 text-right">EOC Tactical Link</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs divide-y divide-slate-300/10">
-              {incidents.filter(i => i.status !== 'RESOLVED').map((inc) => (
-                <tr key={inc.id} className="hover:bg-slate-500/5 transition-colors">
-                  <td className="py-3 font-mono font-bold text-rose-600">{inc.id}</td>
-                  <td className="py-3 font-semibold text-slate-800">{inc.title}</td>
-                  <td className="py-3 text-slate-500">{inc.type}</td>
-                  <td className="py-3">
-                    <StatusBadge severity={inc.severity} />
-                  </td>
-                  <td className="py-3 font-medium text-slate-600">{inc.assignedCommander}</td>
-                  <td className="py-3 text-right">
-                    <button
-                      onClick={() => navigate(`/incidents/${inc.id}`)}
-                      className="px-2.5 py-1 text-[10px] font-bold text-cyan-600 hover:text-cyan-800 hover:bg-cyan-500/10 rounded transition-all uppercase inline-flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Tactical Page</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </GlassCard>
-
-      <IncidentFormDialog isOpen={incidentFormOpen} onClose={() => setIncidentFormOpen(false)} />
-      <DeployResourceDialog isOpen={deployOpen} onClose={() => setDeployOpen(false)} />
 
     </div>
   );

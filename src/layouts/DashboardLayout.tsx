@@ -2,22 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard,
-  AlertOctagon,
-  Globe2,
-  Users,
-  Activity,
+  LayoutGrid,
+  Flame,
+  Box,
+  Map,
+  GitFork,
   Milestone,
-  LineChart,
-  ClipboardList,
-  Shield,
-  Settings,
+  Truck,
+  Building2,
+  Cpu,
+  BarChart3,
+  FileText,
   Bell,
-  CloudSun,
+  Search,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  SunMedium,
   Clock,
   Menu,
   X,
-  LogOut
+  Radio
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { NotificationDrawer } from '../components/notifications/NotificationDrawer';
@@ -33,191 +39,366 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const location = useLocation();
   const navigate = useNavigate();
   
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [incidentFormOpen, setIncidentFormOpen] = useState(false);
   const [deployResourceOpen, setDeployResourceOpen] = useState(false);
   const [time, setTime] = useState(new Date());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  // Real-time clock ticks
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const navItems = [
-    { label: 'EOC Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, tint: 'slate' as const },
-    { label: 'Incident Management', path: '/incidents', icon: <AlertOctagon className="w-4 h-4" />, tint: 'rose' as const },
-    { label: 'Digital Twin GIS', path: '/digital-twin', icon: <Globe2 className="w-4 h-4" />, tint: 'cyan' as const },
-    { label: 'Resource Allocation', path: '/resources', icon: <Users className="w-4 h-4" />, tint: 'amber' as const },
-    { label: 'Evacuation System', path: '/evacuation', icon: <Milestone className="w-4 h-4" />, tint: 'emerald' as const },
-    { label: 'Sensor Telemetry', path: '/sensors', icon: <Activity className="w-4 h-4" />, tint: 'cyan' as const },
-    { label: 'Analytics Engine', path: '/analytics', icon: <LineChart className="w-4 h-4" />, tint: 'indigo' as const },
-    { label: 'Crisis Reports', path: '/reports', icon: <ClipboardList className="w-4 h-4" />, tint: 'indigo' as const },
-    { label: 'EOC Admin Core', path: '/administration', icon: <Shield className="w-4 h-4" />, tint: 'slate' as const },
-    { label: 'System Settings', path: '/settings', icon: <Settings className="w-4 h-4" />, tint: 'slate' as const }
+  const navSections = [
+    {
+      heading: 'OPERATIONAL COMMAND',
+      items: [
+        { label: 'Command Center', path: '/dashboard', icon: <LayoutGrid className="w-4 h-4" /> },
+        { label: 'Incidents', path: '/incidents', icon: <Flame className="w-4 h-4 text-rose-500" />, badge: '4', badgeColor: 'bg-rose-500 text-white' },
+        { label: 'Digital Twin', path: '/digital-twin', icon: <Box className="w-4 h-4" /> },
+        { label: 'Tactical GIS Map', path: '/digital-twin', icon: <Map className="w-4 h-4" /> }
+      ]
+    },
+    {
+      heading: 'TACTICAL DISPATCH',
+      items: [
+        { label: 'Resource Allocation', path: '/resources', icon: <GitFork className="w-4 h-4" />, badge: '3 AI', badgeColor: 'bg-blue-600 text-white' },
+        { label: 'Evacuation Corridors', path: '/evacuation', icon: <Milestone className="w-4 h-4" /> },
+        { label: 'Emergency Fleet', path: '/fleet', icon: <Truck className="w-4 h-4" /> },
+        { label: 'Hospitals & Triage', path: '/hospitals', icon: <Building2 className="w-4 h-4" /> }
+      ]
+    },
+    {
+      heading: 'INTELLIGENCE & IOT',
+      items: [
+        { label: 'IoT Sensor Network', path: '/sensors', icon: <Cpu className="w-4 h-4" /> },
+        { label: 'Operational Analytics', path: '/analytics', icon: <BarChart3 className="w-4 h-4" /> },
+        { label: 'Incident Reports', path: '/reports', icon: <FileText className="w-4 h-4" /> },
+        { label: 'System Alerts', path: '/alerts', icon: <Bell className="w-4 h-4" />, badge: '1', badgeColor: 'bg-amber-500 text-white' }
+      ]
+    }
   ];
 
-  const unreadNotifCount = notifications.filter(n => !n.read).length;
+  const getPageHeader = () => {
+    const p = location.pathname;
+    if (p.startsWith('/incidents')) {
+      return {
+        title: 'Incident Catalog & Workspace',
+        subtitle: 'Real-time Triage, Assessment & Response Records',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/digital-twin')) {
+      return {
+        title: '3D Smart City Digital Twin',
+        subtitle: 'Real-time Telemetry, Spatial Plumes & Predictive Physics',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/resources')) {
+      return {
+        title: 'Predictive Resource Dispatch',
+        subtitle: 'Autonomous AI Recommendation & Dispatch Matrix',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/evacuation')) {
+      return {
+        title: 'Evacuation Corridors & Safety',
+        subtitle: 'Dynamic Egress Routing, Hazard Buffers & Shelters',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/fleet')) {
+      return {
+        title: 'Emergency Response Fleet',
+        subtitle: 'Fleet Telemetry, Crew Availability & Deployment Status',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/hospitals')) {
+      return {
+        title: 'Hospitals & Medical Surge Capacity',
+        subtitle: 'Trauma intake queues, burn ICU availability & ambulance routing',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/sensors')) {
+      return {
+        title: 'IoT Telemetry & Environmental Sensor Mesh',
+        subtitle: 'Thermal, Gas, Hydro & Seismic Edge Sensor Mesh',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/analytics')) {
+      return {
+        title: 'Operational Analytics & KPI Benchmarks',
+        subtitle: 'Incident Trends, Response Times & Resource Load Curves',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/reports')) {
+      return {
+        title: 'Incident After-Action Reports & Audit Logs',
+        subtitle: 'Official Event Timeline, Dispatch Logs & Export',
+        badge: '2 CRITICAL'
+      };
+    }
+    if (p.startsWith('/alerts')) {
+      return {
+        title: 'Emergency Alert & Notification System',
+        subtitle: 'Prioritized System Warnings & Civilian Cell Broadcasts',
+        badge: '2 CRITICAL'
+      };
+    }
+    return {
+      title: 'Command Center',
+      subtitle: 'Unified Multi-Hazard Operational Awareness',
+      badge: '2 CRITICAL'
+    };
+  };
+
+  const headerInfo = getPageHeader();
+  const unreadNotifCount = notifications.filter(n => !n.read).length || 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/30 to-slate-200 text-slate-800 flex flex-col font-sans">
-      {/* Dynamic Header / Navbar */}
-      <header className="sticky top-0 z-40 bg-white/60 backdrop-blur-xl border-b border-white/40 shadow-sm transition-all">
-        <div className="mx-auto px-6 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-b from-[#E2E8F0]/80 via-[#F8FAFC] to-white text-slate-800 flex font-sans antialiased overflow-x-hidden">
+      
+      {/* Desktop Sidebar Navigation (Apple Liquid Glassmorphism) */}
+      <aside className={`hidden lg:flex flex-col liquid-glass border-r border-white/80 transition-all duration-300 z-30 ${collapsed ? 'w-20' : 'w-64'} flex-shrink-0 select-none shadow-[2px_0_16px_rgba(0,0,0,0.03)]`}>
+        
+        {/* Brand Header */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-white/60">
+          <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden">
+            <div className="w-9 h-9 rounded-xl bg-[#0B132B] text-sky-400 flex items-center justify-center shadow-md shadow-slate-900/15 flex-shrink-0">
+              <Radio className="w-5 h-5 animate-pulse" />
+            </div>
+            {!collapsed && (
+              <div className="leading-tight text-left">
+                <span className="font-extrabold text-slate-900 text-sm tracking-tight block">AEGIS TWIN</span>
+                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase block">EMERGENCY OS</span>
+              </div>
+            )}
+          </Link>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-6 h-6 rounded-lg bg-white/80 hover:bg-white text-slate-500 flex items-center justify-center transition-colors cursor-pointer border border-white/90 shadow-2xs"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {/* Navigation Sections */}
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+          {navSections.map((section, idx) => (
+            <div key={idx} className="space-y-1">
+              {!collapsed && (
+                <p className="text-[10px] font-bold text-slate-400 tracking-wider px-3 mb-1.5 uppercase">
+                  {section.heading}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+                  return (
+                    <Link
+                      key={item.label}
+                      to={item.path}
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all group ${
+                        isActive
+                          ? 'liquid-glass-blue text-blue-700 font-bold border-l-3 border-blue-600 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      }`}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      <div className="flex items-center space-x-3 truncate">
+                        <div className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`}>
+                          {item.icon}
+                        </div>
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </div>
+                      {!collapsed && item.badge && (
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${item.badgeColor} ml-2 flex-shrink-0 shadow-2xs`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom System Sync Indicator */}
+        <div className="p-3 border-t border-white/60 bg-white/40 backdrop-blur-md">
+          <div className="flex items-center space-x-2.5 px-2 py-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            {!collapsed && (
+              <div className="text-left leading-none">
+                <span className="text-[10px] font-bold text-slate-800 block">Twin Sync Active</span>
+                <span className="text-[9px] text-slate-400 font-mono block mt-0.5">Telemetry: 24ms</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        {/* Top Navbar Chrome (Apple Liquid Glassmorphism) */}
+        <header className="h-16 liquid-glass border-b border-white/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
           
-          {/* Brand Logo */}
-          <div className="flex items-center space-x-3">
+          {/* Left Title & Status Pill */}
+          <div className="flex items-center space-x-3 min-w-0">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-lg hover:bg-slate-300/20 text-slate-600 lg:hidden focus:outline-none"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 lg:hidden focus:outline-none cursor-pointer"
             >
-              <Menu className="w-5.5 h-5.5" />
+              <Menu className="w-5 h-5" />
             </button>
-            <Link to="/dashboard" className="flex items-center space-x-2.5 group">
-              <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white shadow-md shadow-cyan-500/20 group-hover:rotate-6 transition-transform duration-300">
-                <Globe2 className="w-5 h-5 animate-pulse-slow" />
+            <div className="text-left truncate">
+              <div className="flex items-center space-x-2">
+                <h1 className="font-extrabold text-slate-900 text-sm lg:text-base tracking-tight truncate">
+                  {headerInfo.title}
+                </h1>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-extrabold uppercase border border-rose-200 animate-pulse">
+                  ● {headerInfo.badge}
+                </span>
               </div>
-              <div className="leading-none">
-                <span className="font-extrabold text-slate-900 tracking-tight text-base block">METRO EOC</span>
-                <span className="text-[9px] font-bold text-cyan-600 tracking-widest uppercase">Digital Twin Platform</span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Quick Stats Banner / Navbar Chrome */}
-          <div className="hidden md:flex items-center space-x-6">
-            {/* Live Clock */}
-            <div className="flex items-center space-x-2 bg-slate-500/5 px-3 py-1.5 rounded-xl border border-white/50 text-slate-700 text-xs font-semibold shadow-sm">
-              <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span className="tabular-nums font-mono">{time.toLocaleTimeString()}</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-[10px] text-slate-500">29 MAR 2026</span>
-            </div>
-
-            {/* Weather Chip */}
-            <div className="flex items-center space-x-2 bg-slate-500/5 px-3 py-1.5 rounded-xl border border-white/50 text-slate-700 text-xs font-semibold shadow-sm">
-              <CloudSun className="w-3.5 h-3.5 text-amber-500" />
-              <span>12.5°C</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-rose-600 font-bold uppercase tracking-wider text-[10px] animate-pulse">Flood Warning</span>
+              <p className="text-[11px] text-slate-400 font-medium truncate hidden sm:block">
+                {headerInfo.subtitle}
+              </p>
             </div>
           </div>
 
-          {/* Search, Notifications & User Actions */}
-          <div className="flex items-center space-x-4">
+          {/* Center Search Input */}
+          <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-md mx-4">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search incidents, units, sensors..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-8 py-1.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 transition-all shadow-xs"
+              />
+              <kbd className="absolute right-2.5 top-2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs pointer-events-none">
+                ⌘K
+              </kbd>
+            </div>
+          </div>
+
+          {/* Right Action Widgets */}
+          <div className="flex items-center space-x-2.5 flex-shrink-0">
+            
+            {/* Live UTC Clock */}
+            <div className="hidden xl:flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-700 text-xs font-semibold shadow-2xs">
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span className="font-mono font-bold tabular-nums text-slate-900">{time.toLocaleTimeString()}</span>
+              <span className="text-[10px] text-slate-400 font-mono">EOC UTC-7</span>
+            </div>
+
+            {/* Weather Sensor Widget */}
+            <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-700 text-xs font-semibold shadow-2xs">
+              <SunMedium className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-bold text-slate-800">24°C</span>
+              <span className="text-[10px] text-slate-400">Wind 22km/h SSW</span>
+            </div>
+
             {/* Notification Bell */}
             <button
               onClick={() => setNotifOpen(true)}
-              className="relative p-2.5 rounded-xl bg-white/80 hover:bg-white border border-white/50 text-slate-700 hover:text-slate-900 transition-all shadow-sm focus:outline-none cursor-pointer"
+              className="relative p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-600 transition-all shadow-2xs cursor-pointer"
+              title="System Alerts"
             >
-              <Bell className="w-4.5 h-4.5" />
+              <Bell className="w-4 h-4" />
               {unreadNotifCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-600 text-white font-mono text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
                   {unreadNotifCount}
                 </span>
               )}
             </button>
 
-            {/* User Dropdown Selector (Role Switcher) */}
-            <div className="flex items-center space-x-2 bg-white/80 px-2 py-1.5 rounded-xl border border-white/50 shadow-sm">
-              <img
-                src={currentUser?.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"}
-                alt={currentUser?.name}
-                className="w-7 h-7 rounded-lg object-cover border border-white/50"
-              />
-              <div className="hidden lg:block text-left pr-2 leading-none">
-                <span className="text-[10px] text-slate-400 uppercase font-extrabold block">Role: {currentUser?.role}</span>
-                <span className="text-xs font-bold text-slate-800 block truncate max-w-[120px]">{currentUser?.name}</span>
-              </div>
-              <select
-                value={currentRole}
-                onChange={e => setCurrentRole(e.target.value as any)}
-                className="text-[10px] uppercase font-bold border-l border-slate-300/30 pl-1.5 focus:outline-none text-slate-600 cursor-pointer"
-              >
-                <option value="ADMIN">Admin</option>
-                <option value="OPERATOR">Operator</option>
-                <option value="ANALYST">Analyst</option>
-              </select>
-            </div>
-
-            {/* Logout Trigger */}
+            {/* Filter / Quick Dispatch button */}
             <button
-              onClick={() => navigate('/')}
-              className="p-2.5 rounded-xl bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 border border-rose-500/20 transition-all shadow-sm cursor-pointer"
-              title="Logout System"
+              onClick={() => setIncidentFormOpen(true)}
+              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-600 transition-all shadow-2xs cursor-pointer hidden sm:block"
+              title="Quick Dispatch Control"
             >
-              <LogOut className="w-4 h-4" />
+              <SlidersHorizontal className="w-4 h-4" />
             </button>
-          </div>
 
-        </div>
-      </header>
-
-      {/* Main Grid Wrapper */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* Desktop Collapsible Sidebar Navigation */}
-        <aside className="hidden lg:block w-64 flex-shrink-0 border-r border-white/40 bg-white/50 backdrop-blur-xl p-4 space-y-6">
-          <div className="space-y-1.5">
-            <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest pl-3 mb-2">EOC Core Systems</p>
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
-                      isActive
-                        ? 'bg-slate-900 text-white shadow-md shadow-slate-900/15 border-l-4 border-cyan-500'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                    }`}
-                  >
-                    <div className={isActive ? 'text-cyan-400' : 'text-slate-400 group-hover:text-slate-700'}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Quick Command Actions in Sidebar */}
-          <div className="pt-4 border-t border-slate-300/30 space-y-2.5">
-            <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest pl-3">EOC Instant Dispatch</p>
-            <div className="px-1.5 space-y-2">
+            {/* Commander Profile Dropdown */}
+            <div className="relative">
               <button
-                onClick={() => setIncidentFormOpen(true)}
-                className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer block text-center"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex items-center space-x-2 pl-1.5 pr-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl transition-all shadow-2xs cursor-pointer"
               >
-                + New Incident
+                <div className="w-7 h-7 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
+                  JV
+                </div>
+                <div className="text-left hidden sm:block leading-none">
+                  <span className="text-xs font-bold text-slate-900 block truncate max-w-[110px]">
+                    Cmdr. Justin Vance
+                  </span>
+                  <span className="text-[9px] font-mono text-slate-400 block mt-0.5">EOC-7049</span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
-              <button
-                onClick={() => setDeployResourceOpen(true)}
-                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer block text-center"
-              >
-                Deploy Resource
-              </button>
+
+              {userDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-top-2">
+                  <div className="px-3 py-1.5 border-b border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Commander Profile</p>
+                    <p className="text-xs font-bold text-slate-900 mt-0.5">Cmdr. Justin Vance</p>
+                    <p className="text-[10px] text-slate-500 font-mono">EOC Lead Operator</p>
+                  </div>
+                  <div className="py-1">
+                    {(['ADMIN', 'OPERATOR', 'ANALYST'] as const).map(role => (
+                      <button
+                        key={role}
+                        onClick={() => { setCurrentRole(role); setUserDropdownOpen(false); }}
+                        className={`w-full px-3 py-1.5 text-xs text-left font-semibold flex items-center justify-between hover:bg-slate-50 ${currentRole === role ? 'text-blue-600 font-bold bg-blue-50/50' : 'text-slate-700'}`}
+                      >
+                        <span>Role: {role}</span>
+                        {currentRole === role && <span className="text-xs">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="border-t border-slate-100 pt-1">
+                    <button
+                      onClick={() => navigate('/')}
+                      className="w-full px-3 py-1.5 text-xs text-left text-rose-600 hover:bg-rose-50 font-semibold"
+                    >
+                      Logout Terminal
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </aside>
 
-        {/* Dynamic Page Content Wrapper */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="mx-auto max-w-7xl h-full flex flex-col"
-          >
+          </div>
+
+        </header>
+
+        {/* Dynamic Page Scroll Area */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 relative bg-[#F4F6F9]">
+          <div className="max-w-[1680px] mx-auto w-full">
             {children}
-          </motion.div>
+          </div>
         </main>
+
       </div>
 
-      {/* Mobile Drawer Slide-over Menu */}
+      {/* Mobile Sidebar Slide-Over */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -226,61 +407,54 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm"
+              className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="fixed inset-y-0 left-0 w-64 bg-white text-slate-800 p-5 flex flex-col space-y-6 shadow-2xl"
+              className="fixed inset-y-0 left-0 w-72 bg-white text-slate-800 p-5 flex flex-col space-y-6 shadow-2xl z-50"
             >
-              <div className="flex items-center justify-between border-b pb-3 border-slate-200">
-                <span className="font-extrabold text-slate-900 tracking-tight text-sm uppercase">EOC Operations Navigation</span>
+              <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#0B132B] text-sky-400 flex items-center justify-center font-bold">
+                    <Radio className="w-4 h-4" />
+                  </div>
+                  <span className="font-extrabold text-slate-900 tracking-tight text-sm">AEGIS TWIN OS</span>
+                </div>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-lg text-slate-500 hover:bg-slate-100">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="space-y-1 overflow-y-auto flex-1">
-                {navItems.map((item) => {
-                  const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all ${
-                        isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
+              <nav className="space-y-4 overflow-y-auto flex-1 text-left">
+                {navSections.map((sec, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{sec.heading}</p>
+                    {sec.items.map(item => (
+                      <Link
+                        key={item.label}
+                        to={item.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50"
+                      >
+                        <div className="flex items-center space-x-3">
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </div>
+                        {item.badge && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.badgeColor}`}>{item.badge}</span>}
+                      </Link>
+                    ))}
+                  </div>
+                ))}
               </nav>
-
-              <div className="border-t border-slate-200 pt-4 space-y-2">
-                <button
-                  onClick={() => { setMobileMenuOpen(false); setIncidentFormOpen(true); }}
-                  className="w-full py-2 bg-rose-600 text-white font-bold text-xs uppercase rounded-xl"
-                >
-                  + Create Incident
-                </button>
-                <button
-                  onClick={() => { setMobileMenuOpen(false); setDeployResourceOpen(true); }}
-                  className="w-full py-2 bg-amber-500 text-white font-bold text-xs uppercase rounded-xl"
-                >
-                  Deploy Resource
-                </button>
-              </div>
             </motion.aside>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Floating Dialog Modals */}
+      {/* Floating Dialogs */}
       <NotificationDrawer isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
       <IncidentFormDialog isOpen={incidentFormOpen} onClose={() => setIncidentFormOpen(false)} />
       <DeployResourceDialog isOpen={deployResourceOpen} onClose={() => setDeployResourceOpen(false)} />

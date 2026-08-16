@@ -3,10 +3,13 @@ import { Severity, IncidentStatus, Coordinates } from './common';
 export interface Incident {
   id: string;
   title: string;
-  type: 'Structure Fire' | 'Flood' | 'Earthquake Aftershock' | 'HazMat Spill' | 'Multi-Vehicle Collision' | 'Building Collapse';
+  type: string;
   severity: Severity;
   status: IncidentStatus;
   locationName: string;
+  sector?: string;
+  riskScore?: number;
+  population?: number;
   coordinates: Coordinates;
   reportedAt: string;
   description: string;

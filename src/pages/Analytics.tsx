@@ -1,177 +1,297 @@
 import React, { useState } from 'react';
-import { GlassCard } from '../components/common/GlassCard';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area
-} from 'recharts';
-
-const incidentTrends = [
-  { month: 'Oct', incidents: 28, resolved: 24 },
-  { month: 'Nov', incidents: 35, resolved: 30 },
-  { month: 'Dec', incidents: 42, resolved: 38 },
-  { month: 'Jan', incidents: 38, resolved: 34 },
-  { month: 'Feb', incidents: 31, resolved: 28 },
-  { month: 'Mar', incidents: 47, resolved: 41 },
-];
-
-const resourceUtil = [
-  { name: 'Fire Dept', utilized: 78, available: 22 },
-  { name: 'Police', utilized: 62, available: 38 },
-  { name: 'Medical', utilized: 85, available: 15 },
-  { name: 'Rescue', utilized: 55, available: 45 },
-];
-
-const responseTimeDist = [
-  { range: '<3m', count: 12 },
-  { range: '3-5m', count: 34 },
-  { range: '5-8m', count: 28 },
-  { range: '8-12m', count: 15 },
-  { range: '12m+', count: 6 },
-];
-
-const severityBreakdown = [
-  { name: 'Critical', value: 18, color: '#ef4444' },
-  { name: 'High', value: 32, color: '#f59e0b' },
-  { name: 'Medium', value: 28, color: '#6366f1' },
-  { name: 'Low', value: 22, color: '#10b981' },
-];
-
-const regionalData = [
-  { region: 'Sector 1', fire: 8, flood: 3, hazmat: 2, collision: 5 },
-  { region: 'Sector 2', fire: 12, flood: 8, hazmat: 4, collision: 3 },
-  { region: 'Sector 3', fire: 15, flood: 12, hazmat: 6, collision: 8 },
-  { region: 'Sector 4', fire: 20, flood: 5, hazmat: 9, collision: 4 },
-  { region: 'Sector 5', fire: 6, flood: 2, hazmat: 1, collision: 9 },
-];
-
-const tooltipStyle = { background: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '10px' };
+  Clock,
+  CheckCircle2,
+  Truck,
+  TrendingUp,
+  Download,
+  BarChart3,
+  Flame,
+  Droplets,
+  Activity,
+  ShieldAlert,
+  Building,
+  Users
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 export const Analytics: React.FC = () => {
-  const [dateRange, setDateRange] = useState('6months');
+  const { addNotification } = useApp();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = () => {
+    setExporting(true);
+    setTimeout(() => {
+      setExporting(false);
+      addNotification("KPI DOSSIER GENERATED: Cryptographically signed performance audit exported.", "info");
+    }, 600);
+  };
+
+  const hourlyPerformance = [
+    { time: '08:00', value: 4.8, status: 'nominal' },
+    { time: '10:00', value: 5.2, status: 'nominal' },
+    { time: '12:00', value: 6.8, status: 'surge' },
+    { time: '14:00', value: 4.6, status: 'nominal' },
+    { time: '16:00', value: 7.2, status: 'surge' },
+    { time: '18:00', value: 6.5, status: 'surge' },
+    { time: '20:00', value: 5.1, status: 'nominal' },
+  ];
+
+  const disasterCategories = [
+    { label: 'Fire & Thermal Hazards', count: 18, pct: 32, color: 'bg-orange-500' },
+    { label: 'Floods & Hydrological', count: 12, pct: 21, color: 'bg-cyan-500' },
+    { label: 'Gas & Chemical Leaks', count: 9, pct: 16, color: 'bg-purple-500' },
+    { label: 'Road & Transit Accidents', count: 8, pct: 14, color: 'bg-emerald-500' },
+    { label: 'Structural & Seismic', count: 6, pct: 11, color: 'bg-blue-600' },
+    { label: 'Crowd & Public Surge', count: 4, pct: 6, color: 'bg-amber-500' },
+  ];
+
+  const fleetUtilization = [
+    { name: 'Fire Engines & Pumpers', pct: 67, deployed: 16, avail: 6, total: 24, barColor: 'bg-blue-600' },
+    { name: 'ALS / BLS Ambulances', pct: 74, deployed: 28, avail: 8, total: 38, barColor: 'bg-blue-600' },
+    { name: 'Police & Traffic Units', pct: 69, deployed: 31, avail: 12, total: 45, barColor: 'bg-blue-600' },
+    { name: 'Urban Search & Rescue Teams', pct: 75, deployed: 9, avail: 3, total: 12, barColor: 'bg-blue-600' },
+    { name: 'Recon & Sensor Drones', pct: 69, deployed: 11, avail: 4, total: 16, barColor: 'bg-blue-600' },
+    { name: 'Heavy Earthmovers & Shoring', pct: 38, deployed: 3, avail: 5, total: 8, barColor: 'bg-blue-600' },
+  ];
 
   return (
-    <div className="space-y-6 text-left">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-300/25 pb-4">
+    <div className="space-y-4 text-left font-sans">
+      
+      {/* Top Header & Export Action */}
+      <div className="liquid-glass-card p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Analytics Intelligence Engine</h2>
-          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Dashboard / Historical Insights & Trends</p>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
+              Operational Analytics & KPI Benchmarks
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-extrabold border border-rose-200 shadow-2xs">
+              ● 2 CRITICAL
+            </span>
+          </div>
+          <p className="text-xs text-slate-500">
+            Autonomous response latencies, fleet utilization curves & surge modeling
+          </p>
         </div>
-        <select
-          value={dateRange}
-          onChange={e => setDateRange(e.target.value)}
-          className="mt-3 sm:mt-0 px-4 py-2 bg-white/70 border border-slate-300/50 rounded-xl text-xs font-bold text-slate-700 focus:outline-none"
+
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-60"
         >
-          <option value="30days">Last 30 Days</option>
-          <option value="3months">Last 3 Months</option>
-          <option value="6months">Last 6 Months</option>
-          <option value="1year">Last 12 Months</option>
-        </select>
+          <Download className="w-3.5 h-3.5" />
+          <span>{exporting ? 'Generating Dossier...' : 'Export KPI Dossier'}</span>
+        </button>
       </div>
 
-      {/* Row 1: Incident Trends & Severity Breakdown */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <GlassCard title="Incident Trends Over Time" subtitle="Active vs Resolved monthly breakdown" tint="indigo">
-            <div className="h-[260px] w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={incidentTrends}>
-                  <defs>
-                    <linearGradient id="gradInc" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="gradRes" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="incidents" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradInc)" />
-                  <Area type="monotone" dataKey="resolved" stroke="#10b981" strokeWidth={2} fill="url(#gradRes)" />
-                </AreaChart>
-              </ResponsiveContainer>
+      {/* 4 Top KPI Cards (Matching Screenshot 2) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* KPI 1: Avg Response Time */}
+        <div className="liquid-glass-card p-4 rounded-2xl flex items-start justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              AVG RESPONSE TIME
+            </span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-2xl font-black text-slate-900 tracking-tight">5.2 min</span>
+              <span className="text-xs text-slate-400 font-semibold">Target: 6.0m</span>
             </div>
-          </GlassCard>
+            <span className="text-[11px] text-emerald-600 font-bold mt-2 inline-flex items-center space-x-0.5">
+              <span>↗ 13% faster</span>
+              <span className="text-slate-400 font-normal">vs last hour</span>
+            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-2xs">
+            <Clock className="w-4 h-4" />
+          </div>
         </div>
 
-        <GlassCard title="Severity Composition" subtitle="Active incident distribution" tint="indigo">
-          <div className="h-[260px] w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={severityBreakdown} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={4} dataKey="value">
-                  {severityBreakdown.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* KPI 2: Incident Clearance Rate */}
+        <div className="liquid-glass-card p-4 rounded-2xl flex items-start justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              INCIDENT CLEARANCE RATE
+            </span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-2xl font-black text-slate-900 tracking-tight">89.4%</span>
+              <span className="text-xs text-slate-400 font-semibold">24hr Window</span>
+            </div>
+            <span className="text-[11px] text-emerald-600 font-bold mt-2 inline-flex items-center space-x-0.5">
+              <span>↗ +4.2%</span>
+              <span className="text-slate-400 font-normal">vs last hour</span>
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2 justify-center mt-2">
-            {severityBreakdown.map(s => (
-              <span key={s.name} className="flex items-center gap-1 text-[9px] font-bold text-slate-500 uppercase">
-                <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-                {s.name}: {s.value}%
-              </span>
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* KPI 3: Fleet Efficiency Index */}
+        <div className="liquid-glass-card p-4 rounded-2xl flex items-start justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              FLEET EFFICIENCY INDEX
+            </span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-2xl font-black text-slate-900 tracking-tight">94.1</span>
+              <span className="text-xs text-slate-400 font-semibold">/100 Score</span>
+            </div>
+            <span className="text-[11px] text-emerald-600 font-bold mt-2 inline-flex items-center space-x-0.5">
+              <span>↗ +1.8 pts</span>
+              <span className="text-slate-400 font-normal">vs last hour</span>
+            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 shadow-2xs">
+            <Truck className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* KPI 4: AI Dispatch Accuracy */}
+        <div className="liquid-glass-card p-4 rounded-2xl flex items-start justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              AI DISPATCH ACCURACY
+            </span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-2xl font-black text-slate-900 tracking-tight">96.8%</span>
+              <span className="text-xs text-slate-400 font-semibold">Human Approved</span>
+            </div>
+            <span className="text-[11px] text-emerald-600 font-bold mt-2 inline-flex items-center space-x-0.5">
+              <span>↗ +0.5%</span>
+              <span className="text-slate-400 font-normal">vs last hour</span>
+            </span>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 shadow-2xs">
+            <TrendingUp className="w-4 h-4" />
+          </div>
+        </div>
+
+      </div>
+
+      {/* Middle Row: Hourly Response Time Chart + Disaster Category Distribution (Matching Screenshot 2) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        
+        {/* Left Card: Hourly Response Time Performance */}
+        <div className="liquid-glass-card p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">
+                Hourly Response Time Performance
+              </h3>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Actual arrival latency vs 6.0 min benchmark
+              </p>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
+              Optimal Corridor Flow
+            </span>
+          </div>
+
+          {/* Bar Chart Visualization */}
+          <div className="h-44 flex items-end justify-between gap-3 pt-4 px-2 border-b border-slate-100">
+            {hourlyPerformance.map((bar, i) => {
+              const heightPct = (bar.value / 8) * 100;
+              const barColor = bar.status === 'nominal' ? 'bg-[#0088FF]' : 'bg-[#FF3B30]';
+
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center h-full justify-end group">
+                  <span className="text-[10px] font-mono text-slate-400 font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {bar.value}m
+                  </span>
+                  <div
+                    className={`w-full max-w-[28px] ${barColor} rounded-t-lg transition-all`}
+                    style={{ height: `${heightPct}%` }}
+                  />
+                  <span className="text-[10px] font-mono text-slate-400 font-bold mt-2">
+                    {bar.time}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center space-x-6 text-[10px] font-bold text-slate-500 pt-1">
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#0088FF]" />
+              <span>Under Benchmark (Nominal)</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#FF3B30]" />
+              <span>Over Benchmark (Traffic Surge)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Card: Disaster Category Distribution */}
+        <div className="liquid-glass-card p-5 rounded-2xl space-y-3">
+          <div>
+            <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">
+              Disaster Category Distribution
+            </h3>
+            <p className="text-[11px] text-slate-500 font-medium">
+              Breakdown of 57 incidents logged this quarter
+            </p>
+          </div>
+
+          <div className="space-y-2.5 pt-1">
+            {disasterCategories.map((cat, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                  <span>{cat.label}</span>
+                  <span className="font-mono text-slate-500 text-[11px]">
+                    {cat.count} ({cat.pct}%)
+                  </span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className={`h-full ${cat.color} rounded-full`}
+                    style={{ width: `${cat.pct}%` }}
+                  />
+                </div>
+              </div>
             ))}
           </div>
-        </GlassCard>
+        </div>
+
       </div>
 
-      {/* Row 2: Response Time & Resource Utilization */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <GlassCard title="Response Time Distribution" subtitle="Time from alert to first responder arrival" tint="indigo">
-          <div className="h-[220px] w-full mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={responseTimeDist}>
-                <XAxis dataKey="range" stroke="#64748b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
+      {/* Bottom Section: Resource Fleet Category Utilization (Matching Screenshot 2) */}
+      <div className="space-y-2.5">
+        <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider pl-1">
+          Resource Fleet Category Utilization
+        </h3>
 
-        <GlassCard title="Resource Utilization by Agency" subtitle="Current deployment load percentage" tint="amber">
-          <div className="h-[220px] w-full mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={resourceUtil} layout="vertical">
-                <XAxis type="number" stroke="#64748b" fontSize={10} tickLine={false} />
-                <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} tickLine={false} width={60} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="utilized" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="available" stackId="a" fill="#e2e8f0" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {fleetUtilization.map((f, i) => (
+            <div key={i} className="liquid-glass-card p-4 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-slate-900 text-xs">
+                  {f.name}
+                </span>
+                <span className="text-xs font-black text-blue-600 font-mono">
+                  {f.pct}% Active
+                </span>
+              </div>
+
+              <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className={`h-full ${f.barColor} rounded-full`}
+                  style={{ width: `${f.pct}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-0.5">
+                <span>Dep: {f.deployed}</span>
+                <span>Avail: {f.avail}</span>
+                <span>Total: {f.total}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Row 3: Regional comparison */}
-      <GlassCard title="Regional Sector Incident Comparison" subtitle="Cross-sector hazard type distribution" tint="indigo">
-        <div className="h-[280px] w-full mt-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={regionalData}>
-              <XAxis dataKey="region" stroke="#64748b" fontSize={10} tickLine={false} />
-              <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="fire" stackId="a" fill="#ef4444" />
-              <Bar dataKey="flood" stackId="a" fill="#06b6d4" />
-              <Bar dataKey="hazmat" stackId="a" fill="#f59e0b" />
-              <Bar dataKey="collision" stackId="a" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex flex-wrap gap-4 justify-center mt-3">
-          <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500"><span className="w-2.5 h-2.5 rounded bg-red-500" />Fire</span>
-          <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500"><span className="w-2.5 h-2.5 rounded bg-cyan-500" />Flood</span>
-          <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500"><span className="w-2.5 h-2.5 rounded bg-amber-500" />HazMat</span>
-          <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500"><span className="w-2.5 h-2.5 rounded bg-violet-500" />Collision</span>
-        </div>
-      </GlassCard>
     </div>
   );
 };

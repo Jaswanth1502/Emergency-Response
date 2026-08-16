@@ -1,119 +1,89 @@
 {
   "routes": [
     {
-      "id": "EVAC-R1",
-      "name": "Eastbound Parkway Corridor (Evac Route Alpha)",
-      "congestionStatus": "MODERATE",
-      "estimatedTimeMinutes": 24,
-      "capacityRate": 65,
-      "distanceKm": 12.4,
-      "coordinates": [
-        { "lat": 45.4112, "lng": -75.6981 },
-        { "lat": 45.4180, "lng": -75.6800 },
-        { "lat": 45.4250, "lng": -75.6600 },
-        { "lat": 45.4300, "lng": -75.6400 }
+      "id": "EVAC-01",
+      "name": "Primary Safe Corridor Alpha (Mission North to Moscone Hub)",
+      "badge": "PRIMARY SAFE CORRIDOR",
+      "safetyScore": 96,
+      "from": "450 Mission St (Financial District)",
+      "to": "Moscone Convention West Resilience Hub (SHELTER-02)",
+      "distance": "1.2 km",
+      "eta": "14m",
+      "congestion": "Low",
+      "status": "OPEN",
+      "points": [
+        { "lat": 37.7891, "lng": -122.4014 },
+        { "lat": 37.7845, "lng": -122.4010 }
       ]
     },
     {
-      "id": "EVAC-R2",
-      "name": "Southbound Expressway (Evac Route Beta)",
-      "congestionStatus": "HEAVY",
-      "estimatedTimeMinutes": 48,
-      "capacityRate": 92,
-      "distanceKm": 18.2,
-      "coordinates": [
-        { "lat": 45.4244, "lng": -75.6999 },
-        { "lat": 45.4050, "lng": -75.7020 },
-        { "lat": 45.3850, "lng": -75.7100 },
-        { "lat": 45.3600, "lng": -75.7200 }
+      "id": "EVAC-02",
+      "name": "Secondary Egress Route Beta (Howard St West to Civic Hub)",
+      "badge": "ALTERNATIVE SECONDARY",
+      "safetyScore": 84,
+      "from": "District 4 Commercial Zone",
+      "to": "Civic Auditorium Emergency Relief Hub (SHELTER-01)",
+      "distance": "2.1 km",
+      "eta": "26m",
+      "congestion": "Moderate",
+      "status": "OPEN",
+      "points": [
+        { "lat": 37.7870, "lng": -122.3980 },
+        { "lat": 37.7790, "lng": -122.4180 }
       ]
     },
     {
-      "id": "EVAC-R3",
-      "name": "Riverside Outflow Bypass (Evac Route Gamma)",
-      "congestionStatus": "BLOCKED",
-      "estimatedTimeMinutes": 999,
-      "capacityRate": 100,
-      "distanceKm": 8.5,
-      "coordinates": [
-        { "lat": 45.4215, "lng": -75.6812 },
-        { "lat": 45.4290, "lng": -75.6720 },
-        { "lat": 45.4350, "lng": -75.6550 }
-      ]
-    },
-    {
-      "id": "EVAC-R4",
-      "name": "Northside Arterial Link (Evac Route Delta)",
-      "congestionStatus": "CLEAR",
-      "estimatedTimeMinutes": 15,
-      "capacityRate": 30,
-      "distanceKm": 14.1,
-      "coordinates": [
-        { "lat": 45.4302, "lng": -75.6881 },
-        { "lat": 45.4400, "lng": -75.6950 },
-        { "lat": 45.4550, "lng": -75.7100 }
+      "id": "EVAC-03",
+      "name": "First Responder Dedicated Priority Lane (1st St to Trauma Base)",
+      "badge": "FIRST RESPONDER PRIORITY",
+      "safetyScore": 99,
+      "from": "1st St & Market Corridor",
+      "to": "Trauma Intake Center",
+      "distance": "1.8 km",
+      "eta": "4m",
+      "congestion": "Clear",
+      "status": "OPEN",
+      "points": [
+        { "lat": 37.7891, "lng": -122.4014 },
+        { "lat": 37.7710, "lng": -122.4110 }
       ]
     }
   ],
   "shelters": [
     {
-      "id": "SHL-01",
-      "name": "Sector 4 Civic Arena Shelter",
-      "capacity": 500,
-      "occupancy": 385,
+      "id": "SHELTER-01",
+      "name": "Civic Auditorium Emergency Relief Hub",
+      "capacity": 2500,
+      "occupancy": 850,
+      "occupancyPercent": 34,
+      "freeBeds": 1650,
       "status": "OPEN",
-      "distanceKm": 3.2,
-      "coordinates": { "lat": 45.4190, "lng": -75.6700 }
+      "coordinates": { "lat": 37.7780, "lng": -122.4170 }
     },
     {
-      "id": "SHL-02",
-      "name": "East High School Gymnasium",
-      "capacity": 300,
-      "occupancy": 120,
+      "id": "SHELTER-02",
+      "name": "Moscone Convention West Resilience Hub",
+      "capacity": 4000,
+      "occupancy": 1200,
+      "occupancyPercent": 30,
+      "freeBeds": 2800,
       "status": "OPEN",
-      "distanceKm": 5.8,
-      "coordinates": { "lat": 45.4350, "lng": -75.6400 }
+      "coordinates": { "lat": 37.7830, "lng": -122.4020 }
     },
     {
-      "id": "SHL-03",
-      "name": "Northside Recreation Complex",
-      "capacity": 400,
-      "occupancy": 400,
-      "status": "FULL",
-      "distanceKm": 7.4,
-      "coordinates": { "lat": 45.4490, "lng": -75.7050 }
-    },
-    {
-      "id": "SHL-04",
-      "name": "Westside Community Center",
-      "capacity": 250,
-      "occupancy": 0,
-      "status": "CLOSED",
-      "distanceKm": 6.1,
-      "coordinates": { "lat": 45.4050, "lng": -75.7400 }
+      "id": "SHELTER-03",
+      "name": "Kezar Pavilion Evacuation Shelter",
+      "capacity": 1500,
+      "occupancy": 320,
+      "occupancyPercent": 21,
+      "freeBeds": 1180,
+      "status": "OPEN",
+      "coordinates": { "lat": 37.7670, "lng": -122.4540 }
     }
   ],
   "roads": [
-    {
-      "id": "RD-01",
-      "roadName": "Logistics Way Industrial Access",
-      "status": "CLOSED",
-      "reason": "Chemical smoke & debris block",
-      "coordinates": { "lat": 45.4115, "lng": -75.6985 }
-    },
-    {
-      "id": "RD-02",
-      "roadName": "River Road Expressway Junction",
-      "status": "CONGESTED",
-      "reason": "Rising floodwaters & speed restriction",
-      "coordinates": { "lat": 45.4210, "lng": -75.6820 }
-    },
-    {
-      "id": "RD-03",
-      "roadName": "Downtown Metro Boulevard",
-      "status": "OPEN",
-      "reason": "Clear with signal prioritizations active",
-      "coordinates": { "lat": 45.4230, "lng": -75.7020 }
-    }
+    { "id": "RD-01", "name": "Mission St (1st to 4th)", "status": "OPEN", "congestion": "MODERATE" },
+    { "id": "RD-02", "name": "Pier 28 Lowland Corridor", "status": "CLOSED", "reason": "Flash Flood Inundation" },
+    { "id": "RD-03", "name": "Market St at 8th", "status": "CLOSED", "reason": "Gas Pipeline Perimeter Cordon" }
   ]
 }

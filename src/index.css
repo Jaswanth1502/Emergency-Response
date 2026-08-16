@@ -5,66 +5,129 @@
 }
 
 @layer utilities {
+  /* Apple Liquid Glassmorphism Materials */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 30px 0 rgba(15, 23, 42, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.02);
+  }
+
+  .liquid-glass-card {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 24px 0 rgba(15, 23, 42, 0.04), inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .liquid-glass-pill {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.03), inset 0 1px 0.5px 0 rgba(255, 255, 255, 1);
+  }
+
+  .liquid-glass-blue {
+    background: rgba(239, 246, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(191, 219, 254, 0.7);
+    box-shadow: 0 8px 24px 0 rgba(37, 99, 235, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .liquid-glass-rose {
+    background: rgba(255, 241, 242, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(254, 205, 211, 0.7);
+    box-shadow: 0 8px 24px 0 rgba(225, 29, 72, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .liquid-glass-emerald {
+    background: rgba(236, 253, 245, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(167, 243, 208, 0.7);
+    box-shadow: 0 8px 24px 0 rgba(5, 150, 105, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .liquid-glass-amber {
+    background: rgba(255, 251, 235, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(253, 230, 138, 0.7);
+    box-shadow: 0 8px 24px 0 rgba(217, 119, 6, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
   .glass-panel-neutral {
-    background: rgba(255, 255, 255, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-rose {
-    background: rgba(254, 242, 242, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 113, 133, 0.3);
-    box-shadow: 0 8px 32px rgba(225, 29, 72, 0.05);
+    background: rgba(254, 242, 242, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251, 113, 133, 0.4);
+    box-shadow: 0 8px 32px rgba(225, 29, 72, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-amber {
-    background: rgba(255, 251, 235, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    box-shadow: 0 8px 32px rgba(217, 119, 6, 0.05);
+    background: rgba(255, 251, 235, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    box-shadow: 0 8px 32px rgba(217, 119, 6, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-cyan {
-    background: rgba(236, 254, 255, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(34, 211, 238, 0.3);
-    box-shadow: 0 8px 32px rgba(8, 145, 178, 0.05);
+    background: rgba(236, 254, 255, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    box-shadow: 0 8px 32px rgba(8, 145, 178, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-emerald {
-    background: rgba(236, 253, 245, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    box-shadow: 0 8px 32px rgba(5, 150, 105, 0.05);
+    background: rgba(236, 253, 245, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    box-shadow: 0 8px 32px rgba(5, 150, 105, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-indigo {
-    background: rgba(238, 242, 255, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(129, 140, 248, 0.3);
-    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.05);
+    background: rgba(238, 242, 255, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   .glass-panel-slate {
-    background: rgba(241, 245, 249, 0.65);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    box-shadow: 0 8px 32px rgba(71, 85, 105, 0.05);
+    background: rgba(241, 245, 249, 0.72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: 0 8px 32px rgba(71, 85, 105, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
 
   /* Custom pulse animations */
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+}
+
+/* Button physical press feedback (Apple Fluid Interaction) */
+button:active:not(:disabled) {
+  transform: scale(0.975);
+  transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Scrollbar tweaks */
@@ -78,10 +141,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(148, 163, 184, 0.55);
 }

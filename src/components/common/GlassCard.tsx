@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export type GlassTint = 'rose' | 'amber' | 'cyan' | 'emerald' | 'indigo' | 'slate';
+export type GlassTint = 'rose' | 'amber' | 'cyan' | 'emerald' | 'indigo' | 'slate' | 'liquid';
 
 interface GlassCardProps {
   tint?: GlassTint;
@@ -15,12 +15,13 @@ interface GlassCardProps {
 }
 
 const tintClasses: Record<GlassTint, string> = {
-  rose: 'glass-panel-rose text-slate-900 border-rose-500/30',
-  amber: 'glass-panel-amber text-slate-900 border-amber-500/30',
-  cyan: 'glass-panel-cyan text-slate-900 border-cyan-500/30',
-  emerald: 'glass-panel-emerald text-slate-900 border-emerald-500/30',
-  indigo: 'glass-panel-indigo text-slate-900 border-indigo-500/30',
-  slate: 'glass-panel-slate text-slate-900 border-slate-400/30',
+  liquid: 'liquid-glass text-slate-900',
+  rose: 'liquid-glass-rose text-slate-900',
+  amber: 'liquid-glass-amber text-slate-900',
+  cyan: 'liquid-glass-blue text-slate-900',
+  emerald: 'liquid-glass-emerald text-slate-900',
+  indigo: 'liquid-glass-blue text-slate-900',
+  slate: 'liquid-glass-card text-slate-900',
 };
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -35,15 +36,12 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 }) => {
   const cardContent = (
     <div className={`p-5 rounded-2xl ${tintClasses[tint]} ${className} h-full flex flex-col transition-all duration-300 relative overflow-hidden`}>
-      {/* Decorative top-right soft glow blob */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full filter blur-2xl opacity-20 pointer-events-none bg-current" />
-      
       {title && (
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/20">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/60">
           <div className="flex items-center space-x-3">
             {icon && <div className="text-slate-700 flex-shrink-0">{icon}</div>}
             <div>
-              <h3 className="font-semibold text-slate-900 tracking-tight text-sm uppercase">{title}</h3>
+              <h3 className="font-extrabold text-slate-900 tracking-tight text-sm uppercase">{title}</h3>
               {subtitle && <p className="text-xs text-slate-500 font-medium">{subtitle}</p>}
             </div>
           </div>
@@ -59,10 +57,10 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   if (onClick) {
     return (
       <motion.button
-        whileHover={{ scale: 1.015, y: -2 }}
-        whileTap={{ scale: 0.985 }}
+        whileHover={{ scale: 1.01, y: -2 }}
+        whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className="w-full text-left focus:outline-none block h-full"
+        className="w-full text-left focus:outline-none block h-full cursor-pointer"
       >
         {cardContent}
       </motion.button>

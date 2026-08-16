@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/three": "^0.185.4",
     "clsx": "2.1.1",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.24.0",
@@ -16,7 +17,8 @@
     "react-dom": "19.2.6",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
-    "tailwind-merge": "3.4.0"
+    "tailwind-merge": "3.4.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.17",

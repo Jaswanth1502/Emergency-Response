@@ -1,162 +1,269 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { GlassCard } from '../components/common/GlassCard';
-import { StatusBadge } from '../components/common/StatusBadge';
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts';
-import { Thermometer, Wind, Droplets, Activity, Radio } from 'lucide-react';
-import type { SensorType } from '../types/sensor';
+import { Search, Radio, Thermometer, Wind, Droplets, Activity, Zap, Cpu } from 'lucide-react';
 
-const sensorTypeConfig: Record<SensorType, { label: string; icon: React.ReactNode; color: string }> = {
-  TEMPERATURE: { label: 'Temperature', icon: <Thermometer className="w-4 h-4" />, color: '#ef4444' },
-  SMOKE: { label: 'Smoke Detection', icon: <Wind className="w-4 h-4" />, color: '#f59e0b' },
-  GAS: { label: 'Gas Concentration', icon: <Activity className="w-4 h-4" />, color: '#8b5cf6' },
-  WATER_LEVEL: { label: 'Water Level', icon: <Droplets className="w-4 h-4" />, color: '#06b6d4' },
-  SEISMIC: { label: 'Seismic Activity', icon: <Radio className="w-4 h-4" />, color: '#10b981' },
-};
+interface SensorNode {
+  id: string;
+  name: string;
+  location: string;
+  type: string;
+  status: 'Critical' | 'Warning' | 'Normal';
+  liveReading: string;
+  threshold: string;
+  battery: number;
+  updated: string;
+  historyBars: ('blue' | 'red')[];
+}
+
+const SENSOR_NODES: SensorNode[] = [
+  {
+    id: 'SENS-TEMP-01',
+    name: 'Thermal Array 6F East Corridor',
+    location: '450 Mission St - Floor 6 Mezzanine',
+    type: 'Temperature',
+    status: 'Critical',
+    liveReading: '485 °C',
+    threshold: '70 °C',
+    battery: 91,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'red', 'red', 'red', 'red']
+  },
+  {
+    id: 'SENS-SMK-02',
+    name: 'Optical Smoke Detector Array B2',
+    location: '450 Mission St - Sub-Basement B2',
+    type: 'Smoke',
+    status: 'Critical',
+    liveReading: '88 % Obscuration/m',
+    threshold: '15 % Obscuration/m',
+    battery: 84,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'blue', 'red', 'red', 'red']
+  },
+  {
+    id: 'SENS-GAS-01',
+    name: 'Methane (CH4) Detector Gate 4',
+    location: '8th & Market Intermodal Lower Concourse',
+    type: 'Gas',
+    status: 'Critical',
+    liveReading: '68 % LEL',
+    threshold: '20 % LEL',
+    battery: 96,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'red', 'red', 'red', 'red']
+  },
+  {
+    id: 'SENS-WAT-01',
+    name: 'Submersible Pressure Transducer W-04',
+    location: 'Pier 28 Tidal Basin Seawall Lock',
+    type: 'Water Level',
+    status: 'Critical',
+    liveReading: '3.42 m Depth',
+    threshold: '2.1 m Depth',
+    battery: 88,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'red', 'red', 'red', 'red']
+  },
+  {
+    id: 'SENS-SEIS-01',
+    name: 'Tri-Axial Strong-Motion Accelerometer SM-1',
+    location: 'Civic Center Bedrock Station 4',
+    type: 'Seismic',
+    status: 'Warning',
+    liveReading: '4.2 Magnitude (ML)',
+    threshold: '3 Magnitude (ML)',
+    battery: 99,
+    updated: '15 min ago',
+    historyBars: ['blue', 'blue', 'blue', 'red', 'red']
+  },
+  {
+    id: 'SENS-AQI-03',
+    name: 'Laser Particulate Matter Air Monitor PM2.5/PM10',
+    location: 'Market Corridor Environmental Mast 9',
+    type: 'Air Quality',
+    status: 'Warning',
+    liveReading: '210 AQI (Severe)',
+    threshold: '100 AQI (Severe)',
+    battery: 94,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'blue', 'red', 'red', 'red']
+  },
+  {
+    id: 'SENS-OCC-01',
+    name: 'Infrared Flow Sensor Arterial S-2',
+    location: 'Highway 101 Overpass Pedestrian Walk',
+    type: 'Pedestrian Flow',
+    status: 'Normal',
+    liveReading: '12 Persons/100m²',
+    threshold: '40 Persons/100m²',
+    battery: 92,
+    updated: 'Just now',
+    historyBars: ['blue', 'blue', 'blue', 'blue', 'blue', 'blue']
+  },
+  {
+    id: 'SENS-TEMP-04',
+    name: 'Perimeter Meteorological Node West',
+    location: 'Presidio Weather Mast 1',
+    type: 'Temperature',
+    status: 'Normal',
+    liveReading: '21.4 °C',
+    threshold: '35 °C',
+    battery: 98,
+    updated: '2 min ago',
+    historyBars: ['blue', 'blue', 'blue', 'blue', 'blue', 'blue']
+  }
+];
 
 export const SensorMonitoring: React.FC = () => {
-  const { sensors } = useApp();
-  const [activeType, setActiveType] = useState<SensorType | 'ALL'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
 
-  const filteredSensors = activeType === 'ALL' ? sensors : sensors.filter(s => s.type === activeType);
-  const types: (SensorType | 'ALL')[] = ['ALL', 'TEMPERATURE', 'SMOKE', 'GAS', 'WATER_LEVEL', 'SEISMIC'];
+  const filteredSensors = SENSOR_NODES.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          s.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          s.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === 'All' || s.type === selectedType;
+    return matchesSearch && matchesType;
+  });
 
   return (
-    <div className="space-y-6 text-left">
-      <div className="border-b border-slate-300/25 pb-4">
-        <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">IoT Sensor Telemetry Monitoring</h2>
-        <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Dashboard / Real-Time Stream Analysis</p>
-      </div>
+    <div className="space-y-4 text-left font-sans">
+      
+      {/* Top Header & Search Bar (Matching Screenshot 1) */}
+      <div className="liquid-glass-card p-4 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
+            Smart City IoT Sensor Telemetry
+          </h2>
+          <p className="text-xs text-slate-500">
+            Real-time edge streams: thermal arrays, gas sniffers, hydro transducers & seismic nodes
+          </p>
+        </div>
 
-      {/* Tab Filters */}
-      <div className="flex flex-wrap gap-2">
-        {types.map(t => (
-          <button
-            key={t}
-            onClick={() => setActiveType(t)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer ${
-              activeType === t
-                ? 'bg-slate-900 text-white border-slate-700 shadow-md'
-                : 'bg-white/70 text-slate-600 border-slate-300/50 hover:bg-white'
-            }`}
+        <div className="flex items-center space-x-2 w-full md:w-auto">
+          {/* Search Input */}
+          <div className="relative flex-1 md:w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search sensor node..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 liquid-glass-pill rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+            />
+          </div>
+
+          {/* Type Dropdown */}
+          <select
+            value={selectedType}
+            onChange={e => setSelectedType(e.target.value)}
+            className="liquid-glass-pill px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
           >
-            {t === 'ALL' ? 'All Sensors' : sensorTypeConfig[t].label}
-          </button>
-        ))}
+            <option value="All">All Sensor Types</option>
+            <option value="Temperature">Temperature</option>
+            <option value="Smoke">Smoke</option>
+            <option value="Gas">Gas (CH4)</option>
+            <option value="Water Level">Water Level</option>
+            <option value="Seismic">Seismic</option>
+            <option value="Air Quality">Air Quality</option>
+            <option value="Pedestrian Flow">Pedestrian Flow</option>
+          </select>
+        </div>
       </div>
 
-      {/* Summary Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <GlassCard tint="emerald">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">Safe</p>
-              <p className="text-2xl font-black text-emerald-600 tabular-nums">{sensors.filter(s => s.status === 'SAFE').length}</p>
-            </div>
-            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-600"><Activity className="w-5 h-5" /></div>
-          </div>
-        </GlassCard>
-        <GlassCard tint="amber">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">Warning</p>
-              <p className="text-2xl font-black text-amber-600 tabular-nums">{sensors.filter(s => s.status === 'WARNING').length}</p>
-            </div>
-            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600"><Activity className="w-5 h-5" /></div>
-          </div>
-        </GlassCard>
-        <GlassCard tint="rose">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">Critical</p>
-              <p className="text-2xl font-black text-rose-600 tabular-nums">{sensors.filter(s => s.status === 'CRITICAL').length}</p>
-            </div>
-            <div className="p-2 bg-rose-500/10 rounded-lg text-rose-600"><Activity className="w-5 h-5" /></div>
-          </div>
-        </GlassCard>
-        <GlassCard tint="slate">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">Total Online</p>
-              <p className="text-2xl font-black text-slate-800 tabular-nums">{sensors.filter(s => s.status !== 'OFFLINE').length}/{sensors.length}</p>
-            </div>
-            <div className="p-2 bg-slate-500/10 rounded-lg text-slate-600"><Radio className="w-5 h-5" /></div>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* Sensor Detail Cards with Charts */}
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* 2x4 Grid of 8 Sensor Cards (Matching Screenshot 1) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {filteredSensors.map(sensor => {
-          const config = sensorTypeConfig[sensor.type];
-          const tint = sensor.status === 'CRITICAL' ? 'rose' : sensor.status === 'WARNING' ? 'amber' : 'cyan';
+          const badgeClass =
+            sensor.status === 'Critical'
+              ? 'bg-rose-50 text-rose-700 border-rose-200'
+              : sensor.status === 'Warning'
+              ? 'bg-amber-50 text-amber-700 border-amber-200'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+
+          const readingColor =
+            sensor.status === 'Critical'
+              ? 'text-rose-600'
+              : sensor.status === 'Warning'
+              ? 'text-amber-600'
+              : 'text-slate-900';
 
           return (
-            <GlassCard
+            <div
               key={sensor.id}
-              title={sensor.name}
-              subtitle={`${sensor.id} • ${config.label}`}
-              icon={config.icon}
-              tint={tint}
-              actions={<StatusBadge status={sensor.status} />}
+              className="liquid-glass-card p-4 rounded-2xl space-y-3 flex flex-col justify-between hover:-translate-y-0.5 transition-all text-left"
             >
-              <div className="space-y-4 mt-2">
-                {/* Current Value Display */}
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <span className={`text-3xl font-black tabular-nums ${
-                      sensor.status === 'CRITICAL' ? 'text-rose-600' : sensor.status === 'WARNING' ? 'text-amber-600' : 'text-cyan-600'
-                    }`}>
-                      {sensor.currentValue}
-                    </span>
-                    <span className="text-sm text-slate-500 ml-1 font-semibold">{sensor.unit}</span>
-                  </div>
-                  <div className="text-right text-[10px] text-slate-400">
-                    <p>Warn: {sensor.thresholdHigh} {sensor.unit}</p>
-                    <p>Crit: {sensor.thresholdCritical} {sensor.unit}</p>
-                  </div>
-                </div>
+              
+              {/* Top Row: Sensor ID + Status Badge */}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-slate-400">
+                  {sensor.id}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-2xs ${badgeClass}`}>
+                  ● {sensor.status}
+                </span>
+              </div>
 
-                {/* Threshold gauge bar */}
-                <div className="relative h-2 bg-slate-200/50 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      sensor.currentValue >= sensor.thresholdCritical ? 'bg-rose-500' :
-                      sensor.currentValue >= sensor.thresholdHigh ? 'bg-amber-500' : 'bg-emerald-500'
-                    }`}
-                    style={{ width: `${Math.min((sensor.currentValue / (sensor.thresholdCritical * 1.2)) * 100, 100)}%` }}
-                  />
-                </div>
+              {/* Title & Location */}
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-xs tracking-tight line-clamp-1">
+                  {sensor.name}
+                </h3>
+                <p className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                  {sensor.location}
+                </p>
+              </div>
 
-                {/* 24h Area Chart */}
-                <div className="h-[140px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={sensor.historical24h}>
-                      <defs>
-                        <linearGradient id={`grad-${sensor.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
-                          <stop offset="95%" stopColor={config.color} stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="time" stroke="#94a3b8" fontSize={9} tickLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
-                      <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '10px' }} />
-                      <ReferenceLine y={sensor.thresholdHigh} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'Warn', fontSize: 8, fill: '#f59e0b' }} />
-                      <ReferenceLine y={sensor.thresholdCritical} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'Crit', fontSize: 8, fill: '#ef4444' }} />
-                      <Area type="monotone" dataKey="value" stroke={config.color} strokeWidth={2} fill={`url(#grad-${sensor.id})`} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="flex justify-between text-[9px] text-slate-400 font-mono uppercase">
-                  <span>Last Reading: {new Date(sensor.lastReadingTime).toLocaleTimeString()}</span>
-                  <span>Lat: {sensor.coordinates.lat.toFixed(4)}</span>
+              {/* Live Reading */}
+              <div className="pt-1">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
+                  Live Reading
+                </span>
+                <div className="flex items-baseline space-x-1.5 mt-0.5">
+                  <span className={`text-xl font-black tracking-tight ${readingColor}`}>
+                    {sensor.liveReading.split(' ')[0]}
+                  </span>
+                  <span className="text-xs font-extrabold text-slate-500">
+                    {sensor.liveReading.split(' ').slice(1).join(' ')}
+                  </span>
                 </div>
               </div>
-            </GlassCard>
+
+              {/* History Sparkline Bars (Last 30m) & Threshold */}
+              <div className="space-y-1 pt-1 border-t border-slate-100/60">
+                <div className="flex items-center justify-between text-[9px] text-slate-400 font-mono">
+                  <span>History (Last 30m)</span>
+                  <span className="font-semibold text-slate-500">Threshold: {sensor.threshold}</span>
+                </div>
+                
+                {/* 6 Segment History Sparkline */}
+                <div className="flex items-end space-x-1 h-3.5 pt-0.5">
+                  {sensor.historyBars.map((bar, i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-sm ${
+                        bar === 'red'
+                          ? 'bg-rose-500 h-full'
+                          : 'bg-blue-400 h-2'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer: Battery / Signal & Updated Time */}
+              <div className="flex items-center justify-between pt-2 border-t border-white/60 text-[10px] font-mono text-slate-400">
+                <span className="flex items-center space-x-1 text-emerald-600 font-bold">
+                  <span>⚡</span>
+                  <span>{sensor.battery}%</span>
+                </span>
+                <span>{sensor.updated}</span>
+              </div>
+
+            </div>
           );
         })}
       </div>
+
     </div>
   );
 };
