@@ -23,7 +23,8 @@ import {
   Clock,
   Menu,
   X,
-  Radio
+  Radio,
+  Database
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { NotificationDrawer } from '../components/notifications/NotificationDrawer';

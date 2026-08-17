@@ -4,6 +4,8 @@ import { EmergencyResource } from '../types/resource';
 import { SensorTelemetry } from '../types/sensor';
 import { EvacuationRoute, Shelter, RoadStatus } from '../types/evacuation';
 import { User, UserRole } from '../types/user';
+import { MLModelMeta, InferenceResult, TrainingProgress } from '../types/ml';
+import { defaultMLEngine, INITIAL_ML_MODELS } from '../services/mlEngine';
 
 // Import raw json files
 import rawIncidents from '../dummy-data/incidents.json';
@@ -48,6 +50,13 @@ interface AppContextType {
   isSimulating: boolean;
   setIsSimulating: (sim: boolean) => void;
   triggerPredictiveSimulation: () => Promise<string>;
+
+  // ML Engine & Training Studio
+  activeModels: MLModelMeta[];
+  trainingProgress: Record<string, TrainingProgress>;
+  recentInferences: InferenceResult[];
+  runModelInference: (modelId: string, inputs: Record<string, number>) => InferenceResult;
+  retrainModelJob: (modelId: string, totalEpochs?: number) => Promise<MLModelMeta>;
 }
 
 export interface AppNotification {
@@ -72,6 +81,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const [currentRole, setCurrentRoleState] = useState<UserRole>('ADMIN');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // ML Models & Training State
+  const [activeModels, setActiveModels] = useState<MLModelMeta[]>(INITIAL_ML_MODELS);
+  const [trainingProgress, setTrainingProgress] = useState<Record<string, TrainingProgress>>({});
+  const [recentInferences, setRecentInferences] = useState<InferenceResult[]>([
+    defaultMLEngine.predictFireRisk(485, 88, 25),
+    defaultMLEngine.predictLandslideRisk(14.8, 42.6, 38)
+  ]);
   
   // Set current user based on selected role
   useEffect(() => {
@@ -89,22 +106,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: "N1",
-      message: "ALERT: Chemical Warehouse Smoke Detector SNS-SMK-12 reached CRITICAL threshold (94.2%).",
-      timestamp: new Date(Date.now() - 3 * 60 * 0), // 3 min ago
+      message: "ALERT: Chemical Warehouse Smoke Detector reached CRITICAL threshold (88%).",
+      timestamp: new Date(Date.now() - 3 * 60 * 1000),
       severity: "error",
       read: false
     },
     {
       id: "N2",
-      message: "WARNING: Rideau River Gauge RSV-4 warning level breached. Stream rising 0.12m/hr.",
-      timestamp: new Date(Date.now() - 15 * 60 * 0), // 15 min ago
+      message: "WARNING: InSAR Extensometer Node detected 14.8mm shear displacement on West Ridge.",
+      timestamp: new Date(Date.now() - 15 * 60 * 1000),
       severity: "warning",
       read: false
     },
     {
       id: "N3",
-      message: "INFO: Sub-Station 11 Temperature sensor warning (72.5°C). Cooling units activated.",
-      timestamp: new Date(Date.now() - 40 * 60 * 0), // 40 min ago
+      message: "INFO: Rideau River Gauge RSV-4 warning level breached. Stream rising 0.12m/hr.",
+      timestamp: new Date(Date.now() - 40 * 60 * 1000),
       severity: "info",
       read: true
     }
@@ -155,20 +172,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deployResource = (resourceId: string, incidentId: string) => {
-    // Set resource state to deployed
     setResources(prev => prev.map(res => {
       if (res.id === resourceId) {
         return {
           ...res,
           status: 'DEPLOYED',
-          etaMinutes: Math.floor(Math.random() * 8) + 2, // 2-10 mins
+          etaMinutes: Math.floor(Math.random() * 8) + 2,
           capacityLabel: 'Engaged on emergency tactical unit'
         };
       }
       return res;
     }));
 
-    // Add entry to incident timeline
     setIncidents(prev => prev.map(inc => {
       if (inc.id === incidentId) {
         const matchingRes = resources.find(r => r.id === resourceId);
@@ -214,7 +229,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return inc;
     }));
 
-    // Return assigned resources back to active/available
     const incident = incidents.find(i => i.id === incidentId);
     if (incident) {
       const assignedIds = incident.assignedResources;
@@ -257,10 +271,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // ML Engine Execution
+  const runModelInference = (modelId: string, inputs: Record<string, number>): InferenceResult => {
+    const result = defaultMLEngine.runInference(modelId, inputs);
+    setRecentInferences(prev => [result, ...prev.slice(0, 19)]);
+    return result;
+  };
+
+  const retrainModelJob = async (modelId: string, totalEpochs: number = 8): Promise<MLModelMeta> => {
+    addNotification(`AI TRAINING INITIATED: Retraining model ${modelId} on active dataset...`, 'info');
+    
+    const updated = await defaultMLEngine.retrainModel(modelId, totalEpochs, (progress) => {
+      setTrainingProgress(prev => ({
+        ...prev,
+        [modelId]: progress
+      }));
+    });
+
+    setActiveModels(defaultMLEngine.getModels());
+    addNotification(`AI TRAINING COMPLETED: ${updated.name} updated to ${updated.accuracy}% accuracy (${totalEpochs} epochs).`, 'info');
+    return updated;
+  };
+
   const triggerPredictiveSimulation = (): Promise<string> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Trigger simulated sensors high reading + predictive shelter change
         setSensors(prev => prev.map(s => {
           if (s.type === 'WATER_LEVEL') {
             return {
@@ -272,7 +307,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return s;
         }));
         
-        // Increase shelter occupancies
         setShelters(prev => prev.map(sh => {
           if (sh.status === 'OPEN') {
             const newOcc = Math.min(sh.occupancy + 25, sh.capacity);
@@ -285,7 +319,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return sh;
         }));
 
-        // Close a road
         setRoads(prev => prev.map(r => {
           if (r.id === 'RD-02') {
             return {
@@ -336,7 +369,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setSimSpeedMultiplier,
       isSimulating,
       setIsSimulating,
-      triggerPredictiveSimulation
+      triggerPredictiveSimulation,
+
+      activeModels,
+      trainingProgress,
+      recentInferences,
+      runModelInference,
+      retrainModelJob
     }}>
       {children}
     </AppContext.Provider>

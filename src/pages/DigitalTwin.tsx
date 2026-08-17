@@ -25,7 +25,7 @@ export const DigitalTwin: React.FC = () => {
   const { addNotification, deployResource } = useApp();
   
   const [viewTab, setViewTab] = useState<'3D' | '2D'>('3D');
-  const [selectedScenario, setSelectedScenario] = useState<'fire' | 'flood' | 'gas'>('fire');
+  const [selectedScenario, setSelectedScenario] = useState<'fire' | 'flood' | 'gas' | 'landslide' | 'seismic'>('fire');
   const [isPlaying, setIsPlaying] = useState(false);
   const [simSpeed, setSimSpeed] = useState<number>(1);
   const [timeOffset, setTimeOffset] = useState<number>(0); // -120 to +60 minutes
@@ -222,6 +222,42 @@ export const DigitalTwin: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 truncate mt-1">Seismic Rupture & Natural Gas Pipeline Fract...</p>
+              </div>
+
+              {/* Landslide Scenario */}
+              <div
+                onClick={() => setSelectedScenario('landslide')}
+                className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedScenario === 'landslide'
+                    ? 'liquid-glass-blue border-blue-400/80 shadow-xs'
+                    : 'bg-white/60 border-white/80 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-slate-900 text-xs">Landslide</span>
+                  <span className="text-[10px] font-bold text-rose-600 bg-rose-50/90 px-2 py-0.5 rounded-full border border-rose-200 shadow-2xs">
+                    ● Critical
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 truncate mt-1">West Ridge Slope Failure & Mudslide Threat...</p>
+              </div>
+
+              {/* Seismic Scenario */}
+              <div
+                onClick={() => setSelectedScenario('seismic')}
+                className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedScenario === 'seismic'
+                    ? 'liquid-glass-blue border-blue-400/80 shadow-xs'
+                    : 'bg-white/60 border-white/80 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-slate-900 text-xs">Seismic</span>
+                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50/90 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
+                    ▲ High
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 truncate mt-1">4.2 ML Bedrock Tremor Aftershock...</p>
               </div>
             </div>
 

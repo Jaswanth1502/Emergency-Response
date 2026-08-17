@@ -47,6 +47,38 @@
         { "lat": 37.7891, "lng": -122.4014 },
         { "lat": 37.7710, "lng": -122.4110 }
       ]
+    },
+    {
+      "id": "EVAC-04",
+      "name": "Landslide Bypass Gamma (West Ridge to Kezar Shelter)",
+      "badge": "TERRAIN BYPASS CORRIDOR",
+      "safetyScore": 91,
+      "from": "West Ridge Residential Escarpment",
+      "to": "Kezar Pavilion Evacuation Shelter (SHELTER-03)",
+      "distance": "2.8 km",
+      "eta": "32m",
+      "congestion": "Low",
+      "status": "OPEN",
+      "points": [
+        { "lat": 37.7550, "lng": -122.4450 },
+        { "lat": 37.7670, "lng": -122.4540 }
+      ]
+    },
+    {
+      "id": "EVAC-05",
+      "name": "HazMat 400m Exclusion Perimeter (8th & Market Cordon)",
+      "badge": "ACTIVE CORDON EXCLUSION",
+      "safetyScore": 42,
+      "from": "8th & Market Intermodal Hub",
+      "to": "9th St Green Corridor Egress",
+      "distance": "0.6 km",
+      "eta": "8m",
+      "congestion": "Severe",
+      "status": "RESTRICTED",
+      "points": [
+        { "lat": 37.7785, "lng": -122.4140 },
+        { "lat": 37.7750, "lng": -122.4180 }
+      ]
     }
   ],
   "shelters": [
@@ -79,11 +111,33 @@
       "freeBeds": 1180,
       "status": "OPEN",
       "coordinates": { "lat": 37.7670, "lng": -122.4540 }
+    },
+    {
+      "id": "SHELTER-04",
+      "name": "Sunset Community Resilience Hub",
+      "capacity": 1800,
+      "occupancy": 210,
+      "occupancyPercent": 12,
+      "freeBeds": 1590,
+      "status": "OPEN",
+      "coordinates": { "lat": 37.7540, "lng": -122.4820 }
+    },
+    {
+      "id": "SHELTER-05",
+      "name": "Presidio Emergency Logistics Hub",
+      "capacity": 3000,
+      "occupancy": 450,
+      "occupancyPercent": 15,
+      "freeBeds": 2550,
+      "status": "OPEN",
+      "coordinates": { "lat": 37.7990, "lng": -122.4650 }
     }
   ],
   "roads": [
     { "id": "RD-01", "name": "Mission St (1st to 4th)", "status": "OPEN", "congestion": "MODERATE" },
     { "id": "RD-02", "name": "Pier 28 Lowland Corridor", "status": "CLOSED", "reason": "Flash Flood Inundation" },
-    { "id": "RD-03", "name": "Market St at 8th", "status": "CLOSED", "reason": "Gas Pipeline Perimeter Cordon" }
+    { "id": "RD-03", "name": "Market St at 8th", "status": "CLOSED", "reason": "Gas Pipeline Perimeter Cordon" },
+    { "id": "RD-04", "name": "West Ridge Escarpment Way", "status": "CLOSED", "reason": "Landslide Catchment Barrier Works" },
+    { "id": "RD-05", "name": "Highway 101 Overpass Jct", "status": "CLOSED", "reason": "Hazardous Transport Collision Cleanup" }
   ]
 }

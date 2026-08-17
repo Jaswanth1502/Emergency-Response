@@ -39,6 +39,10 @@ export const IncidentManagement: React.FC = () => {
       case 'gas leak':
       case 'hazmat spill':
         return <AlertTriangle className="w-4 h-4 text-purple-600" />;
+      case 'landslide':
+        return <AlertTriangle className="w-4 h-4 text-amber-600" />;
+      case 'earthquake':
+        return <AlertTriangle className="w-4 h-4 text-rose-600" />;
       case 'road accident':
       case 'multi-vehicle collision':
         return <Car className="w-4 h-4 text-sky-500" />;
@@ -140,6 +144,8 @@ export const IncidentManagement: React.FC = () => {
             <option value="Fire">Fire</option>
             <option value="Flood">Flood</option>
             <option value="Gas Leak">Gas Leak</option>
+            <option value="Landslide">Landslide</option>
+            <option value="Earthquake">Earthquake</option>
             <option value="Road Accident">Road Accident</option>
             <option value="Building Collapse">Building Collapse</option>
             <option value="Crowd Emergency">Crowd Emergency</option>

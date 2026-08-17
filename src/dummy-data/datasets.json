@@ -1,0 +1,281 @@
+[
+  {
+    "id": "DATA-FIRMS-01",
+    "name": "NASA FIRMS Satellite Active Thermal Hotspots",
+    "category": "Fire & Thermal",
+    "provider": "NASA Earth Science Data Systems (ESDS)",
+    "format": "GeoJSON / REST Stream",
+    "recordsCount": "1,420,000+ daily detections",
+    "updateCadence": "Every 15 minutes (VIIRS / MODIS)",
+    "status": "ACTIVE_STREAM",
+    "license": "NASA Open Data Policy (Public Domain)",
+    "description": "Satellite thermal anomaly and fire radiative power detection for early perimeter mapping and forest/industrial fire boundary tracking.",
+    "monitoredFields": [
+      { "name": "latitude", "type": "number", "unit": "°N", "description": "Center latitude of thermal pixel" },
+      { "name": "longitude", "type": "number", "unit": "°W", "description": "Center longitude of thermal pixel" },
+      { "name": "brightness", "type": "number", "unit": "Kelvin", "description": "Channel I-4 brightness temperature" },
+      { "name": "frp", "type": "number", "unit": "MW", "description": "Fire Radiative Power output" },
+      { "name": "confidence", "type": "string", "description": "Detection confidence rating (nominal / high)" }
+    ],
+    "samplePayload": {
+      "latitude": 37.7891,
+      "longitude": -122.4014,
+      "brightness": 758.2,
+      "frp": 42.6,
+      "confidence": "high",
+      "satellite": "VIIRS-SNPP",
+      "acq_time": "14:15 UTC"
+    },
+    "endpointUrl": "https://firms.modaps.eosdis.nasa.gov/api/area"
+  },
+  {
+    "id": "DATA-USGS-WAT-02",
+    "name": "USGS NWIS Real-Time Hydrological Streamflow & Gauge",
+    "category": "Flood & Hydro",
+    "provider": "U.S. Geological Survey (USGS)",
+    "format": "JSON / WaterML",
+    "recordsCount": "13,500+ active telemetry stations",
+    "updateCadence": "Real-time (Every 5 minutes)",
+    "status": "ACTIVE_STREAM",
+    "license": "US Public Domain",
+    "description": "Submersible stream stage and river discharge depth monitoring for immediate flood threshold breach alerting.",
+    "monitoredFields": [
+      { "name": "site_no", "type": "string", "description": "USGS unique gauge station identifier" },
+      { "name": "gage_height_m", "type": "number", "unit": "meters", "description": "Water surface level above datum" },
+      { "name": "streamflow_m3s", "type": "number", "unit": "m³/s", "description": "Instantaneous water volumetric discharge" },
+      { "name": "flood_stage_alert", "type": "boolean", "description": "Exceedance indicator over major flood stage" }
+    ],
+    "samplePayload": {
+      "site_no": "04288000",
+      "gage_height_m": 4.85,
+      "streamflow_m3s": 384.2,
+      "flood_stage_alert": true,
+      "datetime": "2026-03-29T15:15:00Z"
+    },
+    "endpointUrl": "https://waterservices.usgs.gov/nwis/iv/"
+  },
+  {
+    "id": "DATA-SENT-LS-03",
+    "name": "Copernicus Sentinel-1 InSAR Slope Creep & Ground Deformation",
+    "category": "Landslide & Terrain",
+    "provider": "European Space Agency (ESA)",
+    "format": "GeoTIFF / HDF5 / GeoJSON",
+    "recordsCount": "6-day global repeat cycle",
+    "updateCadence": "6 to 12 Days",
+    "status": "SYNCHRONIZED",
+    "license": "Copernicus Open Access",
+    "description": "Interferometric Synthetic Aperture Radar (InSAR) surface displacement mapping to detect millimeter-scale hillside slope creeping before catastrophic mudslides.",
+    "monitoredFields": [
+      { "name": "los_velocity_mm_yr", "type": "number", "unit": "mm/year", "description": "Line-of-sight ground movement velocity" },
+      { "name": "coherence", "type": "number", "unit": "0..1", "description": "SAR interferogram phase correlation quality" },
+      { "name": "slope_instability_index", "type": "number", "unit": "0..100", "description": "Calculated terrain shear failure risk" },
+      { "name": "pore_pressure_kpa", "type": "number", "unit": "kPa", "description": "Subsurface piezometric pore water pressure" }
+    ],
+    "samplePayload": {
+      "sector": "West Ridge Sector B",
+      "los_velocity_mm_yr": -14.8,
+      "coherence": 0.88,
+      "slope_instability_index": 86.4,
+      "pore_pressure_kpa": 42.6,
+      "timestamp": "2026-03-29T14:50:00Z"
+    },
+    "endpointUrl": "https://browser.dataspace.copernicus.eu/"
+  },
+  {
+    "id": "DATA-UCI-GAS-04",
+    "name": "UCI Gas Sensor Array Multi-Concentration Drift Baseline",
+    "category": "Gas & Chemical",
+    "provider": "UC Irvine Machine Learning Repository / UCSD BioCircuits",
+    "format": "CSV / REST Telemetry",
+    "recordsCount": "13,910 continuous chemical sensor tests",
+    "updateCadence": "Historical Baseline & Live Calibrated",
+    "status": "ML_MODEL_TRAINED",
+    "license": "CC BY 4.0",
+    "description": "16 chemical metal-oxide semiconductor sensor arrays for classifying volatile compounds (Methane CH4, CO, Ammonia, Ethanol) and % LEL explosion thresholds.",
+    "monitoredFields": [
+      { "name": "gas_compound", "type": "string", "description": "Identified volatile organic / hydrocarbon compound" },
+      { "name": "concentration_lel", "type": "number", "unit": "% LEL", "description": "Lower Explosive Limit percentage" },
+      { "name": "concentration_ppm", "type": "number", "unit": "ppm", "description": "Parts-per-million gas density" },
+      { "name": "vapor_dispersion_vector", "type": "string", "description": "Predicted downwind plume trajectory" }
+    ],
+    "samplePayload": {
+      "sensor_id": "SNS-GAS-01",
+      "gas_compound": "Methane (CH4)",
+      "concentration_lel": 68.0,
+      "concentration_ppm": 34000,
+      "vapor_dispersion_vector": "SSW 220° towards 8th & Market Concourse",
+      "bleve_threat": "HIGH"
+    },
+    "endpointUrl": "https://archive.ics.uci.edu/dataset/224/gas+sensor+array+drift"
+  },
+  {
+    "id": "DATA-USGS-SEIS-05",
+    "name": "USGS ComCat Real-Time Seismic Waveforms & Shakemaps",
+    "category": "Seismic & Structural",
+    "provider": "USGS Earthquake Hazards Program",
+    "format": "GeoJSON / QuakeML",
+    "recordsCount": "50,000+ earthquakes logged annually",
+    "updateCadence": "Sub-second event trigger",
+    "status": "ACTIVE_STREAM",
+    "license": "US Public Domain",
+    "description": "Real-time seismic hypocenter coordinates, Richter / Moment Magnitude (ML/Mw), and Peak Ground Acceleration (PGA) structural shake mapping.",
+    "monitoredFields": [
+      { "name": "magnitude", "type": "number", "unit": "ML", "description": "Local seismic magnitude" },
+      { "name": "pga_g", "type": "number", "unit": "g", "description": "Peak Ground Acceleration at municipal bedrock" },
+      { "name": "focal_depth_km", "type": "number", "unit": "km", "description": "Hypocenter rupture depth" },
+      { "name": "structural_strain_ue", "type": "number", "unit": "με", "description": "Microstrain on high-rise support trusses" }
+    ],
+    "samplePayload": {
+      "event_id": "us7000m9qr",
+      "magnitude": 4.2,
+      "pga_g": 0.18,
+      "focal_depth_km": 8.4,
+      "structural_strain_ue": 342,
+      "shakemap_intensity": "VI (Strong)",
+      "timestamp": "2026-03-29T15:00:00Z"
+    },
+    "endpointUrl": "https://earthquake.usgs.gov/fdsnws/event/1/"
+  },
+  {
+    "id": "DATA-ACC-TRF-06",
+    "name": "US-Accidents & Caltrans PeMS Highway Arterial Telemetry",
+    "category": "Traffic & Transit",
+    "provider": "Moosavi et al. / Caltrans / UC Berkeley",
+    "format": "Parquet / REST Stream",
+    "recordsCount": "7.7 Million Incident Records",
+    "updateCadence": "Live 5-min Highway Radar Loops",
+    "status": "ACTIVE_STREAM",
+    "license": "CC BY-NC-SA 4.0",
+    "description": "Real-time highway loop detector speed drops, multi-vehicle collisions, arterial lane closures, and dynamic detour bypass calculations.",
+    "monitoredFields": [
+      { "name": "corridor_id", "type": "string", "description": "Highway / arterial segment code" },
+      { "name": "current_speed_kmh", "type": "number", "unit": "km/h", "description": "Live traffic corridor speed" },
+      { "name": "baseline_speed_kmh", "type": "number", "unit": "km/h", "description": "Free-flow benchmark speed" },
+      { "name": "incident_severity", "type": "number", "unit": "1..4", "description": "Accident impact index on transit flow" },
+      { "name": "lane_blockage_count", "type": "number", "description": "Number of obstructed travel lanes" }
+    ],
+    "samplePayload": {
+      "corridor_id": "HWY-101-OVERPASS-N",
+      "current_speed_kmh": 14.2,
+      "baseline_speed_kmh": 88.0,
+      "delay_mins": 38.5,
+      "incident_severity": 3,
+      "hazardous_cargo_involved": true,
+      "timestamp": "2026-03-29T15:10:00Z"
+    },
+    "endpointUrl": "https://pems.dot.ca.gov/"
+  },
+  {
+    "id": "DATA-CROWD-DENS-07",
+    "name": "ShanghaiTech & Infrared Optical Flow Crowd Density Mesh",
+    "category": "Crowd & Pedestrian",
+    "provider": "ShanghaiTech Vision Lab / EOC Edge Sensor Network",
+    "format": "JSON / Optical Flow Vectors",
+    "recordsCount": "330,000+ annotated head density points",
+    "updateCadence": "Live Edge Vision (30 FPS)",
+    "status": "ML_MODEL_TRAINED",
+    "license": "Academic Research Use",
+    "description": "Density estimation and bottleneck detection at arena gates, transit turnstiles, and public plaza emergency exits.",
+    "monitoredFields": [
+      { "name": "density_persons_m2", "type": "number", "unit": "persons/m²", "description": "Crowd density per square meter" },
+      { "name": "flow_velocity_ms", "type": "number", "unit": "m/s", "description": "Pedestrian egress velocity" },
+      { "name": "turnstile_throughput", "type": "number", "unit": "passengers/min", "description": "Gate clearance speed" },
+      { "name": "crush_risk_index", "type": "string", "description": "Bottleneck severity indicator" }
+    ],
+    "samplePayload": {
+      "venue_node": "Civic Center Amphitheater Gate 3",
+      "density_persons_m2": 4.8,
+      "flow_velocity_ms": 0.22,
+      "turnstile_throughput": 18,
+      "crush_risk_index": "WARNING - BOTTLENECK",
+      "timestamp": "2026-03-29T15:14:00Z"
+    }
+  },
+  {
+    "id": "DATA-HHS-TRAUMA-08",
+    "name": "HHS HealthData & MIMIC-IV Emergency Department Triage",
+    "category": "Hospital & Medical",
+    "provider": "U.S. Dept of Health and Human Services / MIT PhysioNet",
+    "format": "JSON / Socrata Open API",
+    "recordsCount": "480,000+ hospital weekly intake logs",
+    "updateCadence": "Every 15 minutes (Trauma Net Sync)",
+    "status": "ACTIVE_STREAM",
+    "license": "Open Government License / PhysioNet Credentialed",
+    "description": "Real-time hospital bed occupancy, specialized burn unit capability, ICU bed availability, and emergency room wait latencies.",
+    "monitoredFields": [
+      { "name": "hospital_id", "type": "string", "description": "Facility identifier code" },
+      { "name": "bed_occupancy_pct", "type": "number", "unit": "%", "description": "Overall licensed bed capacity in use" },
+      { "name": "icu_beds_free", "type": "number", "description": "Available staffed ICU beds" },
+      { "name": "burn_unit_status", "type": "string", "description": "Specialized burn treatment readiness" },
+      { "name": "avg_triage_wait_mins", "type": "number", "unit": "mins", "description": "Mean intake latency for incoming patients" }
+    ],
+    "samplePayload": {
+      "hospital_id": "HOSP-01",
+      "hospital_name": "Metropolitan Level-1 Trauma Center",
+      "bed_occupancy_pct": 91.0,
+      "free_general_beds": 48,
+      "icu_beds_free": 6,
+      "icu_beds_total": 64,
+      "burn_unit_status": "Available",
+      "avg_triage_wait_mins": 14,
+      "timestamp": "2026-03-29T15:15:00Z"
+    },
+    "endpointUrl": "https://healthdata.gov/resource/anag-cw7u.json"
+  },
+  {
+    "id": "DATA-OSM-3D-09",
+    "name": "OpenStreetMap & Overture Maps 3D Urban Digital Twin Geometry",
+    "category": "Geospatial & 3D",
+    "provider": "OpenStreetMap Foundation / Overture Maps",
+    "format": "GeoJSON / GeoParquet / Three.js Mesh",
+    "recordsCount": "180,000+ structural building polygons",
+    "updateCadence": "Synchronized CAD Graph",
+    "status": "SYNCHRONIZED",
+    "license": "ODbL (Open Database License)",
+    "description": "3D wireframe and extruded building heights, municipal road network topology, shelter locations, and evacuation corridor graph nodes.",
+    "monitoredFields": [
+      { "name": "building_id", "type": "string", "description": "Cadastral building lot ID" },
+      { "name": "building_height_m", "type": "number", "unit": "meters", "description": "Extruded 3D wireframe height" },
+      { "name": "floors_count", "type": "number", "description": "Above-ground story levels" },
+      { "name": "occupancy_type", "type": "string", "description": "Commercial / Residential / Industrial classification" }
+    ],
+    "samplePayload": {
+      "building_id": "BLD-MISSION-450",
+      "name": "450 Mission Financial Plaza",
+      "building_height_m": 142.5,
+      "floors_count": 38,
+      "occupancy_type": "Commercial High-Rise",
+      "sub_levels": 3,
+      "coordinates": { "lat": 37.7891, "lng": -122.4014 }
+    }
+  },
+  {
+    "id": "DATA-METEO-WEA-10",
+    "name": "Open-Meteo & NOAA HRRR 1km Weather Grid Telemetry",
+    "category": "Weather & Climate",
+    "provider": "NOAA NCEP / Open-Meteo API",
+    "format": "REST JSON",
+    "recordsCount": "Global 1km Weather Forecast Grid",
+    "updateCadence": "Hourly / Live Interpolated",
+    "status": "ACTIVE_STREAM",
+    "license": "CC BY 4.0 / NOAA Open Data",
+    "description": "Microclimate meteorological parameters including wind drift vectors for chemical plume dispersion, relative humidity, and rainfall rates.",
+    "monitoredFields": [
+      { "name": "temperature_c", "type": "number", "unit": "°C", "description": "2-meter ambient dry bulb temperature" },
+      { "name": "relative_humidity_pct", "type": "number", "unit": "%", "description": "Air saturation percentage" },
+      { "name": "wind_speed_kmh", "type": "number", "unit": "km/h", "description": "10-meter sustained wind velocity" },
+      { "name": "wind_direction_deg", "type": "number", "unit": "°", "description": "Wind vector origin azimuth" },
+      { "name": "precipitation_mmh", "type": "number", "unit": "mm/h", "description": "Instantaneous rainfall rate" }
+    ],
+    "samplePayload": {
+      "temperature_c": 12.5,
+      "relative_humidity_pct": 94,
+      "wind_speed_kmh": 28.0,
+      "wind_direction_deg": 65,
+      "precipitation_mmh": 8.4,
+      "barometer_hpa": 1008.2,
+      "timestamp": "2026-03-29T15:15:00Z"
+    },
+    "endpointUrl": "https://api.open-meteo.com/v1/forecast"
+  }
+]

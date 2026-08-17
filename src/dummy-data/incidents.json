@@ -17,7 +17,7 @@
     "reporterName": "Thermal Array 6F Sensor",
     "reporterContact": "TELEMETRY-SYS",
     "timeline": [
-      { "id": "T1", "timestamp": "2026-03-29T14:15:00Z", "event": "Thermal surge detected in sub-level B2 (485°C)", "actor": "Sensor SNS-TH-06", "type": "alert" },
+      { "id": "T1", "timestamp": "2026-03-29T14:15:00Z", "event": "Thermal surge detected in sub-level B2 (485°C)", "actor": "Sensor SENS-TEMP-01", "type": "alert" },
       { "id": "T2", "timestamp": "2026-03-29T14:18:00Z", "event": "Foam Unit F-04 and Engine 4 dispatched to Mission Plaza", "actor": "Dispatch Ops", "type": "dispatch" },
       { "id": "T3", "timestamp": "2026-03-29T14:22:00Z", "event": "Hazard level escalated to Critical due to solvent tanks", "actor": "Cmdr. Justin Vance", "type": "update" }
     ],
@@ -41,7 +41,7 @@
     "reporterName": "Bayside Water Sensor RSV-4",
     "reporterContact": "TELEMETRY-SYS",
     "timeline": [
-      { "id": "T11", "timestamp": "2026-03-29T13:40:00Z", "event": "Water level threshold breach detected", "actor": "Sensor RSV-4", "type": "alert" },
+      { "id": "T11", "timestamp": "2026-03-29T13:40:00Z", "event": "Water level threshold breach detected (3.42m)", "actor": "Sensor SENS-WAT-01", "type": "alert" },
       { "id": "T12", "timestamp": "2026-03-29T13:55:00Z", "event": "Water rescue teams dispatched", "actor": "Dispatch Ops", "type": "dispatch" }
     ],
     "assignedResources": ["RES-011", "RES-012", "RES-004", "RES-007"]
@@ -61,10 +61,10 @@
     "description": "Subterranean methane and gas line pressure surge at 68% LEL. Transit station evacuated. 5 units deployed.",
     "assignedCommander": "Lieut. Rebecca Hall",
     "affectedRadiusMeter": 400,
-    "reporterName": "Gas Sniffer Sensor GSN-08",
+    "reporterName": "Gas Sniffer Sensor SENS-GAS-01",
     "reporterContact": "+1 (555) 987-6543",
     "timeline": [
-      { "id": "T21", "timestamp": "2026-03-29T12:05:00Z", "event": "Gas concentration alert triggered at station concourse", "actor": "Gas Sensor GSN-08", "type": "alert" },
+      { "id": "T21", "timestamp": "2026-03-29T12:05:00Z", "event": "Gas concentration alert triggered at station concourse (68% LEL)", "actor": "Sensor SENS-GAS-01", "type": "alert" },
       { "id": "T22", "timestamp": "2026-03-29T12:15:00Z", "event": "HazMat Response Unit and USAR dispatched", "actor": "Dispatch Ops", "type": "dispatch" }
     ],
     "assignedResources": ["RES-007", "RES-013", "RES-008", "RES-010", "RES-014"]
@@ -81,19 +81,19 @@
     "population": 1500,
     "coordinates": { "lat": 37.7680, "lng": -122.4080 },
     "reportedAt": "2026-03-29T10:30:00Z",
-    "description": "3-vehicle collision involving chemical container transport. Traffic rerouted through bypass corridor.",
+    "description": "3-vehicle collision involving chemical container transport. Speed dropped to 14 km/h. Traffic rerouted through bypass corridor.",
     "assignedCommander": "Sergeant Alan Cruz",
     "affectedRadiusMeter": 250,
-    "reporterName": "Highway Traffic CCTV",
+    "reporterName": "Highway Traffic Radar SENS-TRF-08",
     "reporterContact": "TRAFFIC-CCTV-04",
     "timeline": [
-      { "id": "T31", "timestamp": "2026-03-29T10:30:00Z", "event": "Traffic camera collision alert", "actor": "Traffic AI", "type": "alert" }
+      { "id": "T31", "timestamp": "2026-03-29T10:30:00Z", "event": "Traffic camera collision alert & sudden Doppler speed drop", "actor": "Traffic AI", "type": "alert" }
     ],
     "assignedResources": ["RES-002", "RES-014", "RES-015"]
   },
   {
     "id": "INC-2026-0895",
-    "title": "Industrial Warehouse Structural Instability",
+    "title": "Industrial Warehouse Structural Instability & Truss Failure",
     "type": "Building Collapse",
     "severity": "HIGH",
     "status": "CONTAINED",
@@ -103,13 +103,13 @@
     "population": 850,
     "coordinates": { "lat": 37.7400, "lng": -122.3900 },
     "reportedAt": "2026-03-29T09:15:00Z",
-    "description": "Roof truss failure following localized seismic event. Cordon perimeter active.",
+    "description": "Roof truss failure following localized micro-tremor. Structural strain gauge reached 342 με. Cordon perimeter active.",
     "assignedCommander": "Chief Sarah Jenkins",
     "affectedRadiusMeter": 350,
-    "reporterName": "Structural Laser SLS-4",
+    "reporterName": "Structural Laser SNS-STR-04",
     "reporterContact": "METRO-MONITOR",
     "timeline": [
-      { "id": "T41", "timestamp": "2026-03-29T09:15:00Z", "event": "Structural strain gauge threshold alert", "actor": "Sensor SLS-4", "type": "alert" }
+      { "id": "T41", "timestamp": "2026-03-29T09:15:00Z", "event": "Structural strain gauge threshold alert (342 με)", "actor": "Sensor SNS-STR-04", "type": "alert" }
     ],
     "assignedResources": ["RES-006", "RES-009", "RES-016"]
   },
@@ -125,14 +125,60 @@
     "population": 6500,
     "coordinates": { "lat": 37.7790, "lng": -122.4180 },
     "reportedAt": "2026-03-29T08:50:00Z",
-    "description": "High crowd density at Gate 3 following event dispersal. Dynamic corridor redirection engaged.",
+    "description": "High crowd density at Gate 3 following event dispersal (4.8 persons/m²). Dynamic corridor redirection engaged.",
     "assignedCommander": "Cmdr. Justin Vance",
     "affectedRadiusMeter": 200,
-    "reporterName": "Civic Center Camera Grid",
+    "reporterName": "Civic Density Sensor SENS-CROWD-04",
     "reporterContact": "CCTV-CIVIC",
     "timeline": [
-      { "id": "T51", "timestamp": "2026-03-29T08:50:00Z", "event": "Density threshold reached (4.8 persons/m²)", "actor": "Crowd AI", "type": "alert" }
+      { "id": "T51", "timestamp": "2026-03-29T08:50:00Z", "event": "Density threshold reached (4.8 persons/m²)", "actor": "Sensor SENS-CROWD-04", "type": "alert" }
     ],
     "assignedResources": ["RES-001", "RES-008"]
+  },
+  {
+    "id": "INC-2026-0897",
+    "title": "West Ridge Slope Instability & Mudslide Threat",
+    "type": "Landslide",
+    "severity": "CRITICAL",
+    "status": "ACTIVE",
+    "sector": "West Ridge Residential Escarpment, Sector 5",
+    "locationName": "West Ridge Residential Escarpment, Sector 5",
+    "riskScore": 88,
+    "population": 1950,
+    "coordinates": { "lat": 37.7550, "lng": -122.4450 },
+    "reportedAt": "2026-03-29T14:45:00Z",
+    "description": "Sentinel-1 InSAR and extensometer alert: 14.8mm shear displacement detected with high soil pore pressure (42.6 kPa). Retaining wall breach imminent.",
+    "assignedCommander": "Lieut. Rebecca Hall",
+    "affectedRadiusMeter": 500,
+    "reporterName": "InSAR Extensometer SENS-LS-01",
+    "reporterContact": "GEOTECH-EOC",
+    "timeline": [
+      { "id": "T61", "timestamp": "2026-03-29T14:45:00Z", "event": "Displacement threshold breach detected (14.8mm)", "actor": "Sensor SENS-LS-01", "type": "alert" },
+      { "id": "T62", "timestamp": "2026-03-29T14:52:00Z", "event": "Shoring & Heavy Earthmover Units deployed for catchment barrier", "actor": "Dispatch Ops", "type": "dispatch" }
+    ],
+    "assignedResources": ["RES-016", "RES-017", "RES-003"]
+  },
+  {
+    "id": "INC-2026-0898",
+    "title": "Metro Fault Slip & Bedrock Tremor Aftershock",
+    "type": "Earthquake",
+    "severity": "HIGH",
+    "status": "DISPATCHED",
+    "sector": "Civic Center Bedrock Sub-Station 4",
+    "locationName": "Civic Center Bedrock Sub-Station 4",
+    "riskScore": 84,
+    "population": 5200,
+    "coordinates": { "lat": 37.7790, "lng": -122.4190 },
+    "reportedAt": "2026-03-29T15:00:00Z",
+    "description": "4.2 Magnitude (ML) localized seismic shockwave at 8.4km depth. USGS ShakeMap indicates Peak Ground Acceleration of 0.18g. Transit lines undergoing safety inspection.",
+    "assignedCommander": "Chief Sarah Jenkins",
+    "affectedRadiusMeter": 750,
+    "reporterName": "Strong-Motion Accelerometer SENS-SEIS-01",
+    "reporterContact": "USGS-COMCAT",
+    "timeline": [
+      { "id": "T71", "timestamp": "2026-03-29T15:00:00Z", "event": "4.2 ML seismic shockwave recorded at bedrock station", "actor": "Sensor SENS-SEIS-01", "type": "alert" },
+      { "id": "T72", "timestamp": "2026-03-29T15:05:00Z", "event": "Structural engineering recon drones dispatched", "actor": "Dispatch Ops", "type": "dispatch" }
+    ],
+    "assignedResources": ["RES-008", "RES-010", "RES-014"]
   }
 ]
