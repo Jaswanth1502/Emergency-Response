@@ -8,56 +8,56 @@
   /* Apple Liquid Glassmorphism Materials */
   .liquid-glass {
     background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(24px) saturate(190%) contrast(102%);
     -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+    backdrop-filter: blur(24px) saturate(190%) contrast(102%);
     border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow: 0 10px 30px 0 rgba(15, 23, 42, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.02);
   }
 
   .liquid-glass-card {
     background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.9);
     box-shadow: 0 8px 24px 0 rgba(15, 23, 42, 0.04), inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.95);
   }
 
   .liquid-glass-pill {
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.03), inset 0 1px 0.5px 0 rgba(255, 255, 255, 1);
   }
 
   .liquid-glass-blue {
     background: rgba(239, 246, 255, 0.75);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(191, 219, 254, 0.7);
     box-shadow: 0 8px 24px 0 rgba(37, 99, 235, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
 
   .liquid-glass-rose {
     background: rgba(255, 241, 242, 0.75);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(254, 205, 211, 0.7);
     box-shadow: 0 8px 24px 0 rgba(225, 29, 72, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
 
   .liquid-glass-emerald {
     background: rgba(236, 253, 245, 0.75);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(167, 243, 208, 0.7);
     box-shadow: 0 8px 24px 0 rgba(5, 150, 105, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
 
   .liquid-glass-amber {
     background: rgba(255, 251, 235, 0.75);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(253, 230, 138, 0.7);
     box-shadow: 0 8px 24px 0 rgba(217, 119, 6, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
