@@ -4,10 +4,20 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.3.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL_3D-black?logo=three.js&logoColor=white)](https://threejs.org/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-GIS_Mapping-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.17-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 
-**AEGIS TWIN (Metro EOC)** is an autonomous, next-generation **Smart City Digital Twin & Crisis Intelligence Platform**. Engineered for Municipal Emergency Operations Centers (EOC), it unifies 3D holographic CAD blueprint simulations, real-time IoT edge sensor arrays, multi-hazard background machine learning models, autonomous resource dispatching, dynamic evacuation routing, trauma net hospital triage, operational analytics, after-action reports, and Wireless Emergency Alerts (WEA) into an **Apple Liquid Glassmorphism** interface.
+**AEGIS TWIN (Metro EOC)** is an autonomous, mission-critical **Smart City Digital Twin & Crisis Intelligence Platform**. Engineered for Municipal Emergency Operations Centers (EOC), it unifies 3D holographic CAD blueprint simulations, interactive 2D Tactical GIS maps, real-time IoT edge sensor arrays, multi-hazard background machine learning inference, predictive resource dispatching, dynamic evacuation routing, trauma net hospital triage, operational analytics, after-action audit reports, and Wireless Emergency Alerts (WEA) into an ultra-modern **Apple Liquid Glassmorphism** interface.
+
+---
+
+## 🌟 Key Architecture & User Interface Innovations
+
+- **Zero-Gap Viewport Architecture**: Fixed full-height layout (`h-screen overflow-hidden`) with a docked, glassmorphic sidebar and top navigation chrome, eliminating viewport mismatch and blank gap spaces.
+- **Bottom Commander Profile Dock**: Integrated commander profile at the bottom of the sidebar with live online status indicators, active agency badge, and an interactive upward popover for instant role switching (`ADMIN`, `OPERATOR`, `ANALYST`) and secure terminal logout.
+- **Uncluttered Operational Top Chrome**: Clean top navbar featuring a Live UTC EOC Clock, real-time weather & wind telemetry, alert notification drawers, and instant dispatch dialog controls.
+- **Collapsible Responsive Navigation**: Seamless transition between an expanded operational command sidebar (`w-64`) and a compact icon rail (`w-20`), complete with a dedicated slide-over drawer for mobile field operations.
 
 ---
 
@@ -60,53 +70,55 @@ flowchart TD
 
 ## 📸 Key Features & Operational Modules
 
-### 1. 🌌 Cinematic Canvas Landing & Command Sign-In
-- **210-Frame Canvas Sequence Engine**: High-framerate 30 FPS background video canvas rendering with automatic viewport cover and fluid memory management.
-- **Apple Liquid Glassmorphism**: Dual specular highlight borders (`inset 0 1px 1px 0 rgba(255,255,255,0.95)`), `backdrop-filter: blur(24px) saturate(190%)`, and physical button active press physics.
-- **Role-Based Command Sign-In**: Instant profile switching (`ADMIN`, `OPERATOR`, `ANALYST`) with TLS 1.3 cryptographic watermark.
+### 1. 🌌 Command Center & Real-Time Situational Awareness (`/dashboard`)
+- **Unified Multi-Hazard Operational Awareness**: Real-time KPI counters for active emergencies, dispatched fleets, casualties triaged, and IoT threshold breaches.
+- **AI Recommendation Engine**: Automatic alert triage suggesting optimal resource combinations with explainable reasoning chains.
+- **Incident Feed & Quick Dispatch**: Direct escalation and dispatch dialog triggers straight from the command deck.
 
-### 2. 🏙️ 3D Holographic Blueprint Digital Twin (`/digital-twin`)
-- **Three.js WebGL Blueprint Engine**: Dark navy CAD grid (`#060C18`), coordinate tick axes, and extruded geometric 3D wireframe skyscrapers.
+### 2. 🏙️ 3D Holographic CAD Blueprint Digital Twin (`/digital-twin`)
+- **Three.js WebGL Blueprint Engine**: Dark navy CAD grid (`#060C18`), coordinate tick axes, and extruded geometric 3D wireframe buildings.
 - **Interactive Multi-Hazard Hotspots**: Pulsing 3D laser cordon pillars, floating octahedron beacons, and ground radar rings for active hazards (Fire, Flood, Gas Leak, Landslide, Seismic).
 - **Raycasted Area & Accident Dossier**: Click any building or accident marker in 3D to inspect real area dimensions, floor sectors, casualty counts, risk indices, and dispatched units.
-- **Tactical 2D/3D Switcher**: Seamless one-click toggling between the 3D Blueprint Digital Twin and 2D GIS Tactical Map.
+- **Tactical 2D/3D Switcher**: One-click toggling between the 3D Blueprint Digital Twin and the 2D GIS Tactical Map.
 
-### 3. 🚒 Predictive Resource Dispatch (`/resources`)
-- **AI Recommendation Engine**: 94%+ confidence machine-learning dispatch matrix for multi-hazard incidents.
-- **Explainable Reasoning Chains**: 3-factor causality breakdown (Thermal Flashover Gradient, Structural Steel Integrity, Ingress Road Density).
-- **Interactive Fleet Assignment**: Direct unit allocation with live speed, battery %, and base station telemetry.
+### 3. 🗺️ Tactical GIS Map & Multi-Layer Geospatial Intelligence
+- **Leaflet Vector GIS Engine**: Interactive mapping loaded with layer controls for Incidents, IoT Sensors, Emergency Units, Evacuation Corridors, and Critical Facilities.
+- **Live Regional Geometries**: Integrated municipal coordinates, industrial zones, and coastal flood basins with custom marker popups and telemetry cards.
 
-### 4. 🛣️ Dynamic Evacuation Corridors & Safety (`/evacuation`)
-- **Real-Time Corridor Routing**: Color-coded primary, secondary, landslide bypass, and dedicated first-responder safety corridors.
-- **FEMA NSS Civic Resilience Shelters**: Live occupancy progress bars for Moscone Center West, Civic Auditorium, and Kezar Pavilion.
-- **Broadcast Evacuation Orders**: Immediate high-priority order dispatch to emergency responder networks.
+### 4. 🚒 Predictive Resource Dispatch (`/resources`)
+- **AI Recommendation Matrix**: 94%+ confidence dispatch suggestions based on flashover curves, structural integrity, and arterial traffic delay.
+- **Fleet Assignment**: Allocate Fire Engines, Super Foam Pumpers, ALS Ambulances, USAR Heavy Rescue, and Recon Drones with speed, battery %, and base coordinates.
 
-### 5. 🚑 Emergency Response Fleet (`/fleet`)
+### 5. 🛣️ Dynamic Evacuation Corridors & Safety (`/evacuation`)
+- **Real-Time Corridor Routing**: Color-coded primary, secondary, landslide bypass, and first-responder safety corridors.
+- **Civic Resilience Shelters**: Live capacity and occupancy meters with shelter statuses and emergency provisions telemetry.
+- **Broadcast Evacuation Orders**: High-priority alert broadcast directly to emergency responder networks.
+
+### 6. 🚑 Emergency Response Fleet (`/fleet`)
 - **16 Tactical Units**: Fire Engines, Super Foam Pumpers, ALS Ambulances, USAR Heavy Rescue, Recon Drones, and Police Interceptors.
-- **Unit Telemetry**: Status pulse pills, crew size, assigned incident, base coordinates, and filter by unit category.
+- **Unit Telemetry**: Status pulse pills, crew size, assigned incident, base coordinates, and category filters.
 
-### 6. 🏥 Hospitals & Medical Surge Capacity (`/hospitals`)
+### 7. 🏥 Hospitals & Medical Surge Capacity (`/hospitals`)
 - **Trauma Net Synchronization**: Live intake queues across Level-1 Trauma, Regional Medical, and Burn Centers.
-- **Capacity Telemetry**: Bed occupancy progress meters, ICU available counters, Burn Unit indicators, and average ER wait times.
-- **Direct Ambulance Routing**: One-click dispatch action to reroute incoming emergency medical transit.
+- **Surge Telemetry**: Bed occupancy progress meters, ICU available counters, Burn Unit indicators, and average ER wait times.
+- **Ambulance Rerouting**: One-click dispatch action to divert incoming medical transit to under-saturated facilities.
 
-### 7. 📡 16-Node Multi-Hazard IoT Sensor Mesh (`/sensors`)
-- **Multi-Hazard Edge Sensor Streams**: Thermal arrays, optical smoke detectors, methane (CH4) sniffers, submersible water transducers, InSAR displacement extensometers, soil pore pressure piezometers, seismic accelerometers, particulate PM2.5 monitors, Doppler traffic loops, and pedestrian flow sensors.
-- **6-Bar Sparkline History**: 30-minute historical trend tracking with threshold breach indicators.
+### 8. 📡 16-Node Multi-Hazard IoT Sensor Mesh (`/sensors`)
+- **Multi-Hazard Edge Sensor Streams**: Thermal arrays, optical smoke detectors, gas sniffers, water transducers, displacement extensometers, seismic accelerometers, and traffic Doppler loops.
+- **Trend History**: Historical trend tracking with dynamic threshold breach indicators.
 
-### 8. 📈 Operational Analytics & AI Benchmark Matrix (`/analytics`)
+### 9. 📈 Operational Analytics & AI Benchmark Matrix (`/analytics`)
 - **Executive KPI Cards**: Avg Response Time (5.2 min), Incident Clearance Rate (89.4%), Fleet Efficiency Index (94.1), and AI Dispatch Accuracy (96.8%).
 - **AI & ML Model Benchmark Matrix**: Real-time table monitoring all 10 trained models, average 96.2% accuracy, AUC-ROC ratings, and sub-15ms inference latencies.
-- **Hourly Response Performance**: Bar chart comparison of arrival latencies vs 6.0 min municipal benchmarks.
 
-### 9. 📋 Incident After-Action Reports & Audit Logs (`/reports`)
+### 10. 📋 Incident After-Action Reports & Audit Logs (`/reports`)
 - **Verified Audit Dossiers**: Cryptographically certified After-Action Reports (AAR) with SHA-256 integrity verification.
 - **Civilian Impact & Casualty Triage**: 5-tier casualty classifications (Critical, Moderate, Minor, Evacuated, Missing).
 - **Chain of Custody**: Timestamped audit trail of autonomous detections and human commander approvals.
 
-### 10. ⚠️ Emergency Alerts & Public Cell Broadcast (`/alerts`)
+### 11. ⚠️ Emergency Alerts & Public Cell Broadcast (`/alerts`)
 - **Live Alert Stream**: Prioritized system warnings with protocol actions, location tags, and instant acknowledge controls.
-- **Public Cell-Tower Broadcast (WEA)**: Geo-fenced Wireless Emergency Alert transmitter targeting civilian mobile devices with commander confirmation protocols.
+- **Public Cell-Tower Broadcast (WEA)**: Geo-fenced Wireless Emergency Alert transmitter targeting civilian mobile devices.
 
 ---
 
@@ -116,13 +128,14 @@ flowchart TD
 |---|---|
 | **Frontend Framework** | React 19.2.6 (Hooks, Suspense, Lazy Loading) |
 | **Language** | TypeScript 5.9.3 |
-| **Bundler & Server** | Vite 7.3.2 |
+| **Bundler & Dev Server** | Vite 7.3.2 |
 | **3D Rendering** | Three.js 0.185.1 (WebGL, Raycasting, Perspective Camera Controls) |
-| **Styling & Theme** | TailwindCSS 4.1.17, Apple Liquid Glassmorphism |
-| **Animations & Motion** | Framer Motion 12.42.2 |
-| **Machine Learning** | Custom TypeScript ML Inference Engine (`src/services/mlEngine.ts`) |
+| **GIS Mapping** | Leaflet 1.9.4 & React-Leaflet |
+| **Styling & Design System** | TailwindCSS 4.1.17, Apple Liquid Glassmorphism |
+| **Animations & Transitions** | Framer Motion 12.42.2 |
+| **Machine Learning** | TypeScript ML Inference & Calibration Engine (`src/services/mlEngine.ts`) |
 | **Icons** | Lucide React |
-| **Charts** | Recharts 3.9.2 |
+| **Data Visualization** | Recharts 3.9.2 |
 
 ---
 
@@ -132,7 +145,7 @@ flowchart TD
 - **Node.js** >= 18.0.0
 - **npm** >= 9.0.0
 
-### Installation
+### Installation & Run
 
 ```bash
 # 1. Clone the repository
@@ -146,14 +159,40 @@ npm install
 npm run dev
 ```
 
+The application will be live at:
+👉 **`http://localhost:5173/`**
+
 ### Production Build
 
 ```bash
-# Compile and bundle for production
+# Compile and build single bundle for production
 npm run build
 
-# Preview the production build locally
+# Preview production build locally
 npm run preview
+```
+
+---
+
+## 📂 Project Structure
+
+```
+.
+├── src/
+│   ├── components/       # UI components (map, dialogs, charts, notifications)
+│   ├── context/          # AppContext state (incidents, resources, sensors, users, ML)
+│   ├── dummy-data/       # Realistic incident, sensor, fleet, and evacuation datasets
+│   ├── layouts/          # DashboardLayout (Sidebar, Topbar, Profile Dock) & AuthLayout
+│   ├── pages/            # Dashboard, DigitalTwin, Resources, Evacuation, Fleet, Hospitals, Sensors, Analytics, Reports, Alerts
+│   ├── services/         # mlEngine.ts (10 ML models, inference, calibration)
+│   ├── types/            # TypeScript interfaces (incident, resource, sensor, user, ML)
+│   ├── utils/            # Helper utilities and formatters
+│   ├── App.tsx           # Route definitions and application shell
+│   ├── index.css         # Tailwind v4 theme & liquid glassmorphism utility classes
+│   └── main.tsx          # Application entry point
+├── dist/                 # Production distribution build
+├── package.json          # Dependencies and scripts
+└── README.md             # Platform documentation and architecture
 ```
 
 ---

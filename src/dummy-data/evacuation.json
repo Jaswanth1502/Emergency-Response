@@ -2,142 +2,142 @@
   "routes": [
     {
       "id": "EVAC-01",
-      "name": "Primary Safe Corridor Alpha (Mission North to Moscone Hub)",
+      "name": "Primary Safe Corridor Alpha (Vijayawada Pandit Nehru to Swarna Bharathi)",
       "badge": "PRIMARY SAFE CORRIDOR",
       "safetyScore": 96,
-      "from": "450 Mission St (Financial District)",
-      "to": "Moscone Convention West Resilience Hub (SHELTER-02)",
-      "distance": "1.2 km",
+      "from": "Pandit Nehru Transit Hub, Vijayawada",
+      "to": "Swarna Bharathi Resilience Hub (SHELTER-01)",
+      "distance": "1.8 km",
       "eta": "14m",
       "congestion": "Low",
       "status": "OPEN",
       "points": [
-        { "lat": 37.7891, "lng": -122.4014 },
-        { "lat": 37.7845, "lng": -122.4010 }
+        { "lat": 16.5062, "lng": 80.6480 },
+        { "lat": 16.5100, "lng": 80.6500 }
       ]
     },
     {
       "id": "EVAC-02",
-      "name": "Secondary Egress Route Beta (Howard St West to Civic Hub)",
-      "badge": "ALTERNATIVE SECONDARY",
-      "safetyScore": 84,
-      "from": "District 4 Commercial Zone",
-      "to": "Civic Auditorium Emergency Relief Hub (SHELTER-01)",
-      "distance": "2.1 km",
-      "eta": "26m",
+      "name": "Tirupati Pilgrim Safe Corridor (Alipiri to SV University)",
+      "badge": "PILGRIM EGRESS ROUTE",
+      "safetyScore": 92,
+      "from": "Alipiri Transit Complex, Tirupati",
+      "to": "SV University Indoor Stadium Shelter (SHELTER-02)",
+      "distance": "2.4 km",
+      "eta": "18m",
       "congestion": "Moderate",
       "status": "OPEN",
       "points": [
-        { "lat": 37.7870, "lng": -122.3980 },
-        { "lat": 37.7790, "lng": -122.4180 }
+        { "lat": 13.6288, "lng": 79.4192 },
+        { "lat": 13.6350, "lng": 79.4050 }
       ]
     },
     {
       "id": "EVAC-03",
-      "name": "First Responder Dedicated Priority Lane (1st St to Trauma Base)",
-      "badge": "FIRST RESPONDER PRIORITY",
-      "safetyScore": 99,
-      "from": "1st St & Market Corridor",
-      "to": "Trauma Intake Center",
-      "distance": "1.8 km",
-      "eta": "4m",
-      "congestion": "Clear",
+      "name": "Visakhapatnam IT Corridor (Rushikonda to AU Hub)",
+      "badge": "COASTAL SAFE CORRIDOR",
+      "safetyScore": 95,
+      "from": "Rushikonda IT SEZ, Vizag",
+      "to": "Andhra University Relief Center (SHELTER-03)",
+      "distance": "3.1 km",
+      "eta": "22m",
+      "congestion": "Low",
       "status": "OPEN",
       "points": [
-        { "lat": 37.7891, "lng": -122.4014 },
-        { "lat": 37.7710, "lng": -122.4110 }
+        { "lat": 17.7800, "lng": 83.3800 },
+        { "lat": 17.7300, "lng": 83.3200 }
       ]
     },
     {
       "id": "EVAC-04",
-      "name": "Landslide Bypass Gamma (West Ridge to Kezar Shelter)",
-      "badge": "TERRAIN BYPASS CORRIDOR",
-      "safetyScore": 91,
-      "from": "West Ridge Residential Escarpment",
-      "to": "Kezar Pavilion Evacuation Shelter (SHELTER-03)",
+      "name": "Guntur Mirchi Yard Emergency Bypass",
+      "badge": "INDUSTRIAL BYPASS",
+      "safetyScore": 88,
+      "from": "Mirchi Yard Industrial Zone, Guntur",
+      "to": "Guntur Stadium Relief Center (SHELTER-04)",
       "distance": "2.8 km",
-      "eta": "32m",
-      "congestion": "Low",
+      "eta": "20m",
+      "congestion": "Clear",
       "status": "OPEN",
       "points": [
-        { "lat": 37.7550, "lng": -122.4450 },
-        { "lat": 37.7670, "lng": -122.4540 }
+        { "lat": 16.3067, "lng": 80.4365 },
+        { "lat": 16.3150, "lng": 80.4450 }
       ]
     },
     {
       "id": "EVAC-05",
-      "name": "HazMat 400m Exclusion Perimeter (8th & Market Cordon)",
+      "name": "Kurnool NH-44 Highway Exclusion Cordon",
       "badge": "ACTIVE CORDON EXCLUSION",
       "safetyScore": 42,
-      "from": "8th & Market Intermodal Hub",
-      "to": "9th St Green Corridor Egress",
-      "distance": "0.6 km",
-      "eta": "8m",
+      "from": "NH-44 Junction, Kurnool",
+      "to": "Kurnool Outdoor Stadium Shelter (SHELTER-05)",
+      "distance": "1.2 km",
+      "eta": "12m",
       "congestion": "Severe",
       "status": "RESTRICTED",
       "points": [
-        { "lat": 37.7785, "lng": -122.4140 },
-        { "lat": 37.7750, "lng": -122.4180 }
+        { "lat": 15.8281, "lng": 78.0373 },
+        { "lat": 15.8350, "lng": 78.0450 }
       ]
     }
   ],
   "shelters": [
     {
       "id": "SHELTER-01",
-      "name": "Civic Auditorium Emergency Relief Hub",
-      "capacity": 2500,
+      "name": "Vijayawada Swarna Bharathi Resilience Hub",
+      "capacity": 3500,
       "occupancy": 850,
-      "occupancyPercent": 34,
-      "freeBeds": 1650,
+      "occupancyPercent": 24,
+      "freeBeds": 2650,
       "status": "OPEN",
-      "coordinates": { "lat": 37.7780, "lng": -122.4170 }
+      "coordinates": { "lat": 16.5100, "lng": 80.6500 }
     },
     {
       "id": "SHELTER-02",
-      "name": "Moscone Convention West Resilience Hub",
-      "capacity": 4000,
+      "name": "Tirupati SV University Indoor Stadium Shelter",
+      "capacity": 4500,
       "occupancy": 1200,
-      "occupancyPercent": 30,
-      "freeBeds": 2800,
+      "occupancyPercent": 26,
+      "freeBeds": 3300,
       "status": "OPEN",
-      "coordinates": { "lat": 37.7830, "lng": -122.4020 }
+      "coordinates": { "lat": 13.6350, "lng": 79.4050 }
     },
     {
       "id": "SHELTER-03",
-      "name": "Kezar Pavilion Evacuation Shelter",
-      "capacity": 1500,
-      "occupancy": 320,
-      "occupancyPercent": 21,
-      "freeBeds": 1180,
+      "name": "Visakhapatnam Andhra University Relief Center",
+      "capacity": 3000,
+      "occupancy": 620,
+      "occupancyPercent": 20,
+      "freeBeds": 2380,
       "status": "OPEN",
-      "coordinates": { "lat": 37.7670, "lng": -122.4540 }
+      "coordinates": { "lat": 17.7300, "lng": 83.3200 }
     },
     {
       "id": "SHELTER-04",
-      "name": "Sunset Community Resilience Hub",
-      "capacity": 1800,
-      "occupancy": 210,
-      "occupancyPercent": 12,
-      "freeBeds": 1590,
+      "name": "Guntur BR Stadium Emergency Relief Center",
+      "capacity": 2500,
+      "occupancy": 410,
+      "occupancyPercent": 16,
+      "freeBeds": 2090,
       "status": "OPEN",
-      "coordinates": { "lat": 37.7540, "lng": -122.4820 }
+      "coordinates": { "lat": 16.3150, "lng": 80.4450 }
     },
     {
       "id": "SHELTER-05",
-      "name": "Presidio Emergency Logistics Hub",
-      "capacity": 3000,
-      "occupancy": 450,
-      "occupancyPercent": 15,
-      "freeBeds": 2550,
+      "name": "Kurnool Outdoor Stadium Shelter",
+      "capacity": 2800,
+      "occupancy": 350,
+      "occupancyPercent": 12,
+      "freeBeds": 2450,
       "status": "OPEN",
-      "coordinates": { "lat": 37.7990, "lng": -122.4650 }
+      "coordinates": { "lat": 15.8350, "lng": 78.0450 }
     }
   ],
   "roads": [
-    { "id": "RD-01", "name": "Mission St (1st to 4th)", "status": "OPEN", "congestion": "MODERATE" },
-    { "id": "RD-02", "name": "Pier 28 Lowland Corridor", "status": "CLOSED", "reason": "Flash Flood Inundation" },
-    { "id": "RD-03", "name": "Market St at 8th", "status": "CLOSED", "reason": "Gas Pipeline Perimeter Cordon" },
-    { "id": "RD-04", "name": "West Ridge Escarpment Way", "status": "CLOSED", "reason": "Landslide Catchment Barrier Works" },
-    { "id": "RD-05", "name": "Highway 101 Overpass Jct", "status": "CLOSED", "reason": "Hazardous Transport Collision Cleanup" }
+    { "id": "RD-01", "name": "Vijayawada MG Road & Transit Expressway", "status": "CLOSED", "reason": "Gas Line Rupture Cordon" },
+    { "id": "RD-02", "name": "Vizag Beach Road Corridor", "status": "OPEN", "congestion": "MODERATE" },
+    { "id": "RD-03", "name": "Tirupati Alipiri Bypass Road", "status": "OPEN", "congestion": "HEAVY" },
+    { "id": "RD-04", "name": "Guntur Mirchi Yard Link Road", "status": "CLOSED", "reason": "Chemical Fire Safety Perimeter" },
+    { "id": "RD-05", "name": "NH-44 Kurnool Expressway Flyover", "status": "CLOSED", "reason": "Tanker Collision Cleanup" }
   ]
 }

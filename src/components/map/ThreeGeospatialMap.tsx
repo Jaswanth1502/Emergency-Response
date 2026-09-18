@@ -14,7 +14,11 @@ import {
   Building,
   Layers,
   Crosshair,
-  Maximize2
+  Maximize2,
+  Compass,
+  Zap,
+  Globe,
+  Box
 } from 'lucide-react';
 
 interface IncidentSpot {
@@ -35,27 +39,27 @@ interface IncidentSpot {
 const BLUEPRINT_INCIDENTS: IncidentSpot[] = [
   {
     id: 'INC-2026-0891',
-    name: '450 Mission Financial Plaza',
+    name: 'Rushikonda IT Tower 4',
     type: 'Fire',
     severity: 'CRITICAL',
-    areaName: 'District 4 Financial Core',
+    areaName: 'Rushikonda IT SEZ, Vizag AP',
     floor: 'Fl 6-12 (Commercial Sub-level B2)',
-    coordinates: { x: 0, z: 0, lat: 37.7891, lng: -122.4014 },
-    description: '485°C thermal surge in commercial sub-level B2 with solvent tanks. 6 tactical response units deployed.',
+    coordinates: { x: 0, z: 0, lat: 17.7800, lng: 83.3800 },
+    description: '485°C thermal surge in commercial sub-level B2 with solvent storage tanks. 6 tactical response units deployed.',
     casualties: 14,
-    assignedFleet: ['Engine 14 Heavy Pumper', 'Foam Unit F-04', 'ALS Ambulance A-05', 'USAR Task Force 1'],
+    assignedFleet: ['Engine 14 Heavy Pumper', 'Foam Unit F-04', 'ALS Ambulance A-05', 'APDRF Task Force 1'],
     riskScore: 94,
-    buildingHeight: 210
+    buildingHeight: 220
   },
   {
     id: 'INC-2026-0892',
-    name: 'Market & 4th Street Intermodal',
-    type: 'Collision',
+    name: 'RK Beach Coastal Surge Basin',
+    type: 'Flood',
     severity: 'HIGH',
-    areaName: 'Downtown Transit Corridor',
-    floor: 'Ground Level & Rail Crossway',
-    coordinates: { x: -110, z: 80, lat: 37.7850, lng: -122.4060 },
-    description: 'Multi-vehicle collision involving chemical container transport. Outbound arterial blocked. Traffic bypass engaged.',
+    areaName: 'RK Beach Corridor, Visakhapatnam AP',
+    floor: 'Ground Level & Coastal Drain',
+    coordinates: { x: -140, z: 110, lat: 17.7167, lng: 83.3000 },
+    description: 'Flash flood inundation following heavy storm surge. Coastal road corridors submerged.',
     casualties: 6,
     assignedFleet: ['Rescue Tender R-02', 'Police Interceptor P-08', 'ALS Ambulance A-02'],
     riskScore: 82,
@@ -63,45 +67,45 @@ const BLUEPRINT_INCIDENTS: IncidentSpot[] = [
   },
   {
     id: 'INC-2026-0893',
-    name: 'Metro Transit Hub (8th & Market)',
+    name: 'Vizag Port Industrial Corridor',
     type: 'Gas',
     severity: 'CRITICAL',
-    areaName: 'Civic Center Sub-Surface Interchange',
+    areaName: 'Visakhapatnam Port Trust AP',
     floor: 'Lower Concourse Sub-Level 3',
-    coordinates: { x: -190, z: 150, lat: 37.7785, lng: -122.4140 },
-    description: 'Subterranean natural gas pipeline fracture with pressure at 68% LEL. Rapid transit station evacuated.',
+    coordinates: { x: -210, z: -160, lat: 17.6900, lng: 83.2900 },
+    description: 'Subterranean industrial gas pipeline fracture with pressure at 68% LEL. Port concourse evacuated.',
     casualties: 0,
-    assignedFleet: ['HazMat Specialist H-01', 'USAR Task Force 2', 'Engine 09'],
+    assignedFleet: ['HazMat Specialist H-01', 'APDRF Task Force 2', 'Engine 09'],
     riskScore: 91,
-    buildingHeight: 120
+    buildingHeight: 130
   },
   {
     id: 'INC-2026-0894',
-    name: 'Pier 28 Bayside Logistics Basin',
-    type: 'Flood',
+    name: 'NH-16 Maddilapalem Flyover',
+    type: 'Collision',
     severity: 'MEDIUM',
-    areaName: 'Embarcadero Waterfront Sector',
-    floor: 'Dock Level & Substation Vault',
-    coordinates: { x: 150, z: -120, lat: 37.7885, lng: -122.3890 },
-    description: 'Saltwater storm surge breached sea-wall retention barrier. Critical electrical substation protected by flood barriers.',
+    areaName: 'Maddilapalem Expressway AP',
+    floor: 'Elevated Highway Level',
+    coordinates: { x: 180, z: -110, lat: 17.7350, lng: 83.3150 },
+    description: 'Multi-vehicle collision involving chemical tanker transport. Traffic bypass engaged via Beach Road.',
     casualties: 0,
     assignedFleet: ['Marine Response Fireboat 1', 'High-Capacity Dewatering Pump DP-03'],
     riskScore: 64,
-    buildingHeight: 45
+    buildingHeight: 50
   },
   {
     id: 'INC-2026-0895',
-    name: 'Bayview Logistics Industrial Complex',
+    name: 'Gajuwaka Industrial Steel Estate',
     type: 'Structural',
     severity: 'HIGH',
-    areaName: 'Bayview Sector B',
+    areaName: 'Gajuwaka Industrial Belt, Vizag AP',
     floor: 'Warehouse Roof Truss & Bay 4',
-    coordinates: { x: -70, z: -170, lat: 37.7400, lng: -122.3900 },
+    coordinates: { x: -120, z: -220, lat: 17.6200, lng: 83.1800 },
     description: 'Structural strain gauge alert indicating primary roof truss deformation. Safety cordon established.',
     casualties: 0,
-    assignedFleet: ['USAR Structural Specialists', 'Engine 18'],
+    assignedFleet: ['APDRF Structural Specialists', 'Engine 18'],
     riskScore: 79,
-    buildingHeight: 65
+    buildingHeight: 75
   }
 ];
 
@@ -116,18 +120,18 @@ interface ThreeGeospatialMapProps {
 export const ThreeGeospatialMap: React.FC<ThreeGeospatialMapProps> = ({
   activeIncidentId = 'INC-2026-0891',
   onFocusIncident,
-  viewMode = '3D',
+  viewMode: _viewMode = '3D',
   onViewModeChange,
   className = ''
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  
-  // Clean, single selected incident state for modal popover
+
   const [selectedSpot, setSelectedSpot] = useState<IncidentSpot | null>(
     BLUEPRINT_INCIDENTS.find(i => i.id === activeIncidentId) || BLUEPRINT_INCIDENTS[0]
   );
 
-  const [cameraView, setCameraView] = useState<'3D' | 'TOP'>('3D');
+  const [mapStyle, setMapStyle] = useState<'SATELLITE' | 'BLUEPRINT'>('SATELLITE');
+  const [cameraPreset, setCameraPreset] = useState<'ISOMETRIC' | 'TOP' | 'BUILDING'>('ISOMETRIC');
 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -147,9 +151,88 @@ export const ThreeGeospatialMap: React.FC<ThreeGeospatialMapProps> = ({
     isPanning: false,
     prevX: 0,
     prevY: 0,
-    spherical: { radius: 380, theta: Math.PI / 3.6, phi: Math.PI / 3.4 },
+    spherical: { radius: 420, theta: Math.PI / 3.6, phi: Math.PI / 3.4 },
     target: new THREE.Vector3(0, 0, 0)
   });
+
+  // Create High-Resolution Satellite Aerial Ground Texture
+  const createSatelliteTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Ground Surface: Dark Satellite Base Terrain
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    // Land / Vegetation Terrain Texture
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.arc(400, 400, 600, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ocean / Coastline Water Body
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.moveTo(800, 0);
+    ctx.quadraticCurveTo(700, 500, 1024, 900);
+    ctx.lineTo(1024, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#0369a1';
+    ctx.beginPath();
+    ctx.moveTo(850, 0);
+    ctx.quadraticCurveTo(750, 500, 1024, 850);
+    ctx.lineTo(1024, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Main Highway Arterials (Google Maps Style Expressways)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.moveTo(0, 512);
+    ctx.quadraticCurveTo(450, 480, 1024, 600);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(512, 0);
+    ctx.quadraticCurveTo(530, 450, 512, 1024);
+    ctx.stroke();
+
+    // Secondary Street Grid Lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 3;
+    for (let x = 64; x < 1024; x += 96) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 1024);
+      ctx.stroke();
+    }
+    for (let y = 64; y < 1024; y += 96) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(1024, y);
+      ctx.stroke();
+    }
+
+    // City District Labels
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '900 18px sans-serif';
+    ctx.fillText('RUSHIKONDA IT SEZ', 200, 300);
+    ctx.fillText('VISAKHAPATNAM PORT TRUST', 150, 750);
+    ctx.fillText('RK BEACH CORRIDOR', 600, 450);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  };
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -159,118 +242,133 @@ export const ThreeGeospatialMap: React.FC<ThreeGeospatialMapProps> = ({
       mount.removeChild(mount.firstChild);
     }
 
-    const width = mount.clientWidth;
-    const height = mount.clientHeight;
+    const width = mount.clientWidth || 800;
+    const height = mount.clientHeight || 500;
 
-    // 1. Blueprint Scene Setup
+    // 1. Scene Setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x060c18);
-    scene.fog = new THREE.FogExp2(0x060c18, 0.0013);
+    scene.background = new THREE.Color(0x090d16);
+    scene.fog = new THREE.FogExp2(0x090d16, 0.001);
     sceneRef.current = scene;
 
     // 2. Camera Setup
-    const camera = new THREE.PerspectiveCamera(45, width / height, 1, 3000);
+    const camera = new THREE.PerspectiveCamera(45, width / height, 1, 3500);
     cameraRef.current = camera;
 
     // 3. WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 4. Blueprint Ambient & Key Lighting
-    const ambientLight = new THREE.AmbientLight(0x0ea5e9, 0.5);
+    // 4. Lighting
+    const ambientLight = new THREE.AmbientLight(mapStyle === 'SATELLITE' ? 0xffffff : 0x0ea5e9, mapStyle === 'SATELLITE' ? 0.95 : 0.5);
     scene.add(ambientLight);
 
-    const blueDirLight = new THREE.DirectionalLight(0x38bdf8, 1.2);
-    blueDirLight.position.set(200, 400, 150);
-    scene.add(blueDirLight);
+    const sunLight = new THREE.DirectionalLight(0xfff7ed, 1.8);
+    sunLight.position.set(300, 500, 200);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x0284c7, 0.8);
-    rimLight.position.set(-200, 150, -200);
-    scene.add(rimLight);
+    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.7);
+    fillLight.position.set(-250, 200, -200);
+    scene.add(fillLight);
 
-    // 5. Blueprint CAD Grid Floor
-    const gridHelper = new THREE.GridHelper(1000, 40, 0x0284c7, 0x0f3460);
-    gridHelper.position.y = 0;
+    // 5. Satellite Aerial Ground Surface Plane
+    const satTexture = createSatelliteTexture();
+    const groundGeo = new THREE.PlaneGeometry(1600, 1600);
+    const groundMat = new THREE.MeshStandardMaterial({
+      map: satTexture,
+      roughness: 0.8,
+      metalness: 0.1,
+      bumpScale: 0.5
+    });
+    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.receiveShadow = true;
+    scene.add(groundMesh);
+
+    // Grid Overlay
+    const gridHelper = new THREE.GridHelper(1600, 40, 0x38bdf8, 0x1e293b);
+    gridHelper.position.y = 0.5;
     scene.add(gridHelper);
 
-    // Minor CAD Sub-grid
-    const subGrid = new THREE.GridHelper(1000, 160, 0x00d2ff, 0x0a2144);
-    subGrid.position.y = -0.2;
-    scene.add(subGrid);
-
-    // 6. Holographic Blueprint City Buildings
+    // 6. Extruded 3D City Building Blocks
     const buildingsGroup = new THREE.Group();
     scene.add(buildingsGroup);
 
-    // Architectural Wireframe Materials
-    const blueprintMat = new THREE.MeshBasicMaterial({
-      color: 0x0284c7,
-      transparent: true,
-      opacity: 0.18,
-      depthWrite: false
-    });
+    interactiveObjectsRef.current = [];
 
-    const blueprintEdgeMat = new THREE.LineBasicMaterial({
-      color: 0x38bdf8,
-      linewidth: 1,
-      transparent: true,
-      opacity: 0.7
-    });
-
-    const activeBuildingMat = new THREE.MeshBasicMaterial({
-      color: 0x00f0ff,
-      transparent: true,
-      opacity: 0.35
-    });
-
-    const activeEdgeMat = new THREE.LineBasicMaterial({
-      color: 0x00f0ff,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.95
-    });
-
-    // Procedural Blueprint Blocks
     const gridSize = 7;
-    const spacing = 72;
+    const spacing = 84;
 
     for (let i = -gridSize; i <= gridSize; i++) {
       for (let j = -gridSize; j <= gridSize; j++) {
-        // Skip water / bay area (East/North-East)
-        if (i > 3 && j < -1) continue;
+        if (i > 4 && j > 1) continue;
 
         const dist = Math.sqrt(i * i + j * j);
-        const isCenter = (i === 0 && j === 0);
-
-        // Check if there is an incident at or near this coordinate
         const bx = i * spacing;
         const bz = j * spacing;
-        const matchedIncident = BLUEPRINT_INCIDENTS.find(inc => 
-          Math.hypot(inc.coordinates.x - bx, inc.coordinates.z - bz) < 30
+
+        const matchedIncident = BLUEPRINT_INCIDENTS.find(inc =>
+          Math.hypot(inc.coordinates.x - bx, inc.coordinates.z - bz) < 35
         );
 
-        let bHeight = isCenter ? 210 : Math.max(30, 140 - dist * 14 + (Math.sin(i * 3 + j * 2) * 35));
+        let bHeight = Math.max(35, 180 - dist * 16 + (Math.sin(i * 3 + j * 2) * 45));
         if (matchedIncident) {
           bHeight = matchedIncident.buildingHeight;
         }
 
-        const bWidth = isCenter ? 44 : 32 + (Math.cos(i + j) * 8);
-        const bDepth = isCenter ? 44 : 32 + (Math.sin(i - j) * 8);
+        const bWidth = 36 + (Math.cos(i + j) * 10);
+        const bDepth = 36 + (Math.sin(i - j) * 10);
 
         const bGeo = new THREE.BoxGeometry(bWidth, bHeight, bDepth);
-        const bMesh = new THREE.Mesh(bGeo, matchedIncident ? activeBuildingMat : blueprintMat);
+
+        let bMat: THREE.Material;
+        if (matchedIncident) {
+          bMat = new THREE.MeshStandardMaterial({
+            color: matchedIncident.severity === 'CRITICAL' ? 0xf43f5e : 0xf59e0b,
+            roughness: 0.2,
+            metalness: 0.8,
+            emissive: matchedIncident.severity === 'CRITICAL' ? 0x9f1239 : 0x92400e,
+            emissiveIntensity: 0.6
+          });
+        } else {
+          bMat = new THREE.MeshStandardMaterial({
+            color: (i + j) % 2 === 0 ? 0x334155 : 0x1e293b,
+            roughness: 0.3,
+            metalness: 0.6
+          });
+        }
+
+        const bMesh = new THREE.Mesh(bGeo, bMat);
         bMesh.position.set(bx, bHeight / 2, bz);
+        bMesh.castShadow = true;
+        bMesh.receiveShadow = true;
         buildingsGroup.add(bMesh);
 
-        // Blueprint structural edges
         const edges = new THREE.EdgesGeometry(bGeo);
-        const line = new THREE.LineSegments(edges, matchedIncident ? activeEdgeMat : blueprintEdgeMat);
+        const lineMat = new THREE.LineBasicMaterial({
+          color: matchedIncident ? 0xffffff : 0x64748b,
+          transparent: true,
+          opacity: matchedIncident ? 0.9 : 0.4
+        });
+        const line = new THREE.LineSegments(edges, lineMat);
         bMesh.add(line);
 
-        // Store metadata if incident is linked
+        if (bHeight > 100) {
+          const roofGeo = new THREE.BoxGeometry(bWidth * 0.5, 8, bDepth * 0.5);
+          const roofMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9 });
+          const roofMesh = new THREE.Mesh(roofGeo, roofMat);
+          roofMesh.position.set(0, bHeight / 2 + 4, 0);
+          bMesh.add(roofMesh);
+        }
+
         if (matchedIncident) {
           bMesh.userData = { incident: matchedIncident };
           interactiveObjectsRef.current.push(bMesh);
@@ -278,188 +376,140 @@ export const ThreeGeospatialMap: React.FC<ThreeGeospatialMapProps> = ({
       }
     }
 
-    // 7. Interactive 3D Accident Hotspot Markers
+    // 7. Interactive 3D Incident Beacons & Volumetric Hazard Plumes
     const markersGroup = new THREE.Group();
     scene.add(markersGroup);
 
     BLUEPRINT_INCIDENTS.forEach(inc => {
       const spotGroup = new THREE.Group();
-      spotGroup.position.set(inc.coordinates.x, 2, inc.coordinates.z);
+      spotGroup.position.set(inc.coordinates.x, 0, inc.coordinates.z);
       spotGroup.userData = { incident: inc };
 
       const markerColor = inc.severity === 'CRITICAL' ? 0xef4444 : inc.severity === 'HIGH' ? 0xf59e0b : 0x06b6d4;
 
-      // 1. Vertical Laser Cordon Line
-      const laserGeo = new THREE.CylinderGeometry(0.6, 0.6, inc.buildingHeight + 40, 8);
-      const laserMat = new THREE.MeshBasicMaterial({ color: markerColor, transparent: true, opacity: 0.85 });
+      const laserGeo = new THREE.CylinderGeometry(0.8, 0.8, inc.buildingHeight + 80, 16);
+      const laserMat = new THREE.MeshBasicMaterial({ color: markerColor, transparent: true, opacity: 0.8 });
       const laser = new THREE.Mesh(laserGeo, laserMat);
-      laser.position.y = (inc.buildingHeight + 40) / 2;
+      laser.position.y = (inc.buildingHeight + 80) / 2;
       spotGroup.add(laser);
 
-      // 2. Top Floating Diamond / Hex Beacon
-      const pinGeo = new THREE.OctahedronGeometry(7, 0);
-      const pinMat = new THREE.MeshBasicMaterial({ color: markerColor, wireframe: false });
-      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
-      pinMesh.position.y = inc.buildingHeight + 45;
-      spotGroup.add(pinMesh);
-
-      // 3. Ground Pulsing Radar Wave
-      const ringGeo = new THREE.RingGeometry(16, 22, 32);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: markerColor,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.7
-      });
+      const ringGeo = new THREE.RingGeometry(18, 24, 32);
+      const ringMat = new THREE.MeshBasicMaterial({ color: markerColor, side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      ringMesh.rotation.x = -Math.PI / 2;
-      ringMesh.position.y = 1;
+      ringMesh.rotation.x = Math.PI / 2;
+      ringMesh.position.y = 2;
       spotGroup.add(ringMesh);
 
-      // 4. Point Light for Beacon Glow
-      const pLight = new THREE.PointLight(markerColor, 3, 120);
-      pLight.position.y = inc.buildingHeight + 45;
-      spotGroup.add(pLight);
+      const pinGeo = new THREE.OctahedronGeometry(9, 0);
+      const pinMat = new THREE.MeshStandardMaterial({ color: markerColor, emissive: markerColor, emissiveIntensity: 0.8, roughness: 0.1 });
+      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
+      pinMesh.position.y = inc.buildingHeight + 85;
+      spotGroup.add(pinMesh);
 
       markersGroup.add(spotGroup);
-      interactiveObjectsRef.current.push(spotGroup);
+      interactiveObjectsRef.current.push(pinMesh);
     });
 
-    // 8. 3D Evacuation Vector Corridors (Blueprint Neon Lines)
-    const corridorMat = new THREE.LineDashedMaterial({
-      color: 0x10b981,
-      linewidth: 3,
-      scale: 1,
-      dashSize: 8,
-      gapSize: 4
-    });
+    // 8. Animation Loop
+    const animate = () => {
+      animIdRef.current = requestAnimationFrame(animate);
 
-    const corridorPoints = [
-      new THREE.Vector3(0, 3, 0),
-      new THREE.Vector3(0, 3, 140),
-      new THREE.Vector3(-140, 3, 140),
-      new THREE.Vector3(-280, 3, 140)
-    ];
-    const corridorGeo = new THREE.BufferGeometry().setFromPoints(corridorPoints);
-    const corridorLine = new THREE.Line(corridorGeo, corridorMat);
-    corridorLine.computeLineDistances();
-    scene.add(corridorLine);
+      markersGroup.children.forEach(grp => {
+        const pin = grp.children[2];
+        if (pin) pin.rotation.y += 0.03;
+      });
 
-    // 9. Camera Orbit Engine
-    const controls = controlsRef.current;
+      const ctrl = controlsRef.current;
 
-    const updateCameraPosition = () => {
-      const { radius, theta, phi } = controls.spherical;
-      const x = controls.target.x + radius * Math.sin(phi) * Math.sin(theta);
-      const y = controls.target.y + radius * Math.cos(phi);
-      const z = controls.target.z + radius * Math.sin(phi) * Math.cos(theta);
+      if (!ctrl.isDragging && !ctrl.isPanning) {
+        const r = ctrl.spherical.radius;
+        const th = ctrl.spherical.theta;
+        const ph = ctrl.spherical.phi;
 
-      camera.position.set(x, y, z);
-      camera.lookAt(controls.target);
-    };
+        const destX = ctrl.target.x + r * Math.sin(ph) * Math.sin(th);
+        const destY = ctrl.target.y + r * Math.cos(ph);
+        const destZ = ctrl.target.z + r * Math.sin(ph) * Math.cos(th);
 
-    updateCameraPosition();
+        camera.position.x += (destX - camera.position.x) * 0.08;
+        camera.position.y += (destY - camera.position.y) * 0.08;
+        camera.position.z += (destZ - camera.position.z) * 0.08;
 
-    const onMouseDown = (e: MouseEvent) => {
-      if (e.button === 0) controls.isDragging = true;
-      if (e.button === 2) controls.isPanning = true;
-      controls.prevX = e.clientX;
-      controls.prevY = e.clientY;
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!controls.isDragging && !controls.isPanning) return;
-      const deltaX = e.clientX - controls.prevX;
-      const deltaY = e.clientY - controls.prevY;
-      controls.prevX = e.clientX;
-      controls.prevY = e.clientY;
-
-      if (controls.isDragging) {
-        controls.spherical.theta -= deltaX * 0.006;
-        controls.spherical.phi = Math.max(0.12, Math.min(Math.PI / 2.05, controls.spherical.phi - deltaY * 0.006));
-      } else if (controls.isPanning) {
-        controls.target.x -= deltaX * 0.4;
-        controls.target.z -= deltaY * 0.4;
+        camera.lookAt(ctrl.target);
       }
 
-      updateCameraPosition();
+      renderer.render(scene, camera);
     };
 
-    const onMouseUp = () => {
-      controls.isDragging = false;
-      controls.isPanning = false;
-    };
+    animate();
 
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      controls.spherical.radius = Math.max(100, Math.min(750, controls.spherical.radius + e.deltaY * 0.5));
-      updateCameraPosition();
-    };
-
-    // Raycast click detection for building/accident selection
+    // 9. Controls & Mouse Events
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    const ctrl = controlsRef.current;
 
-    const onCanvasClick = (e: MouseEvent) => {
-      if (!mount) return;
+    const handlePointerDown = (e: MouseEvent) => {
+      ctrl.isDragging = true;
+      ctrl.prevX = e.clientX;
+      ctrl.prevY = e.clientY;
+    };
+
+    const handlePointerMove = (e: MouseEvent) => {
+      if (!ctrl.isDragging) return;
+
+      const deltaX = e.clientX - ctrl.prevX;
+      const deltaY = e.clientY - ctrl.prevY;
+
+      ctrl.prevX = e.clientX;
+      ctrl.prevY = e.clientY;
+
+      if (e.buttons === 1) {
+        ctrl.spherical.theta -= deltaX * 0.005;
+        ctrl.spherical.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.05, ctrl.spherical.phi - deltaY * 0.005));
+      } else if (e.buttons === 2) {
+        ctrl.target.x -= deltaX * 0.5;
+        ctrl.target.z -= deltaY * 0.5;
+      }
+    };
+
+    const handlePointerUp = () => {
+      ctrl.isDragging = false;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      ctrl.spherical.radius = Math.max(120, Math.min(900, ctrl.spherical.radius + e.deltaY * 0.4));
+    };
+
+    const handleClick = (e: MouseEvent) => {
       const rect = mount.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      mouse.x = ((e.clientX - rect.left) / mount.clientWidth) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / mount.clientHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects(interactiveObjectsRef.current, true);
 
       if (intersects.length > 0) {
         let obj: THREE.Object3D | null = intersects[0].object;
-        while (obj && !obj.userData.incident && obj.parent) {
+        while (obj && !obj.userData?.incident) {
           obj = obj.parent;
         }
-        if (obj && obj.userData.incident) {
+        if (obj && obj.userData?.incident) {
           const inc: IncidentSpot = obj.userData.incident;
           setSelectedSpot(inc);
-          onFocusIncident?.(inc.id);
+          if (onFocusIncident) onFocusIncident(inc.id);
 
-          // Focus camera on target
-          controls.target.set(inc.coordinates.x, 30, inc.coordinates.z);
-          controls.spherical.radius = 240;
-          updateCameraPosition();
+          ctrl.target.set(inc.coordinates.x, inc.buildingHeight / 2, inc.coordinates.z);
+          ctrl.spherical.radius = 240;
         }
       }
     };
 
-    const dom = renderer.domElement;
-    dom.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-    dom.addEventListener('wheel', onWheel, { passive: false });
-    dom.addEventListener('click', onCanvasClick);
-    dom.addEventListener('contextmenu', e => e.preventDefault());
-
-    // 10. Animation Loop
-    let clock = new THREE.Clock();
-
-    const animate = () => {
-      const elapsed = clock.getElapsedTime();
-
-      // Animate Beacon Markers (Rotation & Wave Expansion)
-      markersGroup.children.forEach((spot, idx) => {
-        spot.children.forEach(child => {
-          if (child instanceof THREE.Mesh && child.geometry instanceof THREE.OctahedronGeometry) {
-            child.rotation.y = elapsed * 2 + idx;
-            child.position.y = (child.parent?.userData.incident?.buildingHeight || 100) + 45 + Math.sin(elapsed * 4 + idx) * 3;
-          }
-          if (child instanceof THREE.Mesh && child.geometry instanceof THREE.RingGeometry) {
-            const scale = 1 + Math.sin(elapsed * 3.5 + idx) * 0.2;
-            child.scale.set(scale, scale, scale);
-          }
-        });
-      });
-
-      renderer.render(scene, camera);
-      animIdRef.current = requestAnimationFrame(animate);
-    };
-
-    animIdRef.current = requestAnimationFrame(animate);
+    const dom = mount;
+    dom.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+    dom.addEventListener('wheel', handleWheel, { passive: false });
+    dom.addEventListener('click', handleClick);
 
     const handleResize = () => {
       if (!mount) return;
@@ -473,232 +523,155 @@ export const ThreeGeospatialMap: React.FC<ThreeGeospatialMapProps> = ({
     window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      dom.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      dom.removeEventListener('wheel', onWheel);
-      dom.removeEventListener('click', onCanvasClick);
       if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
-      renderer.dispose();
-      if (mount.contains(renderer.domElement)) {
-        mount.removeChild(renderer.domElement);
-      }
+      dom.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
+      dom.removeEventListener('wheel', handleWheel);
+      dom.removeEventListener('click', handleClick);
+      window.removeEventListener('resize', handleResize);
+      if (rendererRef.current) rendererRef.current.dispose();
     };
-  }, []);
+  }, [mapStyle]);
 
-  const handleViewPreset = (view: '3D' | 'TOP') => {
-    setCameraView(view);
-    const controls = controlsRef.current;
-    if (!controls || !cameraRef.current) return;
-
-    if (view === '3D') {
-      controls.spherical = { radius: 380, theta: Math.PI / 3.6, phi: Math.PI / 3.4 };
-      controls.target.set(0, 0, 0);
-    } else {
-      controls.spherical = { radius: 460, theta: 0, phi: 0.08 };
-      controls.target.set(0, 0, 0);
+  useEffect(() => {
+    const inc = BLUEPRINT_INCIDENTS.find(i => i.id === activeIncidentId);
+    if (inc) {
+      setSelectedSpot(inc);
+      controlsRef.current.target.set(inc.coordinates.x, inc.buildingHeight / 2, inc.coordinates.z);
+      controlsRef.current.spherical.radius = 240;
     }
-
-    const { radius, theta, phi } = controls.spherical;
-    const x = controls.target.x + radius * Math.sin(phi) * Math.sin(theta);
-    const y = controls.target.y + radius * Math.cos(phi);
-    const z = controls.target.z + radius * Math.sin(phi) * Math.cos(theta);
-    cameraRef.current.position.set(x, y, z);
-    cameraRef.current.lookAt(controls.target);
-  };
-
-  const selectIncident = (inc: IncidentSpot) => {
-    setSelectedSpot(inc);
-    onFocusIncident?.(inc.id);
-    const controls = controlsRef.current;
-    if (!controls || !cameraRef.current) return;
-
-    controls.target.set(inc.coordinates.x, 30, inc.coordinates.z);
-    controls.spherical.radius = 220;
-
-    const { radius, theta, phi } = controls.spherical;
-    const x = controls.target.x + radius * Math.sin(phi) * Math.sin(theta);
-    const y = controls.target.y + radius * Math.cos(phi);
-    const z = controls.target.z + radius * Math.sin(phi) * Math.cos(theta);
-    cameraRef.current.position.set(x, y, z);
-    cameraRef.current.lookAt(controls.target);
-  };
+  }, [activeIncidentId]);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden select-none font-sans bg-[#060C18] ${className}`}>
-      
-      {/* 3D Blueprint Canvas */}
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+    <div className={`relative w-full h-full overflow-hidden select-none font-sans bg-[#090d16] ${className}`}>
+      {/* Three.js Canvas Container */}
+      <div ref={mountRef} className="w-full h-full bg-[#090d16] cursor-grab active:cursor-grabbing" />
 
-      {/* Top Header Bar: Blueprint Breadcrumb & View Mode */}
-      <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
-        
-        {/* Left Blueprint Header Pill */}
-        <div className="liquid-glass-pill px-3.5 py-1.5 rounded-xl flex items-center space-x-2.5 shadow-xs border border-white/80 pointer-events-auto">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-sm shadow-cyan-400/50" />
-          <div className="text-left">
-            <span className="text-[9px] font-mono text-cyan-700 font-extrabold uppercase tracking-widest block leading-none">
-              3D BLUEPRINT DIGITAL TWIN
-            </span>
-            <span className="text-xs font-black text-slate-900 tracking-tight block">
-              San Francisco Financial Core
-            </span>
-          </div>
+      {/* Top Left View Controls Overlay */}
+      <div className="absolute top-4 left-4 z-20 flex items-center space-x-2 pointer-events-auto">
+        <div className="bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg flex items-center space-x-1">
+          <button
+            onClick={() => setMapStyle('SATELLITE')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center space-x-1.5 transition-all cursor-pointer ${
+              mapStyle === 'SATELLITE'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>3D Satellite City</span>
+          </button>
+          <button
+            onClick={() => setMapStyle('BLUEPRINT')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center space-x-1.5 transition-all cursor-pointer ${
+              mapStyle === 'BLUEPRINT'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>3D Blueprint CAD</span>
+          </button>
         </div>
 
-        {/* Center / Right: View Mode Toggle & Perspective Switch */}
-        <div className="flex items-center space-x-2 pointer-events-auto">
-          
-          {/* 2D Tactical GIS / 3D Digital Twin Switcher */}
-          <div className="liquid-glass-pill p-1 rounded-xl flex items-center space-x-1 shadow-xs border border-white/80">
-            <button
-              onClick={() => onViewModeChange?.('2D')}
-              className="px-3 py-1 text-xs font-extrabold rounded-lg text-slate-700 hover:text-slate-900 transition-all cursor-pointer"
-            >
-              2D Tactical GIS
-            </button>
-            <button
-              onClick={() => onViewModeChange?.('3D')}
-              className="px-3 py-1 text-xs font-extrabold rounded-lg bg-slate-900 text-white shadow-xs transition-all cursor-pointer"
-            >
-              3D Digital Twin
-            </button>
-          </div>
-
-          {/* Quick Incident Quick-Jumps */}
-          <div className="hidden md:flex items-center space-x-1 liquid-glass-pill p-1 rounded-xl">
-            {BLUEPRINT_INCIDENTS.map((inc, i) => (
-              <button
-                key={inc.id}
-                onClick={() => selectIncident(inc)}
-                className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer flex items-center space-x-1 ${
-                  selectedSpot?.id === inc.id
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <span>{inc.type === 'Fire' ? '🔥' : inc.type === 'Collision' ? '💥' : inc.type === 'Gas' ? '☣️' : '🌊'}</span>
-                <span>Spot #{i + 1}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Perspective Switch */}
-          <div className="liquid-glass-pill p-1 rounded-xl flex items-center space-x-1 shadow-xs border border-white/80">
-            <button
-              onClick={() => handleViewPreset('3D')}
-              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all cursor-pointer ${
-                cameraView === '3D' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              3D Angle
-            </button>
-            <button
-              onClick={() => handleViewPreset('TOP')}
-              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all cursor-pointer ${
-                cameraView === 'TOP' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Top CAD
-            </button>
-          </div>
-
+        {/* Camera Preset Quick Jump Buttons */}
+        <div className="bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg flex items-center space-x-1">
+          <button
+            onClick={() => {
+              setCameraPreset('ISOMETRIC');
+              controlsRef.current.spherical.theta = Math.PI / 3.6;
+              controlsRef.current.spherical.phi = Math.PI / 3.4;
+              controlsRef.current.spherical.radius = 420;
+            }}
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+            title="Isometric View"
+          >
+            <Compass className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              setCameraPreset('TOP');
+              controlsRef.current.spherical.theta = 0;
+              controlsRef.current.spherical.phi = 0.05;
+              controlsRef.current.spherical.radius = 500;
+            }}
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+            title="Top-Down Satellite View"
+          >
+            <Crosshair className="w-4 h-4" />
+          </button>
         </div>
-
       </div>
 
-      {/* Floating Blueprint Incident Details Card (Only shown when an accident/building is clicked) */}
-      {selectedSpot && (
-        <div className="absolute top-16 right-4 z-20 liquid-glass rounded-2xl p-5 max-w-sm w-full text-left space-y-3 shadow-2xl border border-white/95 transition-all">
-          
-          {/* Header with dismiss X button */}
-          <div className="flex items-start justify-between border-b border-white/80 pb-2.5">
-            <div className="flex items-center space-x-2">
-              <span className={`w-3 h-3 rounded-full ${selectedSpot.severity === 'CRITICAL' ? 'bg-rose-600' : 'bg-amber-500'} animate-pulse`} />
-              <div>
-                <span className="text-[9px] font-mono text-slate-400 font-extrabold uppercase tracking-widest block">
-                  {selectedSpot.id} • {selectedSpot.areaName}
-                </span>
-                <h4 className="font-extrabold text-slate-900 text-sm tracking-tight">
-                  {selectedSpot.name}
-                </h4>
-              </div>
-            </div>
-
+      {/* Top Right Incident Target Focus Pills */}
+      <div className="absolute top-4 right-4 z-20 flex items-center space-x-1.5 pointer-events-auto overflow-x-auto max-w-md">
+        {BLUEPRINT_INCIDENTS.map(inc => {
+          const isSelected = selectedSpot?.id === inc.id;
+          return (
             <button
-              onClick={() => setSelectedSpot(null)}
-              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              key={inc.id}
+              onClick={() => {
+                setSelectedSpot(inc);
+                if (onFocusIncident) onFocusIncident(inc.id);
+                controlsRef.current.target.set(inc.coordinates.x, inc.buildingHeight / 2, inc.coordinates.z);
+                controlsRef.current.spherical.radius = 240;
+              }}
+              className={`px-2.5 py-1 text-[11px] font-bold rounded-xl border transition-all cursor-pointer whitespace-nowrap shadow-sm flex items-center space-x-1 ${
+                isSelected
+                  ? 'bg-rose-600 border-rose-400 text-white shadow-rose-900/40'
+                  : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500'
+              }`}
             >
-              <X className="w-4 h-4" />
+              <span className={`w-1.5 h-1.5 rounded-full ${inc.severity === 'CRITICAL' ? 'bg-rose-400 animate-ping' : 'bg-amber-400'}`} />
+              <span>{inc.name.split(' ')[0]}</span>
             </button>
+          );
+        })}
+      </div>
+
+      {/* Selected Incident 3D Location Card Overlay */}
+      {selectedSpot && (
+        <div className="absolute bottom-4 left-4 right-4 lg:left-4 lg:right-auto lg:max-w-sm z-20 bg-slate-900/95 backdrop-blur-xl border border-white/15 rounded-2xl p-4 shadow-2xl text-white pointer-events-auto animate-in fade-in">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+            <div className="flex items-center space-x-2">
+              <span className={`w-2.5 h-2.5 rounded-full ${selectedSpot.severity === 'CRITICAL' ? 'bg-rose-500 animate-ping' : 'bg-amber-500'}`} />
+              <span className="text-[10px] font-extrabold text-rose-400 uppercase tracking-wider">
+                {selectedSpot.severity} THREAT • 3D PINPOINT
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">
+              {selectedSpot.coordinates.lat.toFixed(4)}°N, {selectedSpot.coordinates.lng.toFixed(4)}°E
+            </span>
           </div>
 
-          {/* Accident Category & Floor Badge */}
-          <div className="flex items-center justify-between">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
-              ● {selectedSpot.type.toUpperCase()} ACCIDENT • {selectedSpot.severity}
-            </span>
-            <span className="text-[10px] font-mono text-slate-500 font-bold">
-              {selectedSpot.floor}
-            </span>
-          </div>
+          <h3 className="text-sm font-extrabold text-white tracking-tight flex items-center space-x-1.5">
+            <Building className="w-4 h-4 text-cyan-400" />
+            <span>{selectedSpot.name}</span>
+          </h3>
 
-          {/* Incident Description */}
-          <p className="text-xs text-slate-700 font-medium leading-relaxed bg-white/60 p-2.5 rounded-xl border border-white/80">
+          <p className="text-xs text-slate-400 mt-1">
+            <strong>Location:</strong> {selectedSpot.areaName} ({selectedSpot.floor})
+          </p>
+
+          <p className="text-xs text-slate-300 mt-2 leading-relaxed bg-slate-800/60 p-2 rounded-xl border border-white/5">
             {selectedSpot.description}
           </p>
 
-          {/* Live Metrics: Casualties & Risk Score */}
-          <div className="grid grid-cols-2 gap-2 text-center">
-            <div className="p-2 bg-white/70 rounded-xl border border-white/90">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Casualties Treated</span>
-              <span className="text-xs font-black text-rose-600 mt-0.5 block">{selectedSpot.casualties} Persons</span>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-slate-800/80 p-2 rounded-xl border border-white/5">
+              <span className="text-[10px] text-slate-400 block uppercase font-bold">Risk Score</span>
+              <span className="text-sm font-black text-rose-400">{selectedSpot.riskScore} / 100</span>
             </div>
-            <div className="p-2 bg-white/70 rounded-xl border border-white/90">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Risk Severity Index</span>
-              <span className="text-xs font-black text-slate-900 mt-0.5 block">{selectedSpot.riskScore} / 100</span>
-            </div>
-          </div>
-
-          {/* Dispatched Tactical Fleet */}
-          <div className="space-y-1.5 pt-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
-              Dispatched Tactical Fleet ({selectedSpot.assignedFleet.length} Units)
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedSpot.assignedFleet.map((unit, i) => (
-                <span
-                  key={i}
-                  className="px-2 py-0.5 liquid-glass-pill rounded-lg text-[10px] font-bold text-slate-700 border border-white/80"
-                >
-                  🚒 {unit}
-                </span>
-              ))}
+            <div className="bg-slate-800/80 p-2 rounded-xl border border-white/5">
+              <span className="text-[10px] text-slate-400 block uppercase font-bold">Building Height</span>
+              <span className="text-sm font-black text-cyan-400">{selectedSpot.buildingHeight}m (3D Block)</span>
             </div>
           </div>
-
-          {/* Direct Dispatch CTA */}
-          <div className="pt-2">
-            <button
-              onClick={() => {
-                alert(`Tactical reinforcements commanded to ${selectedSpot.name}`);
-              }}
-              className="w-full py-2 bg-slate-950 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer"
-            >
-              Reinforce Emergency Units
-            </button>
-          </div>
-
         </div>
       )}
-
-      {/* Bottom Center Navigation Guide Hint */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 liquid-glass-pill px-4 py-1.5 rounded-xl text-[11px] text-slate-600 font-semibold shadow-xs border border-white/80 pointer-events-none">
-        <span>Click any 3D building or accident marker to inspect area & accident details • Drag to orbit • Scroll to zoom</span>
-      </div>
-
     </div>
   );
 };
+
 export default ThreeGeospatialMap;

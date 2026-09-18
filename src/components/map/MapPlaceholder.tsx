@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { MapPin, Compass, Shield, ZoomIn, ZoomOut, Activity, Zap } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Compass, Shield, ZoomIn, ZoomOut, Activity, Zap, MapPin } from 'lucide-react';
+import L from 'leaflet';
 import { Coordinates } from '../../types/common';
 
 interface MapMarker {
@@ -42,14 +43,13 @@ export const MapPlaceholder: React.FC<MapPlaceholderProps> = ({
   markers = [],
   zones = [],
   routes = [],
-  center = { lat: 45.4150, "lng": -75.6900 },
-  zoom = 14,
-  interactive: _interactive = true,
+  center = { lat: 15.9129, lng: 79.7400 },
+  zoom = 7.5,
+  interactive = true,
   onMarkerClick,
-  title = "GIS Live Tactical Vector Overlay",
+  title = "OpenStreetMap Tactical GIS View",
   heightClass = "h-[450px]"
 }) => {
-  const [mapZoom, setMapZoom] = useState(zoom);
   const [activeLayers, setActiveLayers] = useState({
     hazards: true,
     resources: true,
@@ -58,206 +58,189 @@ export const MapPlaceholder: React.FC<MapPlaceholderProps> = ({
   });
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
 
-  // Projection helper to convert lat/lng into SVG coordinates
-  // Coordinates are roughly inside lat: 45.36 - 45.46, lng: -75.76 - -75.64
-  const project = (lat: number, lng: number) => {
-    const latMin = 45.36;
-    const latMax = 45.46;
-    const lngMin = -75.76;
-    const lngMax = -75.64;
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
 
-    // Scale to percentage coordinates (10% to 90% space)
-    const x = 10 + ((lng - lngMin) / (lngMax - lngMin)) * 80;
-    const y = 90 - ((lat - latMin) / (latMax - latMin)) * 80; // invert Y since SVG starts at top
-    return { x, y };
-  };
+  const layerGroupsRef = useRef<{
+    hazards?: L.LayerGroup;
+    routes?: L.LayerGroup;
+    markers?: L.LayerGroup;
+  }>({});
 
-  const centerProj = project(center.lat, center.lng);
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
 
-  return (
-    <div className={`relative w-full rounded-2xl overflow-hidden border border-slate-300/40 shadow-xl bg-slate-900 ${heightClass}`}>
-      {/* City Map Background Grid Layer */}
-      <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
-      
-      {/* Decorative City Topography Contour Mock Lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-        <path d="M 50 100 Q 150 150 250 100 T 450 100 T 650 150 T 850 100" fill="none" stroke="#38bdf8" strokeWidth="1" />
-        <path d="M 50 250 Q 180 300 310 250 T 570 250 T 830 200" fill="none" stroke="#0ea5e9" strokeWidth="1" />
-        <path d="M 100 400 Q 250 450 400 400 T 700 450" fill="none" stroke="#38bdf8" strokeWidth="0.5" />
-        {/* River outline mock */}
-        <path d="M -50 200 Q 200 180 350 220 T 700 240 T 1100 210" fill="none" stroke="#06b6d4" strokeWidth="14" strokeLinecap="round" className="opacity-40 animate-pulse-slow" />
-        <path d="M -50 200 Q 200 180 350 220 T 700 240 T 1100 210" fill="none" stroke="#22d3ee" strokeWidth="4" strokeLinecap="round" className="opacity-60" />
-      </svg>
+    if (!mapInstanceRef.current) {
+      const map = L.map(mapContainerRef.current, {
+        center: [center.lat, center.lng],
+        zoom: zoom,
+        zoomControl: false,
+        attributionControl: true
+      });
 
-      {/* SVG Vector Elements */}
-      <svg className="absolute inset-0 w-full h-full">
-        {/* Render Evacuation Routes */}
-        {activeLayers.routes && routes.map(route => {
-          if (route.points.length < 2) return null;
-          
-          let dPath = "";
-          route.points.forEach((pt, i) => {
-            const { x, y } = project(pt.lat, pt.lng);
-            if (i === 0) dPath += `M ${x} ${y}`;
-            else dPath += ` L ${x} ${y}`;
-          });
+      // OpenStreetMap Standard Tile Layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+      }).addTo(map);
 
-          let strokeColor = "#10b981"; // CLEAR
-          if (route.congestion === 'MODERATE') strokeColor = "#f59e0b";
-          if (route.congestion === 'HEAVY') strokeColor = "#ef4444";
-          if (route.congestion === 'BLOCKED') strokeColor = "#64748b";
+      const hazardsGroup = L.layerGroup().addTo(map);
+      const routesGroup = L.layerGroup().addTo(map);
+      const markersGroup = L.layerGroup().addTo(map);
 
-          return (
-            <g key={route.id} className="cursor-pointer group">
-              <path
-                d={dPath}
-                fill="none"
-                stroke={strokeColor}
-                strokeWidth={route.congestion === 'BLOCKED' ? "3" : "4"}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={`opacity-70 group-hover:opacity-100 transition-opacity ${route.congestion === 'HEAVY' ? 'stroke-dasharray-5' : ''}`}
-              />
-              <path
-                d={dPath}
-                fill="none"
-                stroke="#fff"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-0 group-hover:opacity-10 pointer-events-auto"
-                onClick={() => setSelectedPoint(`Route: ${route.name} (${route.congestion} Congestion)`)}
-              />
-            </g>
-          );
-        })}
+      layerGroupsRef.current = {
+        hazards: hazardsGroup,
+        routes: routesGroup,
+        markers: markersGroup
+      };
 
-        {/* Render Hazard & Safe Zones */}
-        {activeLayers.hazards && zones.map(zone => {
-          const { x, y } = project(zone.center.lat, zone.center.lng);
-          // Scale size according to zoom level
-          const pixelRadius = (zone.radiusMeter / 10) * (mapZoom / 14);
+      mapInstanceRef.current = map;
 
-          let color = "#ef4444"; // rose
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 200);
+    } else {
+      mapInstanceRef.current.setView([center.lat, center.lng], zoom);
+    }
+  }, [center.lat, center.lng, zoom]);
+
+  // Sync Layers & Render Data
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    const { hazards, routes: routesGroup, markers: markersGroup } = layerGroupsRef.current;
+
+    // 1. Render Hazard Zones
+    if (hazards) {
+      hazards.clearLayers();
+      if (activeLayers.hazards) {
+        zones.forEach(zone => {
+          let color = "#ef4444";
           if (zone.tint === 'emerald') color = "#10b981";
           if (zone.tint === 'amber') color = "#f59e0b";
           if (zone.tint === 'cyan') color = "#06b6d4";
 
-          return (
-            <g key={zone.id} className="transition-all duration-500">
-              {/* Core filled zone */}
-              <circle
-                cx={x}
-                cy={y}
-                r={pixelRadius}
-                fill={color}
-                fillOpacity="0.12"
-                stroke={color}
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-                className="animate-pulse-slow"
-              />
-              {/* Outer boundary rings */}
-              <circle
-                cx={x}
-                cy={y}
-                r={pixelRadius + 8}
-                fill="none"
-                stroke={color}
-                strokeWidth="0.5"
-                strokeOpacity="0.3"
-              />
-              {/* Label */}
-              <text
-                x={x}
-                y={y - pixelRadius - 6}
-                fill={color}
-                fontSize="10"
-                fontWeight="semibold"
-                textAnchor="middle"
-                className="select-none pointer-events-none drop-shadow-md"
-              >
-                {zone.label}
-              </text>
-            </g>
-          );
-        })}
+          L.circle([zone.center.lat, zone.center.lng], {
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.15,
+            radius: zone.radiusMeter,
+            dashArray: '5, 5'
+          }).bindPopup(`<b>${zone.label}</b><br/>Radius: ${zone.radiusMeter}m`).addTo(hazards);
+        });
+      }
+    }
 
-        {/* Map Center Coordinate Pulse Indicator */}
-        <g transform={`translate(${centerProj.x}, ${centerProj.y})`}>
-          <circle cx="0" cy="0" r="12" fill="#06b6d4" fillOpacity="0.1" className="animate-ping" />
-          <circle cx="0" cy="0" r="4" fill="#22d3ee" />
-        </g>
-      </svg>
+    // 2. Render Routes
+    if (routesGroup) {
+      routesGroup.clearLayers();
+      if (activeLayers.routes) {
+        routes.forEach(route => {
+          if (route.points.length < 2) return;
+          const latLngs: [number, number][] = route.points.map(pt => [pt.lat, pt.lng]);
 
-      {/* Render Markers as Absolutes for absolute crisp hover interaction */}
-      {activeLayers.resources && markers.map(marker => {
-        const { x, y } = project(marker.lat, marker.lng);
+          let color = "#10b981";
+          if (route.congestion === 'MODERATE') color = "#f59e0b";
+          if (route.congestion === 'HEAVY') color = "#ef4444";
+          if (route.congestion === 'BLOCKED') color = "#64748b";
 
-        let pinColor = "text-slate-400";
-        if (marker.severity === 'CRITICAL') pinColor = "text-rose-600 drop-shadow-[0_0_8px_rgba(225,29,72,0.8)]";
-        else if (marker.severity === 'HIGH') pinColor = "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]";
-        else if (marker.severity === 'MEDIUM') pinColor = "text-indigo-500";
-        else if (marker.severity === 'LOW') pinColor = "text-emerald-500";
+          const polyline = L.polyline(latLngs, {
+            color: color,
+            weight: route.congestion === 'BLOCKED' ? 3 : 5,
+            dashArray: route.congestion === 'HEAVY' ? '8, 8' : undefined,
+            opacity: 0.85
+          }).addTo(routesGroup);
 
-        return (
-          <button
-            key={marker.id}
-            onClick={() => {
-              setSelectedPoint(`${marker.type}: ${marker.label}`);
-              if (onMarkerClick) onMarkerClick(marker.id);
-            }}
-            className="absolute transition-transform hover:scale-125 focus:outline-none group cursor-pointer"
-            style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -100%)' }}
-          >
-            <div className="relative">
-              <MapPin className={`w-6 h-6 ${pinColor}`} fill="rgba(15,23,42,0.6)" />
-              {/* Small glowing status dot */}
-              <span className="absolute top-1.5 left-2 w-1.5 h-1.5 rounded-full bg-white block" />
-              
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 bg-slate-950/95 text-white text-[10px] px-2 py-1 rounded border border-white/20 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-xl z-50">
-                <span className="font-bold block text-blue-400">{marker.id}</span>
-                {marker.label}
+          polyline.on('click', () => {
+            setSelectedPoint(`Route: ${route.name} (${route.congestion} Congestion)`);
+          });
+        });
+      }
+    }
+
+    // 3. Render Markers
+    if (markersGroup) {
+      markersGroup.clearLayers();
+      if (activeLayers.resources) {
+        markers.forEach(marker => {
+          let colorBg = "bg-slate-600";
+          if (marker.severity === 'CRITICAL') colorBg = "bg-rose-600";
+          else if (marker.severity === 'HIGH') colorBg = "bg-amber-500";
+          else if (marker.severity === 'MEDIUM') colorBg = "bg-indigo-600";
+          else if (marker.severity === 'LOW') colorBg = "bg-emerald-600";
+
+          const divIcon = L.divIcon({
+            className: 'custom-leaflet-marker',
+            html: `
+              <div class="px-2 py-1 ${colorBg} text-white border-2 border-white rounded-lg shadow-lg flex items-center space-x-1 cursor-pointer font-bold text-[10px]">
+                <span>${marker.label}</span>
               </div>
-            </div>
-          </button>
-        );
-      })}
+            `,
+            iconSize: [80, 24],
+            iconAnchor: [40, 12]
+          });
+
+          const m = L.marker([marker.lat, marker.lng], { icon: divIcon }).addTo(markersGroup);
+          m.on('click', () => {
+            setSelectedPoint(`${marker.type}: ${marker.label}`);
+            if (onMarkerClick) onMarkerClick(marker.id);
+          });
+        });
+      }
+    }
+  }, [markers, zones, routes, activeLayers]);
+
+  // Clean up
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleZoomIn = () => mapInstanceRef.current?.zoomIn();
+  const handleZoomOut = () => mapInstanceRef.current?.zoomOut();
+
+  return (
+    <div className={`relative w-full rounded-2xl overflow-hidden border border-slate-300/40 shadow-xl bg-slate-900 ${heightClass}`}>
+      {/* Leaflet OSM Map Container */}
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
 
       {/* Map Header Overlay (Chrome UI) */}
-      <div className="absolute top-4 left-4 p-3 bg-slate-900/90 backdrop-blur-md rounded-xl border border-white/10 text-white shadow-lg pointer-events-auto">
+      <div className="absolute top-4 left-4 p-3 bg-slate-900/90 backdrop-blur-md rounded-xl border border-white/10 text-white shadow-lg pointer-events-auto z-20">
         <div className="flex items-center space-x-2.5">
           <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400">
             <Compass className="w-4 h-4 animate-spin-slow" />
           </div>
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider">{title}</h4>
-            <p className="text-[10px] text-slate-400 tabular-nums">Center: {center.lat.toFixed(4)}°N, {center.lng.toFixed(4)}°W</p>
+            <p className="text-[10px] text-slate-400 tabular-nums">OSM Center: {center.lat.toFixed(4)}°N, {center.lng.toFixed(4)}°W</p>
           </div>
         </div>
       </div>
 
       {/* Layer Toggle Floating Controls */}
-      <div className="absolute top-4 right-4 flex flex-col space-y-2 pointer-events-auto">
+      <div className="absolute top-4 right-4 flex flex-col space-y-2 pointer-events-auto z-20">
         <div className="p-2 bg-slate-900/90 backdrop-blur-md rounded-xl border border-white/10 flex flex-col space-y-1.5">
           <button
             onClick={() => setActiveLayers(p => ({ ...p, hazards: !p.hazards }))}
-            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors ${activeLayers.hazards ? 'text-rose-400 bg-rose-500/10' : 'text-slate-400 hover:text-white'}`}
+            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors cursor-pointer ${activeLayers.hazards ? 'text-rose-400 bg-rose-500/10' : 'text-slate-400 hover:text-white'}`}
           >
             <Shield className="w-3.5 h-3.5" />
             <span className="text-[10px]">Hazard Zones</span>
           </button>
           <button
             onClick={() => setActiveLayers(p => ({ ...p, routes: !p.routes }))}
-            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors ${activeLayers.routes ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-400 hover:text-white'}`}
+            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors cursor-pointer ${activeLayers.routes ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-400 hover:text-white'}`}
           >
             <Zap className="w-3.5 h-3.5" />
             <span className="text-[10px]">Evac Corridors</span>
           </button>
           <button
             onClick={() => setActiveLayers(p => ({ ...p, resources: !p.resources }))}
-            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors ${activeLayers.resources ? 'text-cyan-400 bg-cyan-500/10' : 'text-slate-400 hover:text-white'}`}
+            className={`p-1.5 rounded text-xs font-semibold flex items-center space-x-2 transition-colors cursor-pointer ${activeLayers.resources ? 'text-cyan-400 bg-cyan-500/10' : 'text-slate-400 hover:text-white'}`}
           >
             <MapPin className="w-3.5 h-3.5" />
             <span className="text-[10px]">Tactical Pins</span>
@@ -266,11 +249,11 @@ export const MapPlaceholder: React.FC<MapPlaceholderProps> = ({
 
         {/* Zoom Controls */}
         <div className="p-1 bg-slate-900/90 backdrop-blur-md rounded-xl border border-white/10 flex flex-col items-center">
-          <button onClick={() => setMapZoom(z => Math.min(z + 1, 18))} className="p-1.5 text-slate-400 hover:text-white transition-colors" title="Zoom In">
+          <button onClick={handleZoomIn} className="p-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer" title="Zoom In">
             <ZoomIn className="w-4 h-4" />
           </button>
           <div className="h-[1px] w-4 bg-white/10" />
-          <button onClick={() => setMapZoom(z => Math.max(z - 1, 10))} className="p-1.5 text-slate-400 hover:text-white transition-colors" title="Zoom Out">
+          <button onClick={handleZoomOut} className="p-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer" title="Zoom Out">
             <ZoomOut className="w-4 h-4" />
           </button>
         </div>
@@ -278,34 +261,26 @@ export const MapPlaceholder: React.FC<MapPlaceholderProps> = ({
 
       {/* Selected Feature Info Box (Bottom) */}
       {selectedPoint && (
-        <div className="absolute bottom-4 left-4 right-4 p-2.5 bg-slate-950/90 backdrop-blur-md rounded-xl border border-white/15 text-white text-xs flex items-center justify-between shadow-2xl animate-fade-in pointer-events-auto">
+        <div className="absolute bottom-4 left-4 right-4 p-2.5 bg-slate-950/90 backdrop-blur-md rounded-xl border border-white/15 text-white text-xs flex items-center justify-between shadow-2xl z-20 pointer-events-auto">
           <div className="flex items-center space-x-2">
             <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
             <span><strong className="text-slate-400">Selected GIS Target:</strong> {selectedPoint}</span>
           </div>
-          <button onClick={() => setSelectedPoint(null)} className="text-[10px] text-slate-400 hover:text-white uppercase font-bold px-1.5 py-0.5 rounded bg-white/10">
+          <button onClick={() => setSelectedPoint(null)} className="text-[10px] text-slate-400 hover:text-white uppercase font-bold px-1.5 py-0.5 rounded bg-white/10 cursor-pointer">
             Dismiss
           </button>
         </div>
       )}
 
       {/* Map Legend Overlay */}
-      <div className="absolute bottom-4 right-4 p-2 bg-slate-900/95 backdrop-blur-md rounded-lg border border-white/10 text-[9px] text-slate-400 flex flex-col space-y-1">
+      <div className="absolute bottom-4 right-4 p-2 bg-slate-900/95 backdrop-blur-md rounded-lg border border-white/10 text-[9px] text-slate-400 flex flex-col space-y-1 z-10">
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-          <span>Critical Threat Incident</span>
-        </div>
-        <div className="flex items-center space-x-1.5">
-          <span className="w-2 h-2 rounded-full bg-amber-500" />
-          <span>High Severity Threat</span>
+          <span>OpenStreetMap Tile Layer</span>
         </div>
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-0.5 bg-emerald-500 inline-block" />
-          <span>Clear Evac Corridor</span>
-        </div>
-        <div className="flex items-center space-x-1.5">
-          <span className="w-2 h-2 rounded bg-rose-500/10 border border-rose-500 border-dashed inline-block" />
-          <span>EOC Threat Zone Buffer</span>
+          <span>Evac Route Polyline</span>
         </div>
       </div>
     </div>

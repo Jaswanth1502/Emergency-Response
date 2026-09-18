@@ -55,7 +55,7 @@ export const ResourceAllocation: React.FC = () => {
       <div className="liquid-glass-card px-4 py-2.5 rounded-2xl flex items-center space-x-2">
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CURRENT TASK:</span>
         <span className="text-xs font-semibold text-slate-700">
-          Calculating optimal heavy foam unit routing for Mission Plaza chemical risk
+          Calculating optimal heavy foam unit routing for Rushikonda IT SEZ chemical risk
         </span>
       </div>
 
@@ -82,7 +82,7 @@ export const ResourceAllocation: React.FC = () => {
               Dispatch Foam Carrier 03 & Pre-alert Burn ICU H03
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Based on 485°C thermal surge and hydrocarbon solvent risk in B2, recommend deploying Foam Unit F-04 (ETA 2m) and redirecting ALS Ambulance A-05 from SOMA depot.
+              Based on 485°C thermal surge and hydrocarbon solvent risk in B2, recommend deploying Foam Unit F-04 (ETA 2m) and redirecting ALS Ambulance A-05 from Apollo Health City depot.
             </p>
           </div>
 

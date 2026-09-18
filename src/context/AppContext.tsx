@@ -72,11 +72,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Cast raw data safely
   const [incidents, setIncidents] = useState<Incident[]>(rawIncidents as Incident[]);
-  const [resources, setResources] = useState<EmergencyResource[]>(rawResources as EmergencyResource[]);
+  const [resources, setResources] = useState<EmergencyResource[]>(rawResources as unknown as EmergencyResource[]);
   const [sensors, setSensors] = useState<SensorTelemetry[]>(rawSensors as SensorTelemetry[]);
-  const [routes, setRoutes] = useState<EvacuationRoute[]>(rawEvac.routes as EvacuationRoute[]);
-  const [shelters, setShelters] = useState<Shelter[]>(rawEvac.shelters as Shelter[]);
-  const [roads, setRoads] = useState<RoadStatus[]>(rawEvac.roads as RoadStatus[]);
+  const [routes, setRoutes] = useState<EvacuationRoute[]>(rawEvac.routes as unknown as EvacuationRoute[]);
+  const [shelters, setShelters] = useState<Shelter[]>(rawEvac.shelters as unknown as Shelter[]);
+  const [roads, setRoads] = useState<RoadStatus[]>(rawEvac.roads as unknown as RoadStatus[]);
   const [users] = useState<User[]>(rawUsers as User[]);
   
   const [currentRole, setCurrentRoleState] = useState<UserRole>('ADMIN');

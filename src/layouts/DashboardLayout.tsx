@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -19,12 +19,14 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   SunMedium,
   Clock,
   Menu,
   X,
   Radio,
-  Database
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { NotificationDrawer } from '../components/notifications/NotificationDrawer';
@@ -36,7 +38,7 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { currentRole, setCurrentRole, currentUser, notifications } = useApp();
+  const { currentRole, setCurrentRole, notifications } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -48,11 +50,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const [time, setTime] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    if (userDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userDropdownOpen]);
 
   const navSections = [
     {
@@ -167,14 +184,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const unreadNotifCount = notifications.filter(n => !n.read).length || 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E2E8F0]/80 via-[#F8FAFC] to-white text-slate-800 flex font-sans antialiased overflow-x-hidden">
+    <div className="h-screen w-screen bg-gradient-to-b from-[#E2E8F0]/80 via-[#F8FAFC] to-white text-slate-800 flex font-sans antialiased overflow-hidden">
       
       {/* Desktop Sidebar Navigation (Apple Liquid Glassmorphism) */}
-      <aside className={`hidden lg:flex flex-col liquid-glass border-r border-white/80 transition-all duration-300 z-30 ${collapsed ? 'w-20' : 'w-64'} flex-shrink-0 select-none shadow-[2px_0_16px_rgba(0,0,0,0.03)]`}>
+      <aside className={`hidden lg:flex flex-col bg-white/80 backdrop-blur-xl border-r border-slate-200/80 transition-all duration-300 z-30 ${collapsed ? 'w-20' : 'w-64'} flex-shrink-0 select-none shadow-[2px_0_16px_rgba(0,0,0,0.03)] h-screen sticky top-0`}>
         
         {/* Brand Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-white/60">
-          <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden">
+        <div className={`h-16 px-4 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} border-b border-slate-200/70 flex-shrink-0`}>
+          <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden" title={collapsed ? "AEGIS TWIN - EMERGENCY OS" : undefined}>
             <div className="w-9 h-9 rounded-xl bg-[#0B132B] text-sky-400 flex items-center justify-center shadow-md shadow-slate-900/15 flex-shrink-0">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
@@ -185,21 +202,36 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               </div>
             )}
           </Link>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="w-6 h-6 rounded-lg bg-white/80 hover:bg-white text-slate-500 flex items-center justify-center transition-colors cursor-pointer border border-white/90 shadow-2xs"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-          </button>
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              className="w-6 h-6 rounded-lg bg-white/80 hover:bg-white text-slate-500 flex items-center justify-center transition-colors cursor-pointer border border-slate-200/80 shadow-2xs"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
+        {/* Collapsed Expand Toggle */}
+        {collapsed && (
+          <div className="flex justify-center py-2 border-b border-slate-100 flex-shrink-0">
+            <button
+              onClick={() => setCollapsed(false)}
+              className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 text-slate-500 flex items-center justify-center transition-colors cursor-pointer border border-slate-200/80 shadow-2xs"
+              title="Expand sidebar"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Navigation Sections */}
-        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+        <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
           {navSections.map((section, idx) => (
             <div key={idx} className="space-y-1">
               {!collapsed && (
-                <p className="text-[10px] font-bold text-slate-400 tracking-wider px-3 mb-1.5 uppercase">
+                <p className="text-[10px] font-bold text-slate-400 tracking-wider px-3 mb-1 uppercase">
                   {section.heading}
                 </p>
               )}
@@ -210,21 +242,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                     <Link
                       key={item.label}
                       to={item.path}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all group ${
+                      className={`flex items-center ${collapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-xl text-xs font-semibold transition-all group ${
                         isActive
-                          ? 'liquid-glass-blue text-blue-700 font-bold border-l-3 border-blue-600 shadow-xs'
+                          ? 'liquid-glass-blue text-blue-700 font-bold border-l-[3px] border-blue-600 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                       }`}
                       title={collapsed ? item.label : undefined}
                     >
                       <div className="flex items-center space-x-3 truncate">
-                        <div className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`}>
+                        <div className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors flex-shrink-0`}>
                           {item.icon}
                         </div>
                         {!collapsed && <span className="truncate">{item.label}</span>}
                       </div>
                       {!collapsed && item.badge && (
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${item.badgeColor} ml-2 flex-shrink-0 shadow-2xs`}>
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${item.badgeColor} ml-2 flex-shrink-0 shadow-2xs`}>
                           {item.badge}
                         </span>
                       )}
@@ -236,26 +268,102 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           ))}
         </div>
 
-        {/* Bottom System Sync Indicator */}
-        <div className="p-3 border-t border-white/60 bg-white/40 backdrop-blur-md">
-          <div className="flex items-center space-x-2.5 px-2 py-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-            {!collapsed && (
-              <div className="text-left leading-none">
-                <span className="text-[10px] font-bold text-slate-800 block">Twin Sync Active</span>
-                <span className="text-[9px] text-slate-400 font-mono block mt-0.5">Telemetry: 24ms</span>
+        {/* Bottom Profile & System Sync */}
+        <div ref={userDropdownRef} className="p-3 border-t border-slate-200/70 bg-white/60 backdrop-blur-md relative flex-shrink-0">
+          
+          {/* Twin Sync Active Status Pill */}
+          {!collapsed && (
+            <div className="flex items-center justify-between px-2.5 py-1 mb-2.5 rounded-lg bg-slate-50/90 border border-slate-200/60 text-[10px]">
+              <div className="flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="font-bold text-slate-700">Twin Sync Active</span>
+              </div>
+              <span className="font-mono text-slate-400 text-[9px]">24ms</span>
+            </div>
+          )}
+
+          {/* Commander Profile Button */}
+          <div className="relative">
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'justify-between p-2'} rounded-xl bg-slate-50/90 hover:bg-white border border-slate-200/80 transition-all shadow-2xs cursor-pointer group`}
+              title={collapsed ? "Cmdr. Justin Vance (Click for menu)" : undefined}
+            >
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <div className="relative flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
+                    JV
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                </div>
+                {!collapsed && (
+                  <div className="text-left leading-none min-w-0">
+                    <span className="text-xs font-bold text-slate-900 block truncate group-hover:text-blue-600 transition-colors">
+                      Cmdr. Justin Vance
+                    </span>
+                    <div className="flex items-center space-x-1.5 mt-1">
+                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-700 font-mono">
+                        {currentRole}
+                      </span>
+                      <span className="text-[9px] font-mono text-slate-400">EOC-7049</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {!collapsed && (
+                <ChevronUp className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+              )}
+            </button>
+
+            {/* Commander Profile Popover Menu */}
+            {userDropdownOpen && (
+              <div className={`absolute ${collapsed ? 'left-full ml-3 bottom-0 w-56' : 'bottom-full mb-2 left-0 right-0 w-full'} bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-bottom-2`}>
+                <div className="px-3 py-1.5 border-b border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Commander</p>
+                  <p className="text-xs font-bold text-slate-900 mt-0.5">Cmdr. Justin Vance</p>
+                  <p className="text-[10px] text-slate-500 font-mono">EOC Lead Operator • EOC-7049</p>
+                </div>
+                <div className="py-1">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1">Switch Role</p>
+                  {(['ADMIN', 'OPERATOR', 'ANALYST'] as const).map(role => (
+                    <button
+                      key={role}
+                      onClick={() => { setCurrentRole(role); setUserDropdownOpen(false); }}
+                      className={`w-full px-3 py-1.5 text-xs text-left font-semibold flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer ${currentRole === role ? 'text-blue-600 font-bold bg-blue-50/60' : 'text-slate-700'}`}
+                    >
+                      <span className="flex items-center space-x-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 opacity-70" />
+                        <span>Role: {role}</span>
+                      </span>
+                      {currentRole === role && <span className="text-xs font-bold text-blue-600">✓</span>}
+                    </button>
+                  ))}
+                </div>
+                <div className="border-t border-slate-100 pt-1">
+                  <button
+                    onClick={() => { setUserDropdownOpen(false); navigate('/'); }}
+                    className="w-full px-3 py-1.5 text-xs text-left text-rose-600 hover:bg-rose-50 font-semibold transition-colors cursor-pointer flex items-center justify-between"
+                  >
+                    <span className="flex items-center space-x-1.5">
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Logout Terminal</span>
+                    </span>
+                    <span className="text-[10px] font-mono opacity-70">ESC</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
+
         </div>
 
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
         {/* Top Navbar Chrome (Apple Liquid Glassmorphism) */}
-        <header className="h-16 liquid-glass border-b border-white/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+        <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex-shrink-0">
           
           {/* Left Title & Status Pill */}
           <div className="flex items-center space-x-3 min-w-0">
@@ -297,7 +405,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             </div>
           </div>
 
-          {/* Right Action Widgets */}
+          {/* Right Action Widgets (Profile removed from top right) */}
           <div className="flex items-center space-x-2.5 flex-shrink-0">
             
             {/* Live UTC Clock */}
@@ -337,55 +445,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               <SlidersHorizontal className="w-4 h-4" />
             </button>
 
-            {/* Commander Profile Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center space-x-2 pl-1.5 pr-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl transition-all shadow-2xs cursor-pointer"
-              >
-                <div className="w-7 h-7 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-                  JV
-                </div>
-                <div className="text-left hidden sm:block leading-none">
-                  <span className="text-xs font-bold text-slate-900 block truncate max-w-[110px]">
-                    Cmdr. Justin Vance
-                  </span>
-                  <span className="text-[9px] font-mono text-slate-400 block mt-0.5">EOC-7049</span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
-
-              {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-top-2">
-                  <div className="px-3 py-1.5 border-b border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Commander Profile</p>
-                    <p className="text-xs font-bold text-slate-900 mt-0.5">Cmdr. Justin Vance</p>
-                    <p className="text-[10px] text-slate-500 font-mono">EOC Lead Operator</p>
-                  </div>
-                  <div className="py-1">
-                    {(['ADMIN', 'OPERATOR', 'ANALYST'] as const).map(role => (
-                      <button
-                        key={role}
-                        onClick={() => { setCurrentRole(role); setUserDropdownOpen(false); }}
-                        className={`w-full px-3 py-1.5 text-xs text-left font-semibold flex items-center justify-between hover:bg-slate-50 ${currentRole === role ? 'text-blue-600 font-bold bg-blue-50/50' : 'text-slate-700'}`}
-                      >
-                        <span>Role: {role}</span>
-                        {currentRole === role && <span className="text-xs">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="border-t border-slate-100 pt-1">
-                    <button
-                      onClick={() => navigate('/')}
-                      className="w-full px-3 py-1.5 text-xs text-left text-rose-600 hover:bg-rose-50 font-semibold"
-                    >
-                      Logout Terminal
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
           </div>
 
         </header>
@@ -415,21 +474,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="fixed inset-y-0 left-0 w-72 bg-white text-slate-800 p-5 flex flex-col space-y-6 shadow-2xl z-50"
+              className="fixed inset-y-0 left-0 w-72 bg-white text-slate-800 flex flex-col shadow-2xl z-50 overflow-hidden"
             >
-              <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+              <div className="p-4 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-xl bg-[#0B132B] text-sky-400 flex items-center justify-center font-bold">
                     <Radio className="w-4 h-4" />
                   </div>
                   <span className="font-extrabold text-slate-900 tracking-tight text-sm">AEGIS TWIN OS</span>
                 </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-lg text-slate-500 hover:bg-slate-100">
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-lg text-slate-500 hover:bg-slate-100 cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="space-y-4 overflow-y-auto flex-1 text-left">
+              <nav className="p-4 space-y-4 overflow-y-auto flex-1 text-left">
                 {navSections.map((sec, idx) => (
                   <div key={idx} className="space-y-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{sec.heading}</p>
@@ -450,6 +509,28 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   </div>
                 ))}
               </nav>
+
+              {/* Mobile Profile Footer */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50/80 flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center">
+                      JV
+                    </div>
+                    <div className="text-left leading-none">
+                      <span className="text-xs font-bold text-slate-900 block">Cmdr. Justin Vance</span>
+                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5">EOC Lead Operator</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate('/'); }}
+                    className="p-2 rounded-lg text-rose-600 hover:bg-rose-50"
+                    title="Logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </motion.aside>
           </div>
         )}
