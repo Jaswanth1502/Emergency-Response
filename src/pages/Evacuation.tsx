@@ -86,7 +86,12 @@ export const Evacuation: React.FC = () => {
                 <div className="flex items-center justify-between pt-1 border-t border-white/60 text-[11px] font-mono text-slate-600">
                   <span>Dist: <strong className="text-slate-900">1.2 km</strong></span>
                   <span>ETA: <strong className="text-slate-900">14m</strong></span>
-                  <span>Congestion: <strong className="text-emerald-600 font-bold">Low</strong></span>
+                  <button
+                    onClick={() => addNotification('CORRIDOR ACTIVATED: Primary Safe Corridor Alpha active for traffic routing.', 'success')}
+                    className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-sans text-[10px] font-bold rounded-lg cursor-pointer"
+                  >
+                    ACTIVATE CORRIDOR
+                  </button>
                 </div>
               </div>
 
@@ -114,7 +119,12 @@ export const Evacuation: React.FC = () => {
                 <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] font-mono text-slate-600">
                   <span>Dist: <strong className="text-slate-900">2.1 km</strong></span>
                   <span>ETA: <strong className="text-slate-900">26m</strong></span>
-                  <span>Congestion: <strong className="text-amber-600 font-bold">Moderate</strong></span>
+                  <button
+                    onClick={() => addNotification('TRAFFIC REROUTED: Secondary Egress Route Beta designated as active bypass.', 'info')}
+                    className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-sans text-[10px] font-bold rounded-lg cursor-pointer"
+                  >
+                    REROUTE TRAFFIC
+                  </button>
                 </div>
               </div>
 
@@ -128,10 +138,16 @@ export const Evacuation: React.FC = () => {
                     Safety: <span className="text-emerald-600 font-extrabold">99/100</span>
                   </span>
                 </div>
-                <div>
+                <div className="flex items-center justify-between">
                   <h4 className="font-extrabold text-slate-900 text-xs">
                     First Responder Dedicated Priority Lane (1st St to Trauma Base)
                   </h4>
+                  <button
+                    onClick={() => addNotification('PRIORITY LANE CLEAR: Emergency vehicles granted exclusive access to 1st St.', 'success')}
+                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white font-sans text-[10px] font-bold rounded-lg cursor-pointer"
+                  >
+                    RESERVE LANE
+                  </button>
                 </div>
               </div>
 

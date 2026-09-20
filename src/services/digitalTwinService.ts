@@ -12,68 +12,77 @@ import {
 const MOCK_INCIDENTS: EmergencyIncident[] = [
   {
     incidentId: 'INC-001',
+    id: 'INC-001',
     incidentType: 'FIRE',
     title: 'Commercial Building Structure Fire',
     description: '485°C thermal surge on floor 4 with chemical storage tanks. 25 people trapped on upper floors.',
-    latitude: 17.3850,
-    longitude: 78.4867,
+    latitude: 17.7800,
+    longitude: 83.3800,
     severity: 'CRITICAL',
     status: 'ACTIVE',
     dangerRadius: 150,
     estimatedPeopleAtRisk: 25,
+    affectedPeopleCount: 25,
     assignedResources: ['AMB-02', 'FIRE-01', 'RESCUE-01'],
     recommendedHospitalId: 'H001',
     safeZoneId: 'SAFE-001',
-    lastUpdated: 'Just now'
+    lastUpdated: 'Just now',
+    locationLabel: 'Visakhapatnam East'
   },
   {
     incidentId: 'INC-002',
+    id: 'INC-002',
     incidentType: 'GAS_LEAK',
     title: 'Subterranean Natural Gas Line Fracture',
     description: 'Subterranean industrial gas pipeline breach. Explosive gas concentration at 68% LEL.',
-    latitude: 17.3910,
-    longitude: 78.4810,
+    latitude: 17.6900,
+    longitude: 83.2900,
     severity: 'CRITICAL',
     status: 'ACTIVE',
     dangerRadius: 220,
     estimatedPeopleAtRisk: 42,
+    affectedPeopleCount: 42,
     assignedResources: ['FIRE-02', 'POLICE-01'],
     recommendedHospitalId: 'H002',
     safeZoneId: 'SAFE-002',
-    lastUpdated: '2m ago'
+    lastUpdated: '2m ago',
+    locationLabel: 'Gajuwaka Industrial Hub'
   },
   {
     incidentId: 'INC-003',
+    id: 'INC-003',
     incidentType: 'FLOOD',
     title: 'River Basin Flash Inundation',
     description: 'Urban drainage breach causing rapid water accumulation along low-lying transit corridor.',
-    latitude: 17.3780,
-    longitude: 78.4950,
+    latitude: 17.7167,
+    longitude: 83.3000,
     severity: 'HIGH',
     status: 'ACTIVE',
     dangerRadius: 300,
     estimatedPeopleAtRisk: 110,
+    affectedPeopleCount: 110,
     assignedResources: ['RESCUE-02', 'AMB-01'],
     recommendedHospitalId: 'H001',
     safeZoneId: 'SAFE-001',
-    lastUpdated: '5m ago'
+    lastUpdated: '5m ago',
+    locationLabel: 'RTC Complex Corridor'
   }
 ];
 
 const MOCK_SAFE_ZONES: SafeZone[] = [
   {
     id: 'SAFE-001',
-    name: 'Open Ground A (Central Assembly Point)',
-    latitude: 17.3880,
-    longitude: 78.4900,
+    name: 'Rushikonda Ground A (AP Assembly Point)',
+    latitude: 17.7850,
+    longitude: 83.3860,
     capacity: 500,
     occupancy: 120
   },
   {
     id: 'SAFE-002',
-    name: 'Stadium Shelter Complex B',
-    latitude: 17.3950,
-    longitude: 78.4750,
+    name: 'Vizag Port Stadium Complex B',
+    latitude: 17.6950,
+    longitude: 83.2950,
     capacity: 1200,
     occupancy: 340
   }
@@ -82,10 +91,11 @@ const MOCK_SAFE_ZONES: SafeZone[] = [
 const MOCK_RESOURCES: EmergencyResource[] = [
   {
     resourceId: 'FIRE-01',
+    id: 'FIRE-01',
     name: 'Fire Truck 01 (Heavy Foam Engine)',
     type: 'FIRE_TRUCK',
-    latitude: 17.3835,
-    longitude: 78.4845,
+    latitude: 17.7790,
+    longitude: 83.3790,
     status: 'ON_SCENE',
     assignedIncident: 'INC-001',
     destination: 'INC-001 Commercial Fire Site',
@@ -94,10 +104,11 @@ const MOCK_RESOURCES: EmergencyResource[] = [
   },
   {
     resourceId: 'AMB-02',
+    id: 'AMB-02',
     name: 'ALS Ambulance 02',
     type: 'AMBULANCE',
-    latitude: 17.3820,
-    longitude: 78.4800,
+    latitude: 17.7780,
+    longitude: 83.3750,
     status: 'EN_ROUTE',
     assignedIncident: 'INC-001',
     destination: 'INC-001 Commercial Fire Site',
@@ -106,10 +117,11 @@ const MOCK_RESOURCES: EmergencyResource[] = [
   },
   {
     resourceId: 'RESCUE-01',
+    id: 'RESCUE-01',
     name: 'Tactical Rescue Team 01',
     type: 'RESCUE_TEAM',
-    latitude: 17.3810,
-    longitude: 78.4890,
+    latitude: 17.7830,
+    longitude: 83.3850,
     status: 'EN_ROUTE',
     assignedIncident: 'INC-001',
     destination: 'INC-001 Commercial Fire Site',
@@ -118,19 +130,21 @@ const MOCK_RESOURCES: EmergencyResource[] = [
   },
   {
     resourceId: 'AMB-01',
+    id: 'AMB-01',
     name: 'Trauma Transport Unit 01',
     type: 'AMBULANCE',
-    latitude: 17.3890,
-    longitude: 78.4920,
+    latitude: 17.7890,
+    longitude: 83.3920,
     status: 'AVAILABLE',
     unitCode: 'AMB-101'
   },
   {
     resourceId: 'POLICE-01',
+    id: 'POLICE-01',
     name: 'Traffic Control Interceptor 01',
     type: 'POLICE_VEHICLE',
-    latitude: 17.3900,
-    longitude: 78.4820,
+    latitude: 17.6900,
+    longitude: 83.2900,
     status: 'ON_SCENE',
     assignedIncident: 'INC-002',
     destination: 'Gas Leak Perimeter Cordon',
@@ -142,27 +156,35 @@ const MOCK_RESOURCES: EmergencyResource[] = [
 const MOCK_HOSPITALS: Hospital[] = [
   {
     hospitalId: 'H001',
-    name: 'Emergency Hospital Central',
-    latitude: 17.3900,
-    longitude: 78.4800,
+    id: 'H001',
+    name: 'Apollo Health City (AP Trauma Center)',
+    latitude: 17.7840,
+    longitude: 83.3880,
     availableBeds: 42,
     icuAvailable: 8,
     traumaCare: true,
     burnUnit: true,
+    traumaCapability: true,
+    burnCapability: true,
     emergencyLoad: 65,
+    occupancyRate: 65,
     status: 'AVAILABLE',
     lastUpdated: '1m ago'
   },
   {
     hospitalId: 'H002',
-    name: 'Metro Regional Super Speciality Hospital',
-    latitude: 17.3970,
-    longitude: 78.4920,
+    id: 'H002',
+    name: 'Visakhapatnam General Super Speciality Hospital',
+    latitude: 17.7000,
+    longitude: 83.3050,
     availableBeds: 18,
     icuAvailable: 2,
     traumaCare: true,
     burnUnit: false,
+    traumaCapability: true,
+    burnCapability: false,
     emergencyLoad: 88,
+    occupancyRate: 88,
     status: 'SURGE',
     lastUpdated: '3m ago'
   }
@@ -171,9 +193,11 @@ const MOCK_HOSPITALS: Hospital[] = [
 const MOCK_SENSORS: IoTSensorNode[] = [
   {
     sensorId: 'NODE-001',
+    id: 'NODE-001',
     sensorType: 'SMOKE',
-    latitude: 17.3845,
-    longitude: 78.4870,
+    type: 'SMOKE',
+    latitude: 17.7802,
+    longitude: 83.3802,
     value: 850,
     unit: 'ppm',
     status: 'ALERT',
@@ -182,9 +206,11 @@ const MOCK_SENSORS: IoTSensorNode[] = [
   },
   {
     sensorId: 'NODE-002',
+    id: 'NODE-002',
     sensorType: 'TEMPERATURE',
-    latitude: 17.3852,
-    longitude: 78.4865,
+    type: 'TEMPERATURE',
+    latitude: 17.7795,
+    longitude: 83.3805,
     value: 485,
     unit: '°C',
     status: 'ALERT',
@@ -193,9 +219,11 @@ const MOCK_SENSORS: IoTSensorNode[] = [
   },
   {
     sensorId: 'NODE-003',
+    id: 'NODE-003',
     sensorType: 'GAS',
-    latitude: 17.3908,
-    longitude: 78.4812,
+    type: 'GAS',
+    latitude: 17.6905,
+    longitude: 83.2905,
     value: 68,
     unit: '% LEL',
     status: 'ALERT',
@@ -204,9 +232,11 @@ const MOCK_SENSORS: IoTSensorNode[] = [
   },
   {
     sensorId: 'NODE-004',
+    id: 'NODE-004',
     sensorType: 'WATER_LEVEL',
-    latitude: 17.3782,
-    longitude: 78.4948,
+    type: 'WATER_LEVEL',
+    latitude: 17.7170,
+    longitude: 83.3010,
     value: 2.4,
     unit: 'meters',
     status: 'WARNING',
@@ -221,14 +251,14 @@ const MOCK_ROUTES: RoutePath[] = [
     type: 'EVACUATION',
     name: 'Primary Civilian Evacuation Corridor Alpha',
     coordinates: [
-      { lat: 17.3850, lng: 78.4867 }, // Incident INC-001
-      { lat: 17.3862, lng: 78.4880 }, // Outside Danger Zone
-      { lat: 17.3875, lng: 78.4892 }, // Safe Bypass
-      { lat: 17.3880, lng: 78.4900 }  // Safe Zone SAFE-001
+      { lat: 17.7800, lng: 83.3800 }, // Incident INC-001
+      { lat: 17.7820, lng: 83.3830 }, // Outside Danger Zone
+      { lat: 17.7835, lng: 83.3845 }, // Safe Bypass
+      { lat: 17.7850, lng: 83.3860 }  // Safe Zone SAFE-001
     ],
     distanceKm: 0.65,
     estimatedTimeMins: 4,
-    destinationLabel: 'SAFE-001 (Open Ground A)',
+    destinationLabel: 'SAFE-001 (Rushikonda Ground)',
     avoidsDangerZones: true
   },
   {
@@ -236,14 +266,14 @@ const MOCK_ROUTES: RoutePath[] = [
     type: 'RESCUE',
     name: 'Tactical Fire & Ambulance Dispatch Route',
     coordinates: [
-      { lat: 17.3820, lng: 78.4800 }, // Ambulance Base
-      { lat: 17.3835, lng: 78.4845 }, // Fire Truck Station
-      { lat: 17.3850, lng: 78.4867 }, // INC-001
-      { lat: 17.3900, lng: 78.4800 }  // Hospital H001
+      { lat: 17.7780, lng: 83.3750 }, // Ambulance Base
+      { lat: 17.7790, lng: 83.3790 }, // Fire Truck Station
+      { lat: 17.7800, lng: 83.3800 }, // INC-001
+      { lat: 17.7840, lng: 83.3880 }  // Hospital H001
     ],
     distanceKm: 1.8,
     estimatedTimeMins: 3,
-    destinationLabel: 'INC-001 → Hospital H001',
+    destinationLabel: 'INC-001 → Apollo Hospital',
     avoidsDangerZones: true
   }
 ];

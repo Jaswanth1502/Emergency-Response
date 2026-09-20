@@ -7,14 +7,15 @@ interface DeployResourceDialogProps {
   isOpen: boolean;
   onClose: () => void;
   selectedIncidentId?: string;
+  selectedResourceId?: string;
 }
 
-export const DeployResourceDialog: React.FC<DeployResourceDialogProps> = ({ isOpen, onClose, selectedIncidentId }) => {
+export const DeployResourceDialog: React.FC<DeployResourceDialogProps> = ({ isOpen, onClose, selectedIncidentId, selectedResourceId }) => {
   const { incidents, resources, deployResource } = useApp();
   
   // Local active incident select
   const [incidentId, setIncidentId] = useState<string>(selectedIncidentId || incidents[0]?.id || '');
-  const [resourceId, setResourceId] = useState<string>('');
+  const [resourceId, setResourceId] = useState<string>(selectedResourceId || '');
 
   // Auto pick standard incident if prop changes
   React.useEffect(() => {
@@ -23,10 +24,17 @@ export const DeployResourceDialog: React.FC<DeployResourceDialogProps> = ({ isOp
     }
   }, [selectedIncidentId]);
 
+  // Auto pick resource if prop changes
+  React.useEffect(() => {
+    if (selectedResourceId) {
+      setResourceId(selectedResourceId);
+    }
+  }, [selectedResourceId]);
+
   const activeIncidents = incidents.filter(i => i.status !== 'RESOLVED');
   
-  // Filter for available resources
-  const availableResources = resources.filter(res => res.status === 'AVAILABLE');
+  // Filter for available resources (or the selected resource)
+  const availableResources = resources.filter(res => res.status === 'AVAILABLE' || res.id === selectedResourceId);
 
   const handleDeploy = (e: React.FormEvent) => {
     e.preventDefault();

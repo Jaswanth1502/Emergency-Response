@@ -14,10 +14,12 @@ import {
   Clock,
   BatteryCharging,
   Radio,
-  Building2
+  Building2,
+  FileCheck,
+  History
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { TacticalGisMap } from '../components/map/TacticalGisMap';
+import { OpenStreetMap } from '../components/map/OpenStreetMap';
 
 export const ResourceAllocation: React.FC = () => {
   const { resources, incidents, deployResource, addNotification } = useApp();
@@ -25,8 +27,14 @@ export const ResourceAllocation: React.FC = () => {
   const [reasoningOpen, setReasoningOpen] = useState(true);
   const [agentApproved, setAgentApproved] = useState(false);
   const [agentDeclined, setAgentDeclined] = useState(false);
+  const [pastApprovalsOpen, setPastApprovalsOpen] = useState(false);
   const [unitTypeFilter, setUnitTypeFilter] = useState('ALL');
   const [selectedIncidentId, setSelectedIncidentId] = useState('INC-2026-0891');
+
+  const pastApprovals = [
+    { id: 'APP-101', time: '14:25 UTC', title: 'Foam Unit F-01 Dispatched', target: 'INC-2026-0889 • Industrial HazMat', status: 'COMPLETED', officer: 'Cmdr. Vance' },
+    { id: 'APP-102', time: '12:10 UTC', title: 'Ambulance A-02 & Drone Fleet Delta', target: 'INC-2026-0885 • Evacuation Corridor', status: 'COMPLETED', officer: 'Capt. Sharma' }
+  ];
 
   const handleApproveDispatch = () => {
     setAgentApproved(true);
@@ -107,10 +115,14 @@ export const ResourceAllocation: React.FC = () => {
 
           {/* Past Approvals Link & Action Buttons */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 border-t border-white/60 gap-3">
-            <div className="flex items-center space-x-3 text-xs text-slate-400">
-              <span className="font-semibold text-blue-700 hover:underline cursor-pointer">
-                View Past Approvals (2)
-              </span>
+            <div className="flex items-center space-x-3 text-xs text-slate-500">
+              <button
+                onClick={() => setPastApprovalsOpen(!pastApprovalsOpen)}
+                className="font-semibold text-blue-700 hover:underline cursor-pointer flex items-center space-x-1"
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>View Past Approvals ({pastApprovals.length})</span>
+              </button>
               <span>•</span>
               <span className="text-[11px]">Updated 12 sec ago</span>
             </div>
@@ -142,10 +154,49 @@ export const ResourceAllocation: React.FC = () => {
             </div>
           </div>
 
+          {/* Past Approvals Modal / Expandable Tray */}
+          {pastApprovalsOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 p-3 bg-white/90 rounded-xl border border-blue-200 text-xs space-y-2"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                <span className="font-extrabold text-slate-900 text-xs flex items-center space-x-1">
+                  <FileCheck className="w-4 h-4 text-blue-600" />
+                  <span>Approved Commander Dispatches</span>
+                </span>
+                <button
+                  onClick={() => setPastApprovalsOpen(false)}
+                  className="text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="space-y-1.5">
+                {pastApprovals.map(item => (
+                  <div key={item.id} className="p-2 bg-slate-50 rounded-lg flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-slate-800 block text-[11px]">{item.title}</span>
+                      <span className="text-[10px] text-slate-500">{item.target} • {item.officer}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[9px] font-mono text-emerald-600 font-extrabold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        {item.status}
+                      </span>
+                      <span className="text-[9px] text-slate-400 block font-mono mt-0.5">{item.time}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
         </div>
       )}
 
-      {/* 2-Column Grid: Fleet Matrix + Manual Dispatch Destination */}
+      {/* 2-Column Grid: Fleet Matrix + OpenStreetMap in Resources */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         
         {/* Left: Emergency Fleet Matrix (7 cols) */}
@@ -226,7 +277,7 @@ export const ResourceAllocation: React.FC = () => {
 
         </div>
 
-        {/* Right: Manual Dispatch Destination Target & Map (5 cols) */}
+        {/* Right: Manual Dispatch Destination Target & OpenStreetMap (5 cols) */}
         <div className="xl:col-span-5 space-y-3">
           
           <div className="liquid-glass-card p-3.5 rounded-2xl space-y-2">
@@ -246,10 +297,9 @@ export const ResourceAllocation: React.FC = () => {
             </select>
           </div>
 
-          {/* Tactical Map */}
-          <div className="rounded-2xl overflow-hidden shadow-xs">
-            <TacticalGisMap
-              viewMode="2D"
+          {/* OpenStreetMap Tactical GIS View for Resources */}
+          <div className="rounded-2xl overflow-hidden shadow-xs border border-slate-200">
+            <OpenStreetMap
               heightClass="h-[520px]"
             />
           </div>

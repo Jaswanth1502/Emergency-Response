@@ -39,8 +39,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     name: 'Rushikonda Commercial Fire',
     type: 'INCIDENT',
     severity: 'CRITICAL',
-    lat: 17.7800,
-    lng: 83.3800,
+    lat: 17.7840,
+    lng: 83.3850,
     details: '485°C thermal surge in sub-level B2 solvent storage. 6 units deployed.',
     status: 'Active Critical',
     metric: 'Risk: 94/100'
@@ -50,8 +50,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     name: 'Vizag Port Gas Leak',
     type: 'INCIDENT',
     severity: 'CRITICAL',
-    lat: 17.6900,
-    lng: 83.2900,
+    lat: 17.6850,
+    lng: 83.2750,
     details: 'Subterranean gas pipeline fracture. Pressure spike 68% LEL.',
     status: 'Active Critical',
     metric: 'Risk: 91/100'
@@ -61,8 +61,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     name: 'RK Beach Storm Surge Inundation',
     type: 'INCIDENT',
     severity: 'HIGH',
-    lat: 17.7167,
-    lng: 83.3000,
+    lat: 17.7180,
+    lng: 83.3220,
     details: 'Coastal flood breach affecting coastal evacuation corridor.',
     status: 'High Active',
     metric: 'Risk: 82/100'
@@ -74,8 +74,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     name: 'Thermal Hazard Buffer Alpha',
     type: 'DANGER_ZONE',
     severity: 'CRITICAL',
-    lat: 17.7800,
-    lng: 83.3800,
+    lat: 17.7840,
+    lng: 83.3850,
     details: '1.2km radius chemical smoke fallout zone around IT Tower 4.',
     status: 'Evacuation Priority 1',
     metric: 'Radius: 1200m'
@@ -85,8 +85,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     name: 'Gas Plume Containment Zone',
     type: 'DANGER_ZONE',
     severity: 'CRITICAL',
-    lat: 17.6900,
-    lng: 83.2900,
+    lat: 17.6850,
+    lng: 83.2750,
     details: 'Pressurized volatile gas dispersal area. Sparks prohibited.',
     status: 'Cordon Sealed',
     metric: 'Radius: 800m'
@@ -97,8 +97,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'AMB-1',
     name: 'ALS Ambulance Unit A-01',
     type: 'AMBULANCE',
-    lat: 17.7720,
-    lng: 83.3720,
+    lat: 17.7680,
+    lng: 83.3650,
     details: 'En route to Rushikonda Fire. ETA 2 mins. Triage team aboard.',
     status: 'Dispatched (Rapid)',
     metric: 'Speed: 68 km/h'
@@ -107,8 +107,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'AMB-2',
     name: 'ALS Ambulance Unit A-05',
     type: 'AMBULANCE',
-    lat: 17.7150,
-    lng: 83.3050,
+    lat: 17.7320,
+    lng: 83.3100,
     details: 'Stationed at Beach Corridor staging area. 2 burn kits ready.',
     status: 'Available On-Scene',
     metric: 'Speed: 0 km/h'
@@ -117,8 +117,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'AMB-3',
     name: 'Trauma Transport Unit A-08',
     type: 'AMBULANCE',
-    lat: 17.7000,
-    lng: 83.3100,
+    lat: 17.6980,
+    lng: 83.3150,
     details: 'Transporting critical casualty to King George Hospital.',
     status: 'In Transit',
     metric: 'Speed: 75 km/h'
@@ -129,8 +129,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'FIRE-1',
     name: 'Engine 14 Heavy Pumper',
     type: 'FIRE_TEAM',
-    lat: 17.7820,
-    lng: 83.3780,
+    lat: 17.7950,
+    lng: 83.3720,
     details: 'Active suppression on B2 level. High-volume foam cannon engaged.',
     status: 'Engaged On-Scene',
     metric: 'Water: 8,400L'
@@ -139,8 +139,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'FIRE-2',
     name: 'Foam Unit F-04 Carrier',
     type: 'FIRE_TEAM',
-    lat: 17.7810,
-    lng: 83.3830,
+    lat: 17.7720,
+    lng: 83.3980,
     details: 'Hydrocarbon foam concentrate injection unit deployed.',
     status: 'Operational',
     metric: 'Foam: 4,000L'
@@ -149,8 +149,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'FIRE-3',
     name: 'HazMat Specialist Team H-01',
     type: 'FIRE_TEAM',
-    lat: 17.6890,
-    lng: 83.2880,
+    lat: 17.6680,
+    lng: 83.2920,
     details: 'Pneumatic line sealing team operating at Vizag Port valve 4.',
     status: 'Sealing Fracture',
     metric: 'Pressure: 4.2 Bar'
@@ -161,8 +161,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'HOSP-1',
     name: 'King George Hospital (KGH)',
     type: 'HOSPITAL',
-    lat: 17.7020,
-    lng: 83.3020,
+    lat: 17.7060,
+    lng: 83.3000,
     details: 'Level 1 Trauma & Burn ICU. 64 ICU beds available.',
     status: 'Operational Surge Ready',
     metric: 'Beds Avail: 64'
@@ -193,8 +193,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'SENSOR-1',
     name: 'IoT Thermal Telemetry Node #408',
     type: 'IOT_SENSOR',
-    lat: 17.7802,
-    lng: 83.3805,
+    lat: 17.8020,
+    lng: 83.3800,
     details: 'Infrared sensor matrix B2. High thermal elevation alarm.',
     status: 'Alerting (485°C)',
     metric: 'Temp: 485°C'
@@ -203,8 +203,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'SENSOR-2',
     name: 'Gas Detector Mesh Node #112',
     type: 'IOT_SENSOR',
-    lat: 17.6905,
-    lng: 83.2905,
+    lat: 17.6960,
+    lng: 83.2620,
     details: 'Subsurface hydrocarbon sniffer mesh node.',
     status: 'Alerting (68% LEL)',
     metric: 'LEL: 68%'
@@ -213,8 +213,8 @@ export const OSM_ENTITIES: OSMEntity[] = [
     id: 'SENSOR-3',
     name: 'Coastal Water Level Hydro Sensor #89',
     type: 'IOT_SENSOR',
-    lat: 17.7170,
-    lng: 83.3010,
+    lat: 17.7100,
+    lng: 83.3350,
     details: 'Radar tide gauge monitoring coastal surge breach.',
     status: 'Monitoring (+2.4m)',
     metric: 'Surge: +2.4m'
@@ -233,8 +233,12 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const layerGroupsRef = useRef<Record<string, L.LayerGroup>>({});
-  const [selectedEntity, setSelectedEntity] = useState<OSMEntity | null>(OSM_ENTITIES[0]);
+  const [selectedEntity, setSelectedEntity] = useState<OSMEntity | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
+
+  const [basemapMode, setBasemapMode] = useState<'STREET' | 'SATELLITE'>('STREET');
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
 
   // Active layer filters (all enabled by default)
   const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({
@@ -274,11 +278,12 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
         attributionControl: true
       });
 
-      // OPENSTREETMAP STANDARD MAP TILE LAYER
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // INITIAL TILE LAYER
+      const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
+      tileLayerRef.current = tileLayer;
 
       // Create Layer Groups for each entity type
       const groups: Record<string, L.LayerGroup> = {
@@ -303,9 +308,9 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
           const circle = L.circle([entity.lat, entity.lng], {
             color: '#EF4444',
             fillColor: '#EF4444',
-            fillOpacity: 0.22,
+            fillOpacity: 0.18,
             radius: entity.id === 'DZ-1' ? 1200 : 800,
-            dashArray: '6, 6'
+            dashArray: '5, 5'
           }).addTo(group);
 
           circle.on('click', () => {
@@ -336,18 +341,22 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
           const icon = L.divIcon({
             className: 'custom-osm-marker',
             html: `
-              <div class="relative flex items-center justify-center cursor-pointer group">
-                <span class="absolute w-9 h-9 rounded-full ${badgeBg}/30 animate-ping"></span>
-                <div class="w-8 h-8 rounded-xl ${badgeBg} text-white flex items-center justify-center shadow-xl border-2 border-white text-base">
+              <div class="relative flex items-center justify-center cursor-pointer transition-transform hover:scale-125">
+                <div class="w-7 h-7 rounded-full ${badgeBg} text-white flex items-center justify-center shadow-lg border-2 border-white text-xs">
                   ${iconEmoji}
                 </div>
               </div>
             `,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
           });
 
           const marker = L.marker([entity.lat, entity.lng], { icon }).addTo(group);
+          marker.bindTooltip(`<b>${entity.name}</b><br/><span style="color:#94a3b8;font-size:10px;">${entity.status}</span>`, {
+            direction: 'top',
+            offset: [0, -10]
+          });
+
           marker.on('click', () => {
             setSelectedEntity(entity);
             if (onSelectEntity) onSelectEntity(entity);
@@ -362,6 +371,29 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
       mapInstanceRef.current?.invalidateSize();
     }, 200);
   }, []);
+
+  // Synchronize Basemap Mode (Street vs Satellite)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    if (basemapMode === 'SATELLITE') {
+      tileLayerRef.current = L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '&copy; Google Satellite Maps'
+      }).addTo(map);
+    } else {
+      tileLayerRef.current = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+    }
+  }, [basemapMode]);
 
   // Synchronize Layer Group visibility based on activeFilters
   useEffect(() => {
@@ -410,15 +442,35 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
         <div className="flex items-center space-x-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-md pointer-events-auto">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
           <h2 className="font-extrabold text-slate-900 text-xs tracking-wider uppercase">
-            OPENSTREETMAP STANDARD MAP
+            {basemapMode === 'SATELLITE' ? 'SATELLITE GIS MAP' : 'OPENSTREETMAP STANDARD MAP'}
           </h2>
           <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-mono font-bold border border-emerald-200">
-            Live Tile Feed
+            Live Feed
           </span>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2 pointer-events-auto">
+          {/* Street / Satellite Toggle */}
+          <div className="bg-white/95 backdrop-blur-md p-1 rounded-xl border border-slate-200 shadow-md flex items-center space-x-1">
+            <button
+              onClick={() => setBasemapMode('STREET')}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                basemapMode === 'STREET' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Street
+            </button>
+            <button
+              onClick={() => setBasemapMode('SATELLITE')}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                basemapMode === 'SATELLITE' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Satellite
+            </button>
+          </div>
+
           <button
             onClick={() => mapInstanceRef.current?.setView([17.7300, 83.3200], 12)}
             className="px-3 py-1.5 bg-white/95 hover:bg-white backdrop-blur-md border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center space-x-1"
@@ -440,40 +492,58 @@ export const OpenStreetMap: React.FC<OpenStreetMapProps> = ({
       {/* LEAFLET OPENSTREETMAP CONTAINER */}
       <div ref={mapContainerRef} className="w-full h-full bg-[#e5e3df] z-10" />
 
-      {/* OVERLAY LEGEND CARD (Matching prompt picture requirement) */}
-      <div className="absolute top-16 left-4 z-20 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-3 shadow-xl pointer-events-auto max-w-[240px] sm:max-w-xs text-left">
-        
-        <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-          <div className="flex items-center space-x-1.5">
+      {/* COLLAPSIBLE OVERLAY LEGEND CARD */}
+      <div className="absolute top-16 left-4 z-20 pointer-events-auto text-left">
+        {!isLegendOpen ? (
+          <button
+            onClick={() => setIsLegendOpen(true)}
+            className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 text-xs font-bold shadow-md hover:bg-white transition-all cursor-pointer"
+          >
             <Layers className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider">
-              Map Layers & Legend
+            <span>Map Layers</span>
+            <span className="px-1.5 py-0.2 text-[10px] bg-blue-50 text-blue-600 rounded-md font-mono">
+              {Object.values(activeFilters).filter(Boolean).length} Active
             </span>
-          </div>
-          <span className="text-[9px] font-mono text-slate-400">OSM Standard</span>
-        </div>
-
-        {/* 6 Legend Items */}
-        <div className="grid grid-cols-2 gap-1.5">
-          {legendItems.map(item => {
-            const isEnabled = activeFilters[item.key];
-            return (
+          </button>
+        ) : (
+          <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-3 shadow-xl max-w-[240px] sm:max-w-xs transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+              <div className="flex items-center space-x-1.5">
+                <Layers className="w-3.5 h-3.5 text-blue-600" />
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider">
+                  Map Layers & Legend
+                </span>
+              </div>
               <button
-                key={item.label}
-                onClick={() => toggleFilter(item.label)}
-                className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                  isEnabled
-                    ? item.activeColor + ' shadow-xs'
-                    : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'
-                }`}
+                onClick={() => setIsLegendOpen(false)}
+                className="text-xs text-slate-400 hover:text-slate-700 px-1 font-bold"
               >
-                <span className="text-sm">{item.icon}</span>
-                <span className="truncate text-[11px]">{item.label}</span>
+                ✕
               </button>
-            );
-          })}
-        </div>
+            </div>
 
+            {/* 6 Legend Items */}
+            <div className="grid grid-cols-2 gap-1.5">
+              {legendItems.map(item => {
+                const isEnabled = activeFilters[item.key];
+                return (
+                  <button
+                    key={item.label}
+                    onClick={() => toggleFilter(item.label)}
+                    className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      isEnabled
+                        ? item.activeColor + ' shadow-xs'
+                        : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    <span className="text-sm">{item.icon}</span>
+                    <span className="truncate text-[11px]">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Zoom Controls */}

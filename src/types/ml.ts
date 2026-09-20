@@ -8,7 +8,8 @@ export type MLArchitecture =
   | 'CSRNet Density Regressor'
   | 'Multi-Objective Queuing Optimizer'
   | 'Risk-Weighted Dijkstra / A*'
-  | 'Gaussian Puff Dispersion Model';
+  | 'Gaussian Puff Dispersion Model'
+  | 'Unified Multi-Task Transformer';
 
 export interface FeatureImportance {
   feature: string;

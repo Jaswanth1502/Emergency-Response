@@ -79,6 +79,9 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                     } else if (notif.severity === 'warning') {
                       icon = <AlertTriangle className="w-4 h-4 text-amber-400" />;
                       borderClass = 'border-amber-500/30 bg-amber-500/10';
+                    } else if (notif.severity === 'success') {
+                      icon = <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+                      borderClass = 'border-emerald-500/30 bg-emerald-500/10';
                     }
 
                     return (

@@ -15,6 +15,7 @@ export type IncidentStatus = 'ACTIVE' | 'CONTAINED' | 'DISPATCHED' | 'RESOLVED';
 
 export interface EmergencyIncident {
   incidentId: string;
+  id?: string;
   incidentType: IncidentType;
   title: string;
   description: string;
@@ -25,10 +26,12 @@ export interface EmergencyIncident {
   status: IncidentStatus;
   dangerRadius: number; // meters
   estimatedPeopleAtRisk: number;
+  affectedPeopleCount?: number;
   assignedResources: string[];
   recommendedHospitalId?: string;
   safeZoneId?: string;
   lastUpdated: string;
+  locationLabel?: string;
 }
 
 export interface SafeZone {
@@ -46,6 +49,7 @@ export type ResourceStatus = 'AVAILABLE' | 'EN_ROUTE' | 'ON_SCENE' | 'RETURNING'
 
 export interface EmergencyResource {
   resourceId: string;
+  id?: string;
   name: string;
   type: ResourceType;
   latitude: number;
@@ -59,6 +63,7 @@ export interface EmergencyResource {
 
 export interface Hospital {
   hospitalId: string;
+  id?: string;
   name: string;
   latitude: number;
   longitude: number;
@@ -66,7 +71,10 @@ export interface Hospital {
   icuAvailable: number;
   traumaCare: boolean;
   burnUnit: boolean;
+  traumaCapability?: boolean;
+  burnCapability?: boolean;
   emergencyLoad: number; // Percentage
+  occupancyRate?: number;
   status: 'AVAILABLE' | 'SURGE' | 'FULL';
   lastUpdated: string;
 }
@@ -83,7 +91,9 @@ export type SensorType =
 
 export interface IoTSensorNode {
   sensorId: string;
+  id?: string;
   sensorType: SensorType;
+  type?: SensorType | string;
   latitude: number;
   longitude: number;
   value: number;

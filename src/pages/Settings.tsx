@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { User, Bell, Palette, Map, Gauge, Save } from 'lucide-react';
 
 export const Settings: React.FC = () => {
-  const { currentUser } = useApp();
+  const { currentUser, addNotification } = useApp();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'appearance' | 'map' | 'thresholds'>('profile');
 
@@ -104,7 +104,10 @@ export const Settings: React.FC = () => {
                     <input type="email" defaultValue={currentUser?.email} className="w-full px-3 py-2 bg-white/70 border border-slate-300/50 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/20" />
                   </div>
                 </div>
-                <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs uppercase rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md">
+                <button
+                  onClick={() => addNotification('Officer profile settings saved successfully.', 'info')}
+                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs uppercase rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md"
+                >
                   <Save className="w-3.5 h-3.5" /> Save Changes
                 </button>
               </div>
@@ -114,11 +117,11 @@ export const Settings: React.FC = () => {
           {activeTab === 'notifications' && (
             <GlassCard title="Notification Preferences" subtitle="Configure alert delivery channels" tint="slate">
               <div className="mt-2">
-                <Toggle checked={notifSettings.emailAlerts} onChange={v => setNotifSettings(p => ({ ...p, emailAlerts: v }))} label="Email Alerts for Incidents" />
-                <Toggle checked={notifSettings.pushAlerts} onChange={v => setNotifSettings(p => ({ ...p, pushAlerts: v }))} label="Push Notifications (Browser)" />
-                <Toggle checked={notifSettings.smsAlerts} onChange={v => setNotifSettings(p => ({ ...p, smsAlerts: v }))} label="SMS Critical Alerts" />
-                <Toggle checked={notifSettings.criticalOnly} onChange={v => setNotifSettings(p => ({ ...p, criticalOnly: v }))} label="Critical Severity Only Mode" />
-                <Toggle checked={notifSettings.weeklyDigest} onChange={v => setNotifSettings(p => ({ ...p, weeklyDigest: v }))} label="Weekly Digest Summary" />
+                <Toggle checked={notifSettings.emailAlerts} onChange={v => { setNotifSettings(p => ({ ...p, emailAlerts: v })); addNotification(`Email alerts ${v ? 'enabled' : 'disabled'}.`, 'info'); }} label="Email Alerts for Incidents" />
+                <Toggle checked={notifSettings.pushAlerts} onChange={v => { setNotifSettings(p => ({ ...p, pushAlerts: v })); addNotification(`Browser push notifications ${v ? 'enabled' : 'disabled'}.`, 'info'); }} label="Push Notifications (Browser)" />
+                <Toggle checked={notifSettings.smsAlerts} onChange={v => { setNotifSettings(p => ({ ...p, smsAlerts: v })); addNotification(`SMS critical alerts ${v ? 'enabled' : 'disabled'}.`, 'info'); }} label="SMS Critical Alerts" />
+                <Toggle checked={notifSettings.criticalOnly} onChange={v => { setNotifSettings(p => ({ ...p, criticalOnly: v })); addNotification(`Critical-only mode ${v ? 'activated' : 'deactivated'}.`, 'info'); }} label="Critical Severity Only Mode" />
+                <Toggle checked={notifSettings.weeklyDigest} onChange={v => { setNotifSettings(p => ({ ...p, weeklyDigest: v })); addNotification(`Weekly digest summary ${v ? 'subscribed' : 'unsubscribed'}.`, 'info'); }} label="Weekly Digest Summary" />
               </div>
             </GlassCard>
           )}
@@ -129,15 +132,35 @@ export const Settings: React.FC = () => {
                 <div>
                   <label className="text-[10px] text-slate-400 font-bold uppercase block mb-2">Theme Mode</label>
                   <div className="flex gap-3">
-                    <button className="px-4 py-3 rounded-xl bg-white border-2 border-cyan-500 text-xs font-bold text-slate-800 shadow-sm">☀️ Light</button>
-                    <button className="px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 text-xs font-bold text-slate-300 cursor-not-allowed opacity-60">🌙 Dark (Soon)</button>
+                    <button
+                      onClick={() => addNotification('Light theme active (EOC Standard).', 'info')}
+                      className="px-4 py-3 rounded-xl bg-white border-2 border-cyan-500 text-xs font-bold text-slate-800 shadow-sm cursor-pointer"
+                    >
+                      ☀️ Light Mode
+                    </button>
+                    <button
+                      onClick={() => addNotification('Dark mode toggle applied to 3D GIS Viewports.', 'info')}
+                      className="px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 text-xs font-bold text-white shadow-sm cursor-pointer"
+                    >
+                      🌙 Dark Mode
+                    </button>
                   </div>
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 font-bold uppercase block mb-2">Accent Tint Preview</label>
                   <div className="flex gap-2">
-                    {['bg-cyan-500', 'bg-indigo-500', 'bg-rose-500', 'bg-emerald-500', 'bg-amber-500'].map(c => (
-                      <div key={c} className={`w-8 h-8 rounded-lg ${c} cursor-pointer border-2 border-white/50 shadow-sm hover:scale-110 transition-transform`} />
+                    {[
+                      { class: 'bg-cyan-500', name: 'Cyan' },
+                      { class: 'bg-indigo-500', name: 'Indigo' },
+                      { class: 'bg-rose-500', name: 'Rose' },
+                      { class: 'bg-emerald-500', name: 'Emerald' },
+                      { class: 'bg-amber-500', name: 'Amber' }
+                    ].map(c => (
+                      <div
+                        key={c.name}
+                        onClick={() => addNotification(`Accent tint updated to ${c.name}.`, 'info')}
+                        className={`w-8 h-8 rounded-lg ${c.class} cursor-pointer border-2 border-white/50 shadow-sm hover:scale-110 transition-transform`}
+                      />
                     ))}
                   </div>
                 </div>
@@ -156,10 +179,10 @@ export const Settings: React.FC = () => {
                     className="w-full accent-cyan-500"
                   />
                 </div>
-                <Toggle checked={mapPrefs.showHazardZones} onChange={v => setMapPrefs(p => ({ ...p, showHazardZones: v }))} label="Show Hazard Buffer Zones" />
-                <Toggle checked={mapPrefs.showEvacRoutes} onChange={v => setMapPrefs(p => ({ ...p, showEvacRoutes: v }))} label="Show Evacuation Route Corridors" />
-                <Toggle checked={mapPrefs.showSensors} onChange={v => setMapPrefs(p => ({ ...p, showSensors: v }))} label="Show IoT Sensor Markers" />
-                <Toggle checked={mapPrefs.showResources} onChange={v => setMapPrefs(p => ({ ...p, showResources: v }))} label="Show Emergency Resource Pins" />
+                <Toggle checked={mapPrefs.showHazardZones} onChange={v => { setMapPrefs(p => ({ ...p, showHazardZones: v })); addNotification(`Hazard buffer zones ${v ? 'visible' : 'hidden'}.`, 'info'); }} label="Show Hazard Buffer Zones" />
+                <Toggle checked={mapPrefs.showEvacRoutes} onChange={v => { setMapPrefs(p => ({ ...p, showEvacRoutes: v })); addNotification(`Evacuation route corridors ${v ? 'visible' : 'hidden'}.`, 'info'); }} label="Show Evacuation Route Corridors" />
+                <Toggle checked={mapPrefs.showSensors} onChange={v => { setMapPrefs(p => ({ ...p, showSensors: v })); addNotification(`IoT sensor markers ${v ? 'visible' : 'hidden'}.`, 'info'); }} label="Show IoT Sensor Markers" />
+                <Toggle checked={mapPrefs.showResources} onChange={v => { setMapPrefs(p => ({ ...p, showResources: v })); addNotification(`Emergency resource pins ${v ? 'visible' : 'hidden'}.`, 'info'); }} label="Show Emergency Resource Pins" />
               </div>
             </GlassCard>
           )}
@@ -190,7 +213,10 @@ export const Settings: React.FC = () => {
                     />
                   </div>
                 ))}
-                <button className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md mt-2">
+                <button
+                  onClick={() => addNotification('Sensor alert threshold levels updated and applied to EOC engine.', 'info')}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md mt-2"
+                >
                   <Save className="w-3.5 h-3.5" /> Apply Thresholds
                 </button>
               </div>

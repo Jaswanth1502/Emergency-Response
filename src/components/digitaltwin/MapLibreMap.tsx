@@ -3,19 +3,10 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {
   Globe,
-  Compass,
   AlertTriangle,
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Maximize,
-  Layers,
-  Info,
-  Shield,
-  Truck,
-  Flame,
-  Building2,
-  Cpu,
   RefreshCw,
   Navigation
 } from 'lucide-react';
@@ -48,6 +39,7 @@ interface MapLibreMapProps {
   onSelectSafeZone?: (safeZone: SafeZone) => void;
   onSelectSensor?: (sensor: IoTSensorNode) => void;
   onSwitchToOSM?: () => void;
+  mapMode?: 'NORMAL' | 'SATELLITE';
 }
 
 // Helper: Generate GeoJSON polygon circle for danger radius
@@ -93,7 +85,8 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
   onSelectHospital,
   onSelectSafeZone,
   onSelectSensor,
-  onSwitchToOSM
+  onSwitchToOSM,
+  mapMode = 'NORMAL'
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -103,14 +96,14 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [is3DPerspective, setIs3DPerspective] = useState(true);
   const [cameraState, setCameraState] = useState({
-    lng: 78.4867,
-    lat: 17.3850,
+    lng: 83.3800,
+    lat: 17.7800,
     zoom: 15.8,
     pitch: 60,
     bearing: 0
   });
 
-  // 1. Initialize MapLibre GL JS Map with Guaranteed OpenStreetMap Basemap Tiles + 3D City Buildings
+  // 1. Initialize MapLibre GL JS Map with OpenStreetMap Street + Esri Satellite Basemaps
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -118,19 +111,44 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
     setMapLoaded(false);
 
     try {
-      // Inline MapLibre Style Specification for 100% Reliable OpenStreetMap Tile Basemap (Zero Watermarks, Zero API Keys)
       const inlineOsmStyle: maplibregl.StyleSpecification = {
         version: 8,
         sources: {
           'osm-raster-tiles': {
             type: 'raster',
             tiles: [
-              'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              'https://mt0.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+              'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+              'https://mt2.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+              'https://mt3.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
             ],
             tileSize: 256,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            minzoom: 0,
+            maxzoom: 22,
+            attribution: 'Map data &copy; Google Maps'
+          },
+          'satellite-raster-tiles': {
+            type: 'raster',
+            tiles: [
+              'https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+              'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+              'https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+              'https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
+            ],
+            tileSize: 256,
+            minzoom: 0,
+            maxzoom: 22,
+            attribution: 'Satellite Imagery & Roads &copy; Google Maps'
+          },
+          'esri-satellite-tiles': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            minzoom: 0,
+            maxzoom: 22,
+            attribution: 'Satellite Imagery &copy; Esri'
           }
         },
         layers: [
@@ -142,13 +160,42 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
             }
           },
           {
+            id: 'esri-satellite-basemap',
+            type: 'raster',
+            source: 'esri-satellite-tiles',
+            minzoom: 0,
+            maxzoom: 22,
+            paint: {
+              'raster-opacity': 0.98
+            },
+            layout: {
+              visibility: mapMode === 'SATELLITE' ? 'visible' : 'none'
+            }
+          },
+          {
+            id: 'satellite-raster-basemap',
+            type: 'raster',
+            source: 'satellite-raster-tiles',
+            minzoom: 0,
+            maxzoom: 22,
+            paint: {
+              'raster-opacity': 0.98
+            },
+            layout: {
+              visibility: mapMode === 'SATELLITE' ? 'visible' : 'none'
+            }
+          },
+          {
             id: 'osm-raster-basemap',
             type: 'raster',
             source: 'osm-raster-tiles',
             minzoom: 0,
-            maxzoom: 19,
+            maxzoom: 22,
             paint: {
-              'raster-opacity': 0.88
+              'raster-opacity': 0.95
+            },
+            layout: {
+              visibility: mapMode === 'SATELLITE' ? 'none' : 'visible'
             }
           }
         ]
@@ -159,9 +206,10 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
         style: inlineOsmStyle,
         center: [cameraState.lng, cameraState.lat], // [lng, lat]
         zoom: cameraState.zoom,
+        maxZoom: 21,
+        minZoom: 2,
         pitch: cameraState.pitch,
-        bearing: cameraState.bearing,
-        antialias: true
+        bearing: cameraState.bearing
       });
 
       mapRef.current = map;
@@ -387,7 +435,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
               type: 'Feature' as const,
               geometry: {
                 type: 'LineString' as const,
-                coordinates: r.coordinates.map(c => [c[1], c[0]]) // [lat,lng] -> [lng,lat]
+                coordinates: r.coordinates.map(c => [c.lng, c.lat])
               },
               properties: { name: r.name }
             }))
@@ -408,7 +456,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
               type: 'Feature' as const,
               geometry: {
                 type: 'LineString' as const,
-                coordinates: r.coordinates.map(c => [c[1], c[0]]) // [lat,lng] -> [lng,lat]
+                coordinates: r.coordinates.map(c => [c.lng, c.lat])
               },
               properties: { name: r.name }
             }))
@@ -427,7 +475,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
             type: 'Feature' as const,
             geometry: {
               type: 'LineString' as const,
-              coordinates: b.coordinates.map(c => [c[1], c[0]])
+              coordinates: b.coordinates.map(c => [c.lng, c.lat])
             },
             properties: { name: b.roadName, reason: b.reason }
           }))
@@ -453,16 +501,16 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
     if (layers.incidents) {
       incidents.forEach(inc => {
         const el = document.createElement('div');
-        el.className = 'cursor-pointer group flex flex-col items-center';
+        el.className = 'cursor-pointer group flex flex-col items-center relative z-20';
         el.innerHTML = `
-          <div class="relative flex items-center justify-center">
-            <span class="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-red-500 opacity-75"></span>
-            <div class="relative w-8 h-8 rounded-full bg-red-600 border-2 border-white flex items-center justify-center text-white shadow-lg text-sm font-bold">
+          <div class="relative flex items-center justify-center transition-transform group-hover:scale-125">
+            <span class="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-rose-500 opacity-60"></span>
+            <div class="relative w-7 h-7 rounded-full bg-rose-600 border-2 border-white flex items-center justify-center text-white shadow-lg text-xs font-bold">
               🚨
             </div>
           </div>
-          <div class="mt-1 bg-slate-900/95 border border-red-500/40 px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-md font-mono whitespace-nowrap">
-            ${inc.title || inc.type} (${inc.severity})
+          <div class="absolute bottom-8 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900/95 border border-rose-500/40 px-2 py-1 rounded-lg text-[10px] font-bold text-white shadow-xl whitespace-nowrap z-30">
+            ${inc.title || inc.incidentType} (${inc.severity})
           </div>
         `;
 
@@ -480,12 +528,12 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
     if (layers.safeZones) {
       safeZones.forEach(sz => {
         const el = document.createElement('div');
-        el.className = 'cursor-pointer group flex flex-col items-center';
+        el.className = 'cursor-pointer group flex flex-col items-center relative z-10';
         el.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white shadow-lg text-xs font-bold">
+          <div class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white shadow-md text-xs transition-transform group-hover:scale-125">
             🛡️
           </div>
-          <div class="mt-1 bg-slate-900/95 border border-emerald-500/40 px-2 py-0.5 rounded text-[10px] font-bold text-emerald-300 shadow-md whitespace-nowrap">
+          <div class="absolute bottom-7 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900/95 border border-emerald-500/40 px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 shadow-xl whitespace-nowrap z-30">
             ${sz.name} (Cap: ${sz.capacity})
           </div>
         `;
@@ -513,13 +561,13 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
         const colorClass = res.type === 'AMBULANCE' ? 'bg-cyan-600 border-cyan-300' : res.type === 'FIRE_TRUCK' ? 'bg-rose-600 border-rose-300' : 'bg-blue-600 border-blue-300';
 
         const el = document.createElement('div');
-        el.className = 'cursor-pointer group flex flex-col items-center';
+        el.className = 'cursor-pointer group flex flex-col items-center relative z-10';
         el.innerHTML = `
-          <div class="w-7 h-7 rounded-lg ${colorClass} border-2 flex items-center justify-center text-white shadow-lg text-xs">
+          <div class="w-6 h-6 rounded-lg ${colorClass} border-2 flex items-center justify-center text-white shadow-md text-xs transition-transform group-hover:scale-125">
             ${icon}
           </div>
-          <div class="mt-0.5 bg-slate-900/95 border border-slate-700 px-1.5 py-0.2 rounded text-[9px] font-bold text-slate-200 shadow-md whitespace-nowrap">
-            ${res.name}
+          <div class="absolute bottom-7 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900/95 border border-slate-700 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-200 shadow-xl whitespace-nowrap z-30">
+            ${res.name} (${res.status})
           </div>
         `;
 
@@ -557,8 +605,8 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
               <div class="flex justify-between"><span>Available Beds:</span><span class="font-bold text-emerald-400">${hosp.availableBeds}</span></div>
               <div class="flex justify-between"><span>ICU Available:</span><span class="font-bold text-cyan-400">${hosp.icuAvailable}</span></div>
               <div class="flex justify-between"><span>Status:</span><span class="font-bold text-emerald-300">${hosp.status}</span></div>
-              <div class="flex justify-between"><span>Burn Capability:</span><span class="font-bold text-slate-200">${hosp.burnCapability ? 'YES' : 'NO'}</span></div>
-              <div class="flex justify-between"><span>Trauma Capability:</span><span class="font-bold text-slate-200">${hosp.traumaCapability ? 'YES' : 'NO'}</span></div>
+              <div class="flex justify-between"><span>Burn Unit:</span><span class="font-bold text-slate-200">${hosp.burnUnit ? 'YES' : 'NO'}</span></div>
+              <div class="flex justify-between"><span>Trauma Care:</span><span class="font-bold text-slate-200">${hosp.traumaCare ? 'YES' : 'NO'}</span></div>
             </div>
           </div>
         `;
@@ -581,7 +629,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
     // IoT Sensors
     if (layers.iotSensors) {
       sensors.forEach(sens => {
-        const isAlert = sens.status === 'ALERT' || sens.status === 'CRITICAL';
+        const isAlert = sens.status === 'ALERT' || sens.status === 'WARNING';
         const colorClass = isAlert ? 'bg-purple-600 border-rose-400 animate-pulse' : 'bg-purple-800 border-purple-400';
 
         const el = document.createElement('div');
@@ -591,7 +639,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
             📡
           </div>
           <div class="mt-0.5 bg-slate-900/95 border border-purple-500/40 px-1.5 py-0.2 rounded text-[9px] font-bold text-purple-300 shadow-md whitespace-nowrap">
-            ${sens.name} (${sens.value})
+            ${sens.locationLabel || sens.sensorId} (${sens.value}${sens.unit || ''})
           </div>
         `;
 
@@ -606,6 +654,21 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
     }
 
   }, [layers, incidents, safeZones, resources, hospitals, sensors, mapLoaded]);
+
+  // Switch Map Basemap Mode (NORMAL vs SATELLITE)
+  useEffect(() => {
+    if (!mapRef.current || !mapLoaded) return;
+    const isSat = mapMode === 'SATELLITE';
+    if (mapRef.current.getLayer('osm-raster-basemap')) {
+      mapRef.current.setLayoutProperty('osm-raster-basemap', 'visibility', isSat ? 'none' : 'visible');
+    }
+    if (mapRef.current.getLayer('satellite-raster-basemap')) {
+      mapRef.current.setLayoutProperty('satellite-raster-basemap', 'visibility', isSat ? 'visible' : 'none');
+    }
+    if (mapRef.current.getLayer('esri-satellite-basemap')) {
+      mapRef.current.setLayoutProperty('esri-satellite-basemap', 'visibility', isSat ? 'visible' : 'none');
+    }
+  }, [mapMode, mapLoaded]);
 
   // 5. Camera Fly-To on Incident Selection
   useEffect(() => {
@@ -624,7 +687,7 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
 
   const handleResetView = () => {
     mapRef.current?.flyTo({
-      center: [78.4867, 17.3850],
+      center: [83.3800, 17.7800],
       zoom: 15.8,
       pitch: 60,
       bearing: 0,
@@ -665,6 +728,15 @@ export const MapLibreMap: React.FC<MapLibreMapProps> = ({
 
         {/* Status Pill */}
         <div className="flex items-center space-x-2 pointer-events-auto">
+          {onSwitchToOSM && (
+            <button
+              onClick={onSwitchToOSM}
+              className="px-3 py-1 bg-cyan-950/90 border border-cyan-500/40 text-cyan-400 hover:bg-cyan-900 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg transition-colors"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Switch Map View</span>
+            </button>
+          )}
           <div className="px-3 py-1 bg-emerald-950/90 border border-emerald-500/40 text-emerald-400 rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-lg">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>OpenStreetMap Base + 3D City Extrusions</span>

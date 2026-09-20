@@ -178,20 +178,27 @@ npm run preview
 
 ```
 .
+├── ml_models/            # PyTorch Deep Learning Models & Training Scripts
+│   ├── unified_transformer.py  # Multi-Task Transformer Model for Crisis Intelligence
+│   └── train.py               # Training Pipeline & Dataset Calibration
 ├── src/
-│   ├── components/       # UI components (map, dialogs, charts, notifications)
+│   ├── components/       # UI components (map, digital twin, dialogs, charts, notifications)
+│   │   ├── digitaltwin/   # OperatorDashboard, AnalystDashboard, AdminDashboard, Google3DMap, MapLibreMap
+│   │   ├── dialogs/      # DeployResourceDialog, UploadMediaDialog
+│   │   ├── map/          # OpenStreetMap, ThreeGeospatialMap, TacticalGisMap
+│   │   └── notifications/# NotificationDrawer
 │   ├── context/          # AppContext state (incidents, resources, sensors, users, ML)
 │   ├── dummy-data/       # Realistic incident, sensor, fleet, and evacuation datasets
 │   ├── layouts/          # DashboardLayout (Sidebar, Topbar, Profile Dock) & AuthLayout
-│   ├── pages/            # Dashboard, DigitalTwin, Resources, Evacuation, Fleet, Hospitals, Sensors, Analytics, Reports, Alerts
-│   ├── services/         # mlEngine.ts (10 ML models, inference, calibration)
-│   ├── types/            # TypeScript interfaces (incident, resource, sensor, user, ML)
+│   ├── pages/            # Dashboard, DigitalTwin, EmergencyFleet, Resources, Evacuation, Hospitals, Sensors, Analytics, Reports, Alerts
+│   ├── services/         # mlEngine.ts (10 ML models, inference, calibration), digitalTwinService.ts
+│   ├── types/            # TypeScript interfaces (incident, resource, sensor, user, ML, digitalTwin)
 │   ├── utils/            # Helper utilities and formatters
 │   ├── App.tsx           # Route definitions and application shell
 │   ├── index.css         # Tailwind v4 theme & liquid glassmorphism utility classes
 │   └── main.tsx          # Application entry point
-├── dist/                 # Production distribution build
-├── package.json          # Dependencies and scripts
+├── requirements.txt      # Python PyTorch & ML dependencies
+├── package.json          # Node dependencies and scripts
 └── README.md             # Platform documentation and architecture
 ```
 

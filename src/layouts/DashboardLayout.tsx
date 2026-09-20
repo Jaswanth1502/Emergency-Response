@@ -52,10 +52,27 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey && e.key === 'k') || (e.ctrlKey && e.key === 'k')) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        setUserDropdownOpen(false);
+        setNotifOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -392,6 +409,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <div className="relative w-full">
               <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search incidents, units, sensors..."
                 value={searchQuery}

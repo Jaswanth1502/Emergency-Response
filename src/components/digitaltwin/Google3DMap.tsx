@@ -28,6 +28,7 @@ interface Google3DMapProps {
   onSelectSafeZone?: (safeZone: SafeZone) => void;
   onSelectSensor?: (sensor: IoTSensorNode) => void;
   onSwitchToOSM?: () => void;
+  mapMode?: 'NORMAL' | 'SATELLITE';
 }
 
 export const Google3DMap: React.FC<Google3DMapProps> = (props) => {

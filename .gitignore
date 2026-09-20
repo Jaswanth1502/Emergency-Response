@@ -27,3 +27,14 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Python
+.venv
+venv
+__pycache__/
+*.pyc
+
+# Local agents / GSD workflows
+.agent/
+
+

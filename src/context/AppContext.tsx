@@ -40,7 +40,7 @@ interface AppContextType {
   
   // Live Alert Notifications
   notifications: AppNotification[];
-  addNotification: (message: string, severity: 'info' | 'warning' | 'error') => void;
+  addNotification: (message: string, severity: 'info' | 'warning' | 'error' | 'success') => void;
   clearNotification: (id: string) => void;
   clearAllNotifications: () => void;
   
@@ -63,7 +63,7 @@ export interface AppNotification {
   id: string;
   message: string;
   timestamp: Date;
-  severity: 'info' | 'warning' | 'error';
+  severity: 'info' | 'warning' | 'error' | 'success';
   read: boolean;
 }
 
@@ -98,6 +98,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentRole, users]);
 
+  // Online Continual ML Retraining on Telemetry & Data Shift
+  useEffect(() => {
+    if (incidents.length > 0 || resources.length > 0) {
+      const { updatedModels, updatedInference } = defaultMLEngine.autoTrainOnDataChange(
+        incidents,
+        resources,
+        sensors
+      );
+      setActiveModels(updatedModels);
+      setRecentInferences(prev => [updatedInference, ...prev.slice(0, 19)]);
+    }
+  }, [incidents, resources, sensors]);
+
   const setCurrentRole = (role: UserRole) => {
     setCurrentRoleState(role);
   };
@@ -127,7 +140,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   ]);
 
-  const addNotification = (message: string, severity: 'info' | 'warning' | 'error') => {
+  const addNotification = (message: string, severity: 'info' | 'warning' | 'error' | 'success') => {
     const newNotif: AppNotification = {
       id: `NOTIF-${Math.random().toString(36).substr(2, 9)}`,
       message,
