@@ -90,9 +90,10 @@ flowchart TD
 - **Fleet Assignment**: Allocate Fire Engines, Super Foam Pumpers, ALS Ambulances, USAR Heavy Rescue, and Recon Drones with speed, battery %, and base coordinates.
 
 ### 5. 🛣️ Dynamic Evacuation Corridors & Safety (`/evacuation`)
-- **Real-Time Corridor Routing**: Color-coded primary, secondary, landslide bypass, and first-responder safety corridors.
-- **Civic Resilience Shelters**: Live capacity and occupancy meters with shelter statuses and emergency provisions telemetry.
-- **Broadcast Evacuation Orders**: High-priority alert broadcast directly to emergency responder networks.
+- **Real-Time Corridor Routing**: Color-coded primary safe corridors, alternative secondary egress routes, and first-responder priority lanes with interactive corridor activation, traffic rerouting, and priority lane reservation controls.
+- **Civic Resilience Shelters**: Live capacity and occupancy meters with shelter statuses and interactive electric transit shuttle dispatch controls.
+- **Broadcast Evacuation Orders**: High-priority alert broadcast directly to emergency responder and WEA/EAS civilian alert networks with real-time civilian reach tracking.
+- **OpenStreetMap Tactical GIS Integration**: Integrated OpenStreetMap GIS mapping engine with street/satellite basemap toggling, interactive entity markers (Incidents, Danger Zones, Ambulances, Fire Teams, Hospitals, IoT Sensors), and collapsible layer legend controls.
 
 ### 6. 🚑 Emergency Response Fleet (`/fleet`)
 - **16 Tactical Units**: Fire Engines, Super Foam Pumpers, ALS Ambulances, USAR Heavy Rescue, Recon Drones, and Police Interceptors.

@@ -1,18 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Flame,
-  Droplets,
-  AlertTriangle,
-  Building2,
-  Navigation,
   X,
   Layers,
-  Maximize2,
-  Minimize2,
-  Shield,
-  Activity,
-  Box
+  Maximize2
 } from 'lucide-react';
 import L from 'leaflet';
 import { ThreeGeospatialMap } from './ThreeGeospatialMap';
@@ -27,13 +18,25 @@ interface TacticalGisMapProps {
 }
 
 export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
-  viewMode = '2D',
+  viewMode: propViewMode,
   onViewModeChange,
   selectedIncidentId,
   onSelectIncident,
   heightClass = 'h-[520px]',
   isFullView = false
 }) => {
+  const [currentViewMode, setCurrentViewMode] = useState<'2D' | '3D'>(propViewMode || '2D');
+
+  useEffect(() => {
+    if (propViewMode) {
+      setCurrentViewMode(propViewMode);
+    }
+  }, [propViewMode]);
+
+  const handleViewModeToggle = (mode: '2D' | '3D') => {
+    setCurrentViewMode(mode);
+    onViewModeChange?.(mode);
+  };
   const [activePopup, setActivePopup] = useState<{
     id: string;
     type: string;
@@ -339,12 +342,12 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
       mapInstanceRef.current = map;
     }
 
-    if (viewMode === '2D' && mapInstanceRef.current) {
+    if (currentViewMode === '2D' && mapInstanceRef.current) {
       setTimeout(() => {
         mapInstanceRef.current?.invalidateSize();
       }, 150);
     }
-  }, [viewMode]);
+  }, [currentViewMode]);
 
   // Sync Layers visibility
   useEffect(() => {
@@ -394,9 +397,9 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
         <div className="flex items-center space-x-2 pointer-events-auto">
           <div className="bg-slate-900/90 backdrop-blur-md p-0.5 rounded-xl border border-white/10 shadow-lg flex items-center space-x-1">
             <button
-              onClick={() => onViewModeChange?.('2D')}
+              onClick={() => handleViewModeToggle('2D')}
               className={`px-3 py-1 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
-                viewMode === '2D'
+                currentViewMode === '2D'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
@@ -404,9 +407,9 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
               Snapchat Map Style: Andhra Pradesh State
             </button>
             <button
-              onClick={() => onViewModeChange?.('3D')}
+              onClick={() => handleViewModeToggle('3D')}
               className={`px-3 py-1 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
-                viewMode === '3D'
+                currentViewMode === '3D'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
@@ -451,7 +454,7 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
             <span>Statewide AP Feed</span>
           </div>
           <button
-            onClick={() => onViewModeChange?.(viewMode === '2D' ? '3D' : '2D')}
+            onClick={() => handleViewModeToggle(currentViewMode === '2D' ? '3D' : '2D')}
             className="p-1.5 bg-slate-900/90 backdrop-blur-md hover:bg-slate-800 border border-white/10 rounded-xl text-slate-200 shadow-lg cursor-pointer"
             title="Toggle View Mode"
           >
@@ -462,7 +465,7 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
       </div>
 
       {/* 2D OPENSTREETMAP TACTICAL GIS MAP CONTAINER */}
-      <div className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${viewMode === '2D' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
+      <div className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${currentViewMode === '2D' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
         {/* Leaflet OSM Container */}
         <div ref={mapContainerRef} className="w-full h-full bg-[#090d16]" />
 
@@ -517,12 +520,12 @@ export const TacticalGisMap: React.FC<TacticalGisMapProps> = ({
       </div>
 
       {/* 3D WEBGL GEOSPATIAL BLUEPRINT CITY VIEWPORT CONTAINER */}
-      <div className={`absolute inset-0 w-full h-full bg-[#090d16] overflow-hidden transition-opacity duration-300 ${viewMode === '3D' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
+      <div className={`absolute inset-0 w-full h-full bg-[#090d16] overflow-hidden transition-opacity duration-300 ${currentViewMode === '3D' ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}>
         <ThreeGeospatialMap
           activeIncidentId={selectedIncidentId || 'INC-2026-0891'}
           onFocusIncident={onSelectIncident}
-          viewMode={viewMode}
-          onViewModeChange={onViewModeChange}
+          viewMode={currentViewMode}
+          onViewModeChange={handleViewModeToggle}
         />
       </div>
 
