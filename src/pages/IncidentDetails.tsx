@@ -223,22 +223,22 @@ export const IncidentDetails: React.FC = () => {
 
                 {/* Operations quick command toolbar */}
                 {incident.status !== 'RESOLVED' && (
-                  <div className="pt-4 border-t border-slate-300/30 flex flex-wrap gap-2.5">
+                  <div className="pt-4 border-t border-slate-300/30 flex flex-wrap gap-2.5 items-center">
                     <button
                       onClick={() => setDeployOpen(true)}
-                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-xs"
+                      className="px-6 py-2.5 bg-[#F58220] hover:bg-[#E07010] active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer shadow-md shadow-orange-500/20"
                     >
-                      Assign Resource
+                      ASSIGN RESOURCE
                     </button>
                     <button
                       onClick={() => setEscalateConfirmOpen(true)}
-                      className="px-4 py-2 bg-rose-500/10 text-rose-700 hover:bg-rose-500/15 border border-rose-500/30 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                      className="px-4 py-2.5 bg-rose-500/10 text-rose-700 hover:bg-rose-500/15 border border-rose-500/30 font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer"
                     >
                       Escalate Threat
                     </button>
                     <button
                       onClick={() => setResolveConfirmOpen(true)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer ml-auto shadow-xs"
+                      className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer ml-auto shadow-xs"
                     >
                       Resolve Case
                     </button>
