@@ -319,35 +319,30 @@ export const AnalystDashboard: React.FC = () => {
     } else if (format === 'PDF') {
       handleGenerateReport("Full Analytics & Historical Dataset Audit");
     } else if (format === 'Excel') {
-      const xmlContent = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>
-        <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-          <Worksheet ss:Name="Analytics">
-            <Table>
-              <Row>
-                <Cell><Data ss:Type="String">Period</Data></Cell>
-                <Cell><Data ss:Type="String">Day_Window</Data></Cell>
-                <Cell><Data ss:Type="String">Incidents</Data></Cell>
-                <Cell><Data ss:Type="String">AvgResponseMinutes</Data></Cell>
-              </Row>
-              ${activeData.trends.map(t => `
-                <Row>
-                  <Cell><Data ss:Type="String">${timePeriod}</Data></Cell>
-                  <Cell><Data ss:Type="String">${t.day}</Data></Cell>
-                  <Cell><Data ss:Type="Number">${t.incidents}</Data></Cell>
-                  <Cell><Data ss:Type="Number">${t.responseTime}</Data></Cell>
-                </Row>
-              `).join('')}
-            </Table>
-          </Worksheet>
-        </Workbook>`;
-      const dataStr = "data:application/vnd.ms-excel;charset=utf-8," + encodeURIComponent(xmlContent);
+      const excelHeader = "PERIOD,TIMEFRAME_WINDOW,INCIDENT_COUNT,AVG_RESPONSE_MINUTES,INCIDENT_TYPE_FILTER,ZONE_REGION\n";
+      const excelRows = activeData.trends.map(t =>
+        `"${timePeriod}","${t.day}",${t.incidents},${t.responseTime},"${selectedType}","${selectedZone}"`
+      ).join("\n");
+
+      const categoryHeader = "\n\nHAZARD_CATEGORY,INCIDENT_VOLUME,PERCENTAGE_SHARE\n";
+      const categoryRows = INCIDENT_DISTRIBUTION.map(d =>
+        `"${d.type}",${d.count},"${Math.round((d.count / 161) * 100)}%"`
+      ).join("\n");
+
+      const hospitalHeader = "\n\nHOSPITAL_NAME,EMERGENCY_LOAD_PERCENT,FREE_BEDS,OPERATIONAL_STATUS\n";
+      const hospitalRows = HOSPITAL_PERFORMANCE.map(h =>
+        `"${h.name}","${h.load}%",${h.beds},"${h.status}"`
+      ).join("\n");
+
+      const fullExcelContent = excelHeader + excelRows + categoryHeader + categoryRows + hospitalHeader + hospitalRows;
+      const dataStr = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(fullExcelContent);
       const link = document.createElement("a");
       link.setAttribute("href", dataStr);
-      link.setAttribute("download", `AEGIS_TWIN_Analytics_Export_${timePeriod}_${Date.now()}.xls`);
+      link.setAttribute("download", `AEGIS_TWIN_Analytics_Export_${timePeriod}_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      addNotification("DATASET EXPORTED: Historical dataset downloaded as Excel spreadsheet.", "success");
+      addNotification("DATASET EXPORTED: Historical analytics spreadsheet exported cleanly as Excel CSV.", "success");
     }
   };
 
