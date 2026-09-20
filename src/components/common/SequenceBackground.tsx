@@ -20,7 +20,10 @@ export const SequenceBackground: React.FC<SequenceBackgroundProps> = ({
   // Pad number to 3 digits e.g. 1 -> "001"
   const getFrameUrl = (index: number) => {
     const padded = String(index).padStart(3, '0');
-    return `/bg-frames/ezgif-frame-${padded}.jpg`;
+    const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL
+      : `${import.meta.env.BASE_URL}/`;
+    return `${baseUrl}bg-frames/ezgif-frame-${padded}.jpg`;
   };
 
   useEffect(() => {
