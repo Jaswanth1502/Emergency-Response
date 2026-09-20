@@ -16,10 +16,15 @@ import {
   Radio,
   Building2,
   FileCheck,
-  History
+  History,
+  Send,
+  MapPin,
+  Compass,
+  ArrowRight
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { OpenStreetMap } from '../components/map/OpenStreetMap';
+import { DeployResourceDialog } from '../components/dialogs/DeployResourceDialog';
 
 export const ResourceAllocation: React.FC = () => {
   const { resources, incidents, deployResource, addNotification } = useApp();
@@ -30,6 +35,13 @@ export const ResourceAllocation: React.FC = () => {
   const [pastApprovalsOpen, setPastApprovalsOpen] = useState(false);
   const [unitTypeFilter, setUnitTypeFilter] = useState('ALL');
   const [selectedIncidentId, setSelectedIncidentId] = useState('INC-2026-0891');
+
+  // Dispatch Dialog State
+  const [deployDialogOpen, setDeployDialogOpen] = useState(false);
+  const [selectedUnitForDeploy, setSelectedUnitForDeploy] = useState<string>('');
+
+  // Selected Unit for Detailed Route View
+  const [selectedUnitIdForRoute, setSelectedUnitIdForRoute] = useState<string | null>(null);
 
   const pastApprovals = [
     { id: 'APP-101', time: '14:25 UTC', title: 'Foam Unit F-01 Dispatched', target: 'INC-2026-0889 • Industrial HazMat', status: 'COMPLETED', officer: 'Cmdr. Vance' },
@@ -47,6 +59,18 @@ export const ResourceAllocation: React.FC = () => {
     addNotification("AI RECOMMENDATION DECLINED by Cmdr. Justin Vance.", "warning");
   };
 
+  const handleOpenDeployForUnit = (unitId: string) => {
+    setSelectedUnitForDeploy(unitId);
+    setDeployDialogOpen(true);
+  };
+
+  const handleQuickDispatch = (unitId: string) => {
+    deployResource(unitId, selectedIncidentId);
+    const targetInc = incidents.find(i => i.id === selectedIncidentId);
+    const targetUnit = resources.find(r => r.id === unitId);
+    addNotification(`DIRECT DISPATCH: ${targetUnit?.name || unitId} dispatched to ${targetInc?.title || selectedIncidentId}.`, "success");
+  };
+
   const filteredUnits = resources.filter(res => {
     if (unitTypeFilter === 'ALL') return true;
     if (unitTypeFilter === 'FIRE') return res.id.includes('FIRE');
@@ -56,18 +80,25 @@ export const ResourceAllocation: React.FC = () => {
     return true;
   });
 
+  const activeTargetIncident = incidents.find(i => i.id === selectedIncidentId) || incidents[0];
+
   return (
-    <div className="space-y-4 text-left font-sans">
+    <div className="space-y-4 text-left font-sans select-none">
       
       {/* Current Task Banner */}
-      <div className="liquid-glass-card px-4 py-2.5 rounded-2xl flex items-center space-x-2">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CURRENT TASK:</span>
-        <span className="text-xs font-semibold text-slate-700">
-          Calculating optimal heavy foam unit routing for Rushikonda IT SEZ chemical risk
+      <div className="liquid-glass-card px-4 py-2.5 rounded-2xl flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CURRENT TASK:</span>
+          <span className="text-xs font-semibold text-slate-700">
+            Calculating optimal emergency unit dispatch routes for active threat corridors
+          </span>
+        </div>
+        <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold rounded-full">
+          ● Dynamic EOC Routing Active
         </span>
       </div>
 
-      {/* AI Recommendation Card (Apple Liquid Glassmorphism) */}
+      {/* AI Recommendation Card */}
       {!agentDeclined && (
         <div className="liquid-glass-blue rounded-2xl p-5 space-y-3.5 shadow-xs">
           
@@ -113,7 +144,7 @@ export const ResourceAllocation: React.FC = () => {
             )}
           </div>
 
-          {/* Past Approvals Link & Action Buttons */}
+          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 border-t border-white/60 gap-3">
             <div className="flex items-center space-x-3 text-xs text-slate-500">
               <button
@@ -199,15 +230,15 @@ export const ResourceAllocation: React.FC = () => {
       {/* 2-Column Grid: Fleet Matrix + OpenStreetMap in Resources */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         
-        {/* Left: Emergency Fleet Matrix (7 cols) */}
+        {/* Left: Emergency Fleet Matrix with Dispatch Buttons & Route Destination Info (7 cols) */}
         <div className="xl:col-span-7 space-y-3">
           
           <div className="flex items-center justify-between liquid-glass-card p-3 rounded-2xl">
             <div>
               <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
-                Emergency Fleet Matrix
+                Emergency Fleet Matrix & Dispatch Controls
               </h3>
-              <p className="text-[11px] text-slate-400">Live GPS telemetry & dynamic unit assignment</p>
+              <p className="text-[11px] text-slate-400">Live GPS telemetry, unit dispatch actions & destination route tracking</p>
             </div>
 
             <select
@@ -223,30 +254,37 @@ export const ResourceAllocation: React.FC = () => {
             </select>
           </div>
 
-          {/* Unit Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[560px] overflow-y-auto pr-1">
-            {filteredUnits.slice(0, 8).map((unit) => {
+          {/* Unit Cards Grid with Interactive Dispatch & Route Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[580px] overflow-y-auto pr-1">
+            {filteredUnits.slice(0, 10).map((unit) => {
               const isOnScene = unit.status === 'DEPLOYED' && (unit.etaMinutes === 0 || (unit as any).speed === 0);
               const isEnRoute = unit.status === 'DEPLOYED' && !isOnScene;
               const isAvailable = unit.status === 'AVAILABLE';
 
+              const destinationIncident =
+                incidents.find(i => unit.assignedIncident?.includes(i.id) || i.id === selectedIncidentId) ||
+                activeTargetIncident;
+
               return (
                 <div
                   key={unit.id}
-                  className="liquid-glass-card p-3.5 rounded-2xl space-y-2 text-left hover:-translate-y-0.5 transition-all"
+                  onClick={() => setSelectedUnitIdForRoute(unit.id)}
+                  className={`liquid-glass-card p-4 rounded-2xl space-y-3 text-left transition-all cursor-pointer ${
+                    selectedUnitIdForRoute === unit.id ? 'ring-2 ring-blue-500 shadow-md' : 'hover:border-slate-300'
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono text-slate-400 font-bold">{unit.id}</span>
                     {isOnScene ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> On Scene
                       </span>
                     ) : isEnRoute ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> En Route
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Available
                       </span>
                     )}
@@ -254,22 +292,82 @@ export const ResourceAllocation: React.FC = () => {
 
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-xs tracking-tight">{unit.name}</h4>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">📍 {(unit as any).location || 'San Francisco'}</p>
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      📍 Depot: {(unit as any).location || 'Sector Station Depot'}
+                    </p>
                     <p className="text-[10px] text-slate-400">👤 Crew: {(unit as any).crew || 3} responders</p>
                   </div>
 
-                  <div className="p-2 rounded-xl bg-white/60 border border-white/80 text-[11px] font-semibold text-slate-700 shadow-2xs">
-                    <span className="text-slate-400 text-[10px] block">Assigned:</span>
-                    <span className="truncate block font-bold text-blue-700">{(unit as any).assignedIncident || 'Standby Ready'}</span>
+                  {/* Dispatch Route Destination Details Box */}
+                  <div className="p-2.5 rounded-xl bg-white/70 border border-white/90 space-y-1 text-xs text-slate-800 shadow-2xs">
+                    <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      <span>DISPATCH DESTINATION</span>
+                      {isEnRoute && <span className="text-amber-600">⚡ Green Wave</span>}
+                    </div>
+
+                    {!isAvailable ? (
+                      <div>
+                        <span className="font-extrabold text-blue-700 block text-xs truncate">
+                          📍 [{destinationIncident.id}] {destinationIncident.title}
+                        </span>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mt-1">
+                          <span>Route: Corridor 4 Arterial</span>
+                          <span className="font-bold text-amber-600">ETA: {unit.etaMinutes || 4}m</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="text-slate-500 text-xs italic block">
+                          Ready for dispatch to active target
+                        </span>
+                        <span className="font-bold text-slate-700 text-[10px] block mt-0.5">
+                          Target: [{activeTargetIncident.id}] {activeTargetIncident.title}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-white/60 text-[10px] font-mono text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <BatteryCharging className="w-3 h-3 text-emerald-500" />
-                      {(unit as any).fuel || unit.capacityPercent || 88}%
-                    </span>
-                    <span>ETA: {(unit as any).etaMinutes || 0}m</span>
+                  {/* Dispatch & Route Action Buttons */}
+                  <div className="pt-2 border-t border-white/60 flex items-center justify-between gap-2">
+                    {isAvailable ? (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDeployForUnit(unit.id);
+                          }}
+                          className="flex-1 py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                        >
+                          <Send className="w-3 h-3" />
+                          <span>Dispatch Unit</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickDispatch(unit.id);
+                          }}
+                          className="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 font-extrabold text-[10px] uppercase rounded-xl border border-blue-200 cursor-pointer"
+                          title="Quick dispatch to selected target incident"
+                        >
+                          ⚡ Quick
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedUnitIdForRoute(unit.id);
+                          addNotification(`ROUTE FOCUS: Tracking dispatch route for ${unit.name} to ${destinationIncident.title}.`, "info");
+                        }}
+                        className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer"
+                      >
+                        <Navigation className="w-3 h-3 text-cyan-400" />
+                        <span>View Dispatch Route</span>
+                      </button>
+                    )}
                   </div>
+
                 </div>
               );
             })}
@@ -277,13 +375,19 @@ export const ResourceAllocation: React.FC = () => {
 
         </div>
 
-        {/* Right: Manual Dispatch Destination Target & OpenStreetMap (5 cols) */}
+        {/* Right: Manual Dispatch Target & Live Dispatch Route Map Overlay (5 cols) */}
         <div className="xl:col-span-5 space-y-3">
           
+          {/* Target Emergency Selection */}
           <div className="liquid-glass-card p-3.5 rounded-2xl space-y-2">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">
-              MANUAL DISPATCH DESTINATION TARGET
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">
+                MANUAL DISPATCH DESTINATION TARGET
+              </span>
+              <span className="text-[10px] font-bold text-blue-600 font-mono">
+                {incidents.length} Active Targets
+              </span>
+            </div>
             <select
               value={selectedIncidentId}
               onChange={e => setSelectedIncidentId(e.target.value)}
@@ -291,22 +395,57 @@ export const ResourceAllocation: React.FC = () => {
             >
               {incidents.map(i => (
                 <option key={i.id} value={i.id}>
-                  {i.id} • {i.type} - {i.title}
+                  [{i.id}] • {i.type} - {i.title} ({i.severity})
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Dispatch Destination Route Summary Card */}
+          <div className="liquid-glass-blue p-4 rounded-2xl space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5 font-extrabold text-slate-900">
+                <Navigation className="w-4 h-4 text-blue-600 animate-pulse" />
+                <span className="uppercase tracking-wider">ACTIVE DISPATCH ROUTE CORRIDOR</span>
+              </div>
+              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold rounded-full">
+                Route Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div className="p-2 bg-white/80 rounded-xl border border-white/90">
+                <span className="text-[9px] text-slate-400 font-bold block uppercase">DESTINATION TARGET</span>
+                <span className="font-extrabold text-slate-900 block truncate mt-0.5">{activeTargetIncident.title}</span>
+                <span className="text-[10px] text-slate-500 block">{activeTargetIncident.locationName}</span>
+              </div>
+
+              <div className="p-2 bg-white/80 rounded-xl border border-white/90">
+                <span className="text-[9px] text-slate-400 font-bold block uppercase">ROUTE METRICS</span>
+                <span className="font-extrabold text-blue-700 block mt-0.5">3.8 km • ETA 3.5 min</span>
+                <span className="text-[10px] text-emerald-600 font-bold block">Signals: Green Wave</span>
+              </div>
+            </div>
+          </div>
+
           {/* OpenStreetMap Tactical GIS View for Resources */}
           <div className="rounded-2xl overflow-hidden shadow-xs border border-slate-200">
             <OpenStreetMap
-              heightClass="h-[520px]"
+              heightClass="h-[440px]"
             />
           </div>
 
         </div>
 
       </div>
+
+      {/* Tactical Deploy Resource Dialog Modal */}
+      <DeployResourceDialog
+        isOpen={deployDialogOpen}
+        onClose={() => setDeployDialogOpen(false)}
+        selectedIncidentId={selectedIncidentId}
+        selectedResourceId={selectedUnitForDeploy}
+      />
 
     </div>
   );
