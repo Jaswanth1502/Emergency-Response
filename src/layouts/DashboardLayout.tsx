@@ -406,17 +406,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
           {/* Center Search Input */}
           <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-md mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
+            <div className="relative flex items-center w-full">
+              <Search className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
               <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search incidents, units, sensors..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-8 py-1.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 transition-all shadow-xs"
+                className="w-full pl-8 pr-10 py-1.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 transition-all shadow-xs"
               />
-              <kbd className="absolute right-2.5 top-2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs pointer-events-none">
+              <kbd className="absolute right-2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs pointer-events-none">
                 ⌘K
               </kbd>
             </div>

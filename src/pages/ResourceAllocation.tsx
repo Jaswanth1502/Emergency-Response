@@ -73,21 +73,21 @@ export const ResourceAllocation: React.FC = () => {
     addNotification(`DIRECT DISPATCH: ${targetUnit?.name || unitId} dispatched to ${targetInc?.title || selectedIncidentId}.`, "success");
   };
 
-  // Robust Unit Filtering logic so all Filter Keys work smoothly
+  // Comprehensive Unit Filtering logic so all Filter Keys work smoothly
   const filteredUnits = resources.filter(res => {
     let matchType = true;
-    const resId = res.id.toUpperCase();
+    const resId = (res.id || '').toUpperCase();
     const resType = (res.type || '').toUpperCase();
     const resName = (res.name || '').toUpperCase();
 
     if (unitTypeFilter === 'FIRE') {
-      matchType = resId.includes('FIRE') || resType.includes('FIRE') || resName.includes('FIRE') || resName.includes('PUMPER') || resName.includes('FOAM');
+      matchType = resId.includes('FIRE') || resType.includes('FIRE') || resName.includes('FIRE') || resName.includes('PUMPER') || resName.includes('FOAM') || resName.includes('HAZMAT') || resName.includes('TRUCK') || resName.includes('LADDER');
     } else if (unitTypeFilter === 'MEDICAL') {
-      matchType = resId.includes('AMB') || resType.includes('AMB') || resType.includes('MED') || resName.includes('AMBULANCE');
+      matchType = resId.includes('AMB') || resType.includes('AMB') || resType.includes('MED') || resName.includes('AMBULANCE') || resName.includes('TRAUMA') || resName.includes('PARAMEDIC');
     } else if (unitTypeFilter === 'RESCUE') {
-      matchType = resId.includes('USAR') || resId.includes('RSC') || resType.includes('USAR') || resType.includes('RESCUE') || resName.includes('SEARCH') || resName.includes('RESCUE');
+      matchType = resId.includes('USAR') || resId.includes('RSC') || resType.includes('USAR') || resType.includes('RESCUE') || resName.includes('SEARCH') || resName.includes('RESCUE') || resName.includes('SHORING') || resName.includes('DRONE');
     } else if (unitTypeFilter === 'POLICE') {
-      matchType = resId.includes('POL') || resType.includes('POL') || resName.includes('POLICE') || resName.includes('TRAFFIC');
+      matchType = resId.includes('POL') || resType.includes('POL') || resName.includes('POLICE') || resName.includes('TRAFFIC') || resName.includes('PATROL') || resName.includes('TACTICAL');
     }
 
     let matchStatus = true;
@@ -106,14 +106,14 @@ export const ResourceAllocation: React.FC = () => {
     <div className="space-y-4 text-left font-sans select-none">
       
       {/* Current Task Banner */}
-      <div className="liquid-glass-card px-4 py-2.5 rounded-2xl flex items-center justify-between">
+      <div className="liquid-glass-card px-4 py-2.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="flex items-center space-x-2">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CURRENT TASK:</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex-shrink-0">CURRENT TASK:</span>
           <span className="text-xs font-semibold text-slate-700">
             Calculating optimal emergency unit dispatch routes for active threat corridors
           </span>
         </div>
-        <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold rounded-full">
+        <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold rounded-full flex-shrink-0">
           ● Dynamic EOC Routing Active
         </span>
       </div>
@@ -253,52 +253,56 @@ export const ResourceAllocation: React.FC = () => {
         {/* Left: Emergency Fleet Matrix with Dispatch Buttons & Route Destination Info (7 cols) */}
         <div className="xl:col-span-7 space-y-3">
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between liquid-glass-card p-3 rounded-2xl gap-3">
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
-                Emergency Fleet Matrix & Dispatch Controls
-              </h3>
-              <p className="text-[11px] text-slate-400">Live GPS telemetry, unit dispatch actions & destination route tracking</p>
-            </div>
-
-            {/* Interactive Filter Keys for Unit Types & Statuses */}
-            <div className="flex items-center space-x-2 overflow-x-auto flex-shrink-0">
-              
-              {/* Unit Type Filter Keys */}
-              <div className="flex items-center space-x-1 bg-white/70 p-1 rounded-xl border border-white/90 shadow-2xs">
-                <Filter className="w-3.5 h-3.5 text-slate-400 ml-1 mr-0.5" />
-                {(['ALL', 'FIRE', 'MEDICAL', 'RESCUE', 'POLICE'] as const).map(typeKey => (
-                  <button
-                    key={`type-key-${typeKey}`}
-                    onClick={() => setUnitTypeFilter(typeKey)}
-                    className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-                      unitTypeFilter === typeKey
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    {typeKey}
-                  </button>
-                ))}
+          <div className="liquid-glass-card p-4 rounded-2xl space-y-3">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                  EMERGENCY FLEET MATRIX & DISPATCH CONTROLS
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Live GPS telemetry, unit dispatch actions & destination route tracking
+                </p>
               </div>
 
-              {/* Status Filter Keys */}
-              <div className="flex items-center space-x-1 bg-white/70 p-1 rounded-xl border border-white/90 shadow-2xs">
-                {(['ALL', 'AVAILABLE', 'DEPLOYED'] as const).map(statusKey => (
-                  <button
-                    key={`status-key-${statusKey}`}
-                    onClick={() => setStatusFilter(statusKey)}
-                    className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-                      statusFilter === statusKey
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    {statusKey === 'ALL' ? 'All Status' : statusKey}
-                  </button>
-                ))}
-              </div>
+              {/* Interactive Filter Keys for Unit Types & Statuses */}
+              <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                
+                {/* Unit Type Filter Keys */}
+                <div className="flex items-center space-x-1 bg-white/80 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <Filter className="w-3.5 h-3.5 text-slate-400 ml-1 mr-0.5" />
+                  {(['ALL', 'FIRE', 'MEDICAL', 'RESCUE', 'POLICE'] as const).map(typeKey => (
+                    <button
+                      key={`type-key-${typeKey}`}
+                      onClick={() => setUnitTypeFilter(typeKey)}
+                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
+                        unitTypeFilter === typeKey
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {typeKey}
+                    </button>
+                  ))}
+                </div>
 
+                {/* Status Filter Keys */}
+                <div className="flex items-center space-x-1 bg-white/80 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+                  {(['ALL', 'AVAILABLE', 'DEPLOYED'] as const).map(statusKey => (
+                    <button
+                      key={`status-key-${statusKey}`}
+                      onClick={() => setStatusFilter(statusKey)}
+                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
+                        statusFilter === statusKey
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {statusKey === 'ALL' ? 'All Status' : statusKey}
+                    </button>
+                  ))}
+                </div>
+
+              </div>
             </div>
           </div>
 
@@ -355,7 +359,7 @@ export const ResourceAllocation: React.FC = () => {
                     <div className="p-2.5 rounded-xl bg-white/70 border border-white/90 space-y-1 text-xs text-slate-800 shadow-2xs">
                       <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                         <span>DISPATCH DESTINATION</span>
-                        {isEnRoute && <span className="text-amber-600">⚡ Green Wave</span>}
+                        {isEnRoute && <span className="text-amber-600">⚡ GREEN WAVE</span>}
                       </div>
 
                       {!isAvailable ? (
@@ -373,7 +377,7 @@ export const ResourceAllocation: React.FC = () => {
                           <span className="text-slate-500 text-xs italic block">
                             Ready for dispatch to active target
                           </span>
-                          <span className="font-bold text-slate-700 text-[10px] block mt-0.5">
+                          <span className="font-bold text-slate-700 text-[10px] block mt-0.5 truncate">
                             Target: [{activeTargetIncident.id}] {activeTargetIncident.title}
                           </span>
                         </div>
