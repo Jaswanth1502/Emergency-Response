@@ -6,22 +6,57 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { MapPlaceholder } from '../components/map/MapPlaceholder';
 import { ConfirmDialog } from '../components/dialogs/ConfirmDialog';
 import { DeployResourceDialog } from '../components/dialogs/DeployResourceDialog';
+import { UploadMediaDialog } from '../components/dialogs/UploadMediaDialog';
 import {
   ChevronLeft,
   User,
   Flame,
-  Camera
+  Camera,
+  Plus,
+  Trash2,
+  X,
+  Play,
+  Eye,
+  CheckCircle2
 } from 'lucide-react';
+
+interface MediaItem {
+  id: string;
+  title: string;
+  url: string;
+  type: 'image' | 'video' | 'stream';
+  timestamp: string;
+}
 
 export const IncidentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { incidents, resources, resolveIncident, escalateIncident } = useApp();
+  const { incidents, resources, resolveIncident, escalateIncident, addNotification } = useApp();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'resources' | 'media'>('overview');
   const [resolveConfirmOpen, setResolveConfirmOpen] = useState(false);
   const [escalateConfirmOpen, setEscalateConfirmOpen] = useState(false);
   const [deployOpen, setDeployOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null);
+
+  // Local media feed items state
+  const [mediaList, setMediaList] = useState<MediaItem[]>([
+    {
+      id: 'm1',
+      title: 'CCTV Node 4-A Feed',
+      url: 'https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?w=600',
+      type: 'image',
+      timestamp: 'Just now'
+    },
+    {
+      id: 'm2',
+      title: 'Responder Aerial View',
+      url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=600',
+      type: 'image',
+      timestamp: '5m ago'
+    }
+  ]);
 
   // Find the exact matching incident
   const incident = incidents.find(inc => inc.id === id);
@@ -33,7 +68,7 @@ export const IncidentDetails: React.FC = () => {
         <p className="text-sm text-slate-500 mb-4">The target tactical ID could not be loaded from EOC archives.</p>
         <button
           onClick={() => navigate('/incidents')}
-          className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs uppercase font-extrabold tracking-wider"
+          className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs uppercase font-extrabold tracking-wider cursor-pointer"
         >
           Return Registry
         </button>
@@ -41,10 +76,8 @@ export const IncidentDetails: React.FC = () => {
     );
   }
 
-  // Find assigned resources details
   const assignedUnits = resources.filter(res => incident.assignedResources.includes(res.id));
 
-  // Handle local timeline dispatching additions
   const handleResolve = () => {
     resolveIncident(incident.id);
   };
@@ -53,7 +86,24 @@ export const IncidentDetails: React.FC = () => {
     escalateIncident(incident.id);
   };
 
-  // Setup local map markers
+  const handleAddMedia = (newMedia: { title: string; url: string; type: 'image' | 'video' | 'stream' }) => {
+    const item: MediaItem = {
+      id: `media-${Date.now()}`,
+      title: newMedia.title,
+      url: newMedia.url,
+      type: newMedia.type,
+      timestamp: 'Just now'
+    };
+    setMediaList(prev => [item, ...prev]);
+    addNotification(`NEW VISUAL STREAM ATTACHED: "${newMedia.title}" added to incident ${incident.id}.`, 'info');
+  };
+
+  const handleDeleteMedia = (mediaId: string) => {
+    setMediaList(prev => prev.filter(m => m.id !== mediaId));
+    if (previewMedia?.id === mediaId) setPreviewMedia(null);
+    addNotification(`Visual feed detached from incident ${incident.id}.`, 'warning');
+  };
+
   const markers = [
     {
       id: incident.id,
@@ -120,6 +170,11 @@ export const IncidentDetails: React.FC = () => {
                 }`}
               >
                 {tab}
+                {tab === 'media' && (
+                  <span className="ml-1.5 px-1.5 py-0.2 rounded-full bg-cyan-100 text-cyan-700 text-[10px] font-bold">
+                    {mediaList.length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -171,7 +226,7 @@ export const IncidentDetails: React.FC = () => {
                   <div className="pt-4 border-t border-slate-300/30 flex flex-wrap gap-2.5">
                     <button
                       onClick={() => setDeployOpen(true)}
-                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-xs"
                     >
                       Assign Resource
                     </button>
@@ -183,7 +238,7 @@ export const IncidentDetails: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setResolveConfirmOpen(true)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer ml-auto"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer ml-auto shadow-xs"
                     >
                       Resolve Case
                     </button>
@@ -198,9 +253,7 @@ export const IncidentDetails: React.FC = () => {
                 <div className="relative border-l-2 border-slate-300/30 pl-4 ml-2.5 space-y-5 py-2">
                   {incident.timeline.map((evt) => (
                     <div key={evt.id} className="relative">
-                      {/* Left glowing dot */}
                       <span className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-cyan-500 border border-white block shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
-                      
                       <div className="leading-tight">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-slate-800">{evt.event}</span>
@@ -240,26 +293,86 @@ export const IncidentDetails: React.FC = () => {
               </div>
             )}
 
+            {/* MEDIA TAB (Fully Functional Stream & CCTV Feed Upload) */}
             {activeTab === 'media' && (
               <div className="space-y-4">
-                <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-2">CCTV / Visual Feed Attachments</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                    CCTV / Visual Feed Attachments
+                  </h4>
+                  <button
+                    onClick={() => setUploadDialogOpen(true)}
+                    className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Upload Stream</span>
+                  </button>
+                </div>
+
+                {/* Media Cards Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-white/20 relative group">
-                    <div className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-300" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?w=200")' }} />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 p-2 text-[9px] text-white">
-                      <span>CCTV Node 4-A Feed</span>
+                  
+                  {/* Upload Stream Trigger Card */}
+                  <div
+                    onClick={() => setUploadDialogOpen(true)}
+                    className="aspect-video bg-cyan-50/50 hover:bg-cyan-100/60 rounded-xl border-2 border-dashed border-cyan-400/80 flex flex-col items-center justify-center text-center p-3 text-cyan-700 hover:text-cyan-900 transition-all cursor-pointer shadow-2xs group"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-cyan-600 text-white flex items-center justify-center mb-1.5 shadow-md group-hover:scale-110 transition-transform">
+                      <Camera className="w-4 h-4" />
                     </div>
+                    <span className="text-xs font-black uppercase tracking-wider">Upload Stream</span>
+                    <span className="text-[9px] text-cyan-600/80 font-bold mt-0.5">Photo / Video / RTSP</span>
                   </div>
-                  <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-white/20 relative group">
-                    <div className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-300" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=200")' }} />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 p-2 text-[9px] text-white">
-                      <span>Responder Aerial View</span>
+
+                  {/* Render Uploaded & Existing Media Feeds */}
+                  {mediaList.map(item => (
+                    <div
+                      key={item.id}
+                      className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-white/20 relative group shadow-sm"
+                    >
+                      {/* Thumbnail or Video element */}
+                      {item.type === 'video' ? (
+                        <div className="w-full h-full relative bg-slate-950 flex items-center justify-center">
+                          <video src={item.url} className="w-full h-full object-cover opacity-75" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-cyan-600/90 text-white flex items-center justify-center shadow-lg">
+                              <Play className="w-4 h-4 ml-0.5" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="absolute inset-0 bg-cover bg-center opacity-75 group-hover:scale-105 transition-transform duration-300"
+                          style={{ backgroundImage: `url("${item.url}")` }}
+                        />
+                      )}
+
+                      {/* Card Overlay Actions */}
+                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                        <button
+                          onClick={() => setPreviewMedia(item)}
+                          className="p-1.5 bg-white/90 text-slate-800 hover:bg-white rounded-lg shadow-md cursor-pointer transition-transform hover:scale-110"
+                          title="View Fullscreen Feed"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMedia(item.id)}
+                          className="p-1.5 bg-rose-600/90 text-white hover:bg-rose-600 rounded-lg shadow-md cursor-pointer transition-transform hover:scale-110"
+                          title="Delete Stream"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Bottom Title Bar */}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 to-transparent p-2 text-[9px] text-white flex items-center justify-between pointer-events-none">
+                        <span className="font-bold truncate max-w-[110px]">{item.title}</span>
+                        <span className="text-[8px] font-mono opacity-80">{item.timestamp}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="aspect-video bg-slate-900/40 rounded-xl border border-dashed border-white/30 flex flex-col items-center justify-center text-center p-3 text-slate-400 hover:text-slate-800 transition-colors cursor-not-allowed">
-                    <Camera className="w-5 h-5 mb-1 opacity-70" />
-                    <span className="text-[10px] font-bold uppercase">Upload Stream</span>
-                  </div>
+                  ))}
+
                 </div>
               </div>
             )}
@@ -301,6 +414,50 @@ export const IncidentDetails: React.FC = () => {
 
       </div>
 
+      {/* Upload Media Dialog Modal */}
+      <UploadMediaDialog
+        isOpen={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        onUpload={handleAddMedia}
+      />
+
+      {/* Fullscreen Media Lightbox Viewer Modal */}
+      {previewMedia && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
+          <div className="relative max-w-3xl w-full bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-white/20 text-white">
+            <div className="p-4 bg-slate-950 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <h3 className="font-extrabold text-sm uppercase tracking-wider">{previewMedia.title}</h3>
+              </div>
+              <button
+                onClick={() => setPreviewMedia(null)}
+                className="p-1 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 aspect-video bg-black flex items-center justify-center">
+              {previewMedia.type === 'video' ? (
+                <video src={previewMedia.url} controls autoPlay className="w-full h-full object-contain" />
+              ) : (
+                <img src={previewMedia.url} alt={previewMedia.title} className="w-full h-full object-contain" />
+              )}
+            </div>
+            <div className="p-3 bg-slate-950 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+              <span>Attached to: {incident.id}</span>
+              <button
+                onClick={() => handleDeleteMedia(previewMedia.id)}
+                className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs flex items-center space-x-1 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Detach Stream</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Dialog Modals */}
       <ConfirmDialog
         isOpen={resolveConfirmOpen}
@@ -330,4 +487,5 @@ export const IncidentDetails: React.FC = () => {
     </div>
   );
 };
+
 export default IncidentDetails;

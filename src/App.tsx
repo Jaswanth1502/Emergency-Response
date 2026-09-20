@@ -56,6 +56,7 @@ export default function App() {
             <Route path="/reports" element={<DashboardLayout><Reports /></DashboardLayout>} />
             <Route path="/alerts" element={<DashboardLayout><SystemAlerts /></DashboardLayout>} />
             <Route path="/administration" element={<DashboardLayout><Administration /></DashboardLayout>} />
+            <Route path="/users" element={<DashboardLayout><Administration /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
 
             {/* Catch-all */}

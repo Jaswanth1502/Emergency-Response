@@ -10,6 +10,15 @@
   background-color: #090d16 !important;
 }
 
+/* Google 3D Maps Web Component Sizing */
+gmp-map-3d, .google-3d-map-container {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 650px;
+  position: relative;
+}
+
 @layer utilities {
 
   /* Apple Liquid Glassmorphism Materials */

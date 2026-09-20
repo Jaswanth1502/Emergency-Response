@@ -29,6 +29,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { UserRole } from '../types/user';
 import { NotificationDrawer } from '../components/notifications/NotificationDrawer';
 import { IncidentFormDialog } from '../components/dialogs/IncidentFormDialog';
 import { DeployResourceDialog } from '../components/dialogs/DeployResourceDialog';
@@ -38,10 +39,10 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { currentRole, setCurrentRole, notifications } = useApp();
+  const { currentRole, currentUser, setCurrentRole, notifications } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -71,35 +72,34 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     };
   }, [userDropdownOpen]);
 
-  const navSections = [
+  const navSections: { heading: string; items: { label: string; path: string; icon: React.ReactNode; badge?: string; badgeColor?: string; roles?: UserRole[] }[] }[] = [
     {
-      heading: 'OPERATIONAL COMMAND',
+      heading: 'EMERGENCY CONTROL PLATFORM',
       items: [
-        { label: 'Command Center', path: '/dashboard', icon: <LayoutGrid className="w-4 h-4" /> },
-        { label: 'Incidents', path: '/incidents', icon: <Flame className="w-4 h-4 text-rose-500" />, badge: '4', badgeColor: 'bg-rose-500 text-white' },
-        { label: 'Digital Twin', path: '/digital-twin', icon: <Box className="w-4 h-4" /> },
-        { label: 'Tactical GIS Map', path: '/digital-twin', icon: <Map className="w-4 h-4" /> }
+        { label: 'Dashboard', path: '/dashboard', icon: <LayoutGrid className="w-4 h-4" /> },
+        { label: 'Incidents', path: '/incidents', icon: <Flame className="w-4 h-4 text-rose-500" />, badge: '12', badgeColor: 'bg-rose-500 text-white' },
+        { label: 'Resources', path: '/resources', icon: <GitFork className="w-4 h-4 text-blue-500" />, badge: '8', badgeColor: 'bg-blue-600 text-white' },
+        { label: 'Hospitals', path: '/hospitals', icon: <Building2 className="w-4 h-4 text-emerald-500" />, badge: '146 Beds', badgeColor: 'bg-emerald-600 text-white' },
+        { label: 'Sensors', path: '/sensors', icon: <Cpu className="w-4 h-4 text-purple-500" /> },
+        { label: 'Evacuation', path: '/evacuation', icon: <Milestone className="w-4 h-4 text-amber-500" /> },
+        { label: 'Alerts', path: '/alerts', icon: <Bell className="w-4 h-4 text-rose-400" />, badge: '3', badgeColor: 'bg-rose-600 text-white' },
+        { label: 'Analytics', path: '/analytics', icon: <BarChart3 className="w-4 h-4 text-sky-500" /> },
+        { label: 'Users', path: '/users', icon: <ShieldCheck className="w-4 h-4 text-slate-500" /> }
       ]
     },
     {
-      heading: 'TACTICAL DISPATCH',
+      heading: 'EXTENDED TACTICAL MODULES',
       items: [
-        { label: 'Resource Allocation', path: '/resources', icon: <GitFork className="w-4 h-4" />, badge: '3 AI', badgeColor: 'bg-blue-600 text-white' },
-        { label: 'Evacuation Corridors', path: '/evacuation', icon: <Milestone className="w-4 h-4" /> },
+        { label: 'Digital Twin 3D', path: '/digital-twin', icon: <Box className="w-4 h-4" /> },
         { label: 'Emergency Fleet', path: '/fleet', icon: <Truck className="w-4 h-4" /> },
-        { label: 'Hospitals & Triage', path: '/hospitals', icon: <Building2 className="w-4 h-4" /> }
-      ]
-    },
-    {
-      heading: 'INTELLIGENCE & IOT',
-      items: [
-        { label: 'IoT Sensor Network', path: '/sensors', icon: <Cpu className="w-4 h-4" /> },
-        { label: 'Operational Analytics', path: '/analytics', icon: <BarChart3 className="w-4 h-4" /> },
-        { label: 'Incident Reports', path: '/reports', icon: <FileText className="w-4 h-4" /> },
-        { label: 'System Alerts', path: '/alerts', icon: <Bell className="w-4 h-4" />, badge: '1', badgeColor: 'bg-amber-500 text-white' }
+        { label: 'Incident Reports', path: '/reports', icon: <FileText className="w-4 h-4" /> }
       ]
     }
   ];
+  const visibleNavSections = navSections.map(section => ({
+    ...section,
+    items: section.items.filter(item => !item.roles || item.roles.includes(currentRole))
+  })).filter(section => section.items.length > 0);
 
   const getPageHeader = () => {
     const p = location.pathname;
@@ -174,8 +174,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       };
     }
     return {
-      title: 'Command Center',
-      subtitle: 'Unified Multi-Hazard Operational Awareness',
+      title: currentRole === 'ADMIN' ? 'Administrative Oversight' : currentRole === 'ANALYST' ? 'Urban Risk Intelligence' : 'Tactical Operations Console',
+      subtitle: currentRole === 'ADMIN' ? 'Governance, platform readiness & city-wide controls' : currentRole === 'ANALYST' ? 'Telemetry, forecasts & decision intelligence' : 'Live incident response, dispatch & field coordination',
       badge: '2 CRITICAL'
     };
   };
@@ -185,20 +185,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   return (
     <div className="h-screen w-screen bg-gradient-to-b from-[#E2E8F0]/80 via-[#F8FAFC] to-white text-slate-800 flex font-sans antialiased overflow-hidden">
-      
+
       {/* Desktop Sidebar Navigation (Apple Liquid Glassmorphism) */}
       <aside className={`hidden lg:flex flex-col bg-white/80 backdrop-blur-xl border-r border-slate-200/80 transition-all duration-300 z-30 ${collapsed ? 'w-20' : 'w-64'} flex-shrink-0 select-none shadow-[2px_0_16px_rgba(0,0,0,0.03)] h-screen sticky top-0`}>
-        
+
         {/* Brand Header */}
         <div className={`h-16 px-4 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} border-b border-slate-200/70 flex-shrink-0`}>
-          <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden" title={collapsed ? "AEGIS TWIN - EMERGENCY OS" : undefined}>
+          <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden" title={collapsed ? "EMERGENCY RESPONSE DIGITAL TWIN" : undefined}>
             <div className="w-9 h-9 rounded-xl bg-[#0B132B] text-sky-400 flex items-center justify-center shadow-md shadow-slate-900/15 flex-shrink-0">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             {!collapsed && (
               <div className="leading-tight text-left">
-                <span className="font-extrabold text-slate-900 text-sm tracking-tight block">AEGIS TWIN</span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase block">EMERGENCY OS</span>
+                <span className="font-extrabold text-slate-900 text-xs tracking-tight block uppercase">EMERGENCY RESPONSE</span>
+                <span className="text-[9px] font-bold text-sky-600 tracking-widest uppercase block">DIGITAL TWIN</span>
               </div>
             )}
           </Link>
@@ -228,7 +228,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
-          {navSections.map((section, idx) => (
+          {visibleNavSections.map((section, idx) => (
             <div key={idx} className="space-y-1">
               {!collapsed && (
                 <p className="text-[10px] font-bold text-slate-400 tracking-wider px-3 mb-1 uppercase">
@@ -242,11 +242,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                     <Link
                       key={item.label}
                       to={item.path}
-                      className={`flex items-center ${collapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-xl text-xs font-semibold transition-all group ${
-                        isActive
+                      className={`flex items-center ${collapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-xl text-xs font-semibold transition-all group ${isActive
                           ? 'liquid-glass-blue text-blue-700 font-bold border-l-[3px] border-blue-600 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                      }`}
+                        }`}
                       title={collapsed ? item.label : undefined}
                     >
                       <div className="flex items-center space-x-3 truncate">
@@ -270,7 +269,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
         {/* Bottom Profile & System Sync */}
         <div ref={userDropdownRef} className="p-3 border-t border-slate-200/70 bg-white/60 backdrop-blur-md relative flex-shrink-0">
-          
+
           {/* Twin Sync Active Status Pill */}
           {!collapsed && (
             <div className="flex items-center justify-between px-2.5 py-1 mb-2.5 rounded-lg bg-slate-50/90 border border-slate-200/60 text-[10px]">
@@ -299,7 +298,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 {!collapsed && (
                   <div className="text-left leading-none min-w-0">
                     <span className="text-xs font-bold text-slate-900 block truncate group-hover:text-blue-600 transition-colors">
-                      Cmdr. Justin Vance
+                      {currentUser?.name || 'EOC User'}
                     </span>
                     <div className="flex items-center space-x-1.5 mt-1">
                       <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-700 font-mono">
@@ -320,8 +319,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               <div className={`absolute ${collapsed ? 'left-full ml-3 bottom-0 w-56' : 'bottom-full mb-2 left-0 right-0 w-full'} bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-bottom-2`}>
                 <div className="px-3 py-1.5 border-b border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Commander</p>
-                  <p className="text-xs font-bold text-slate-900 mt-0.5">Cmdr. Justin Vance</p>
-                  <p className="text-[10px] text-slate-500 font-mono">EOC Lead Operator • EOC-7049</p>
+                  <p className="text-xs font-bold text-slate-900 mt-0.5">{currentUser?.name || 'EOC User'}</p>
+                  <p className="text-[10px] text-slate-500 font-mono">{currentUser?.agency || 'Emergency Operations Center'} • {currentUser?.id || 'EOC-7049'}</p>
                 </div>
                 <div className="py-1">
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1">Switch Role</p>
@@ -361,10 +360,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        
+
         {/* Top Navbar Chrome (Apple Liquid Glassmorphism) */}
         <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex-shrink-0">
-          
+
           {/* Left Title & Status Pill */}
           <div className="flex items-center space-x-3 min-w-0">
             <button
@@ -407,7 +406,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
           {/* Right Action Widgets (Profile removed from top right) */}
           <div className="flex items-center space-x-2.5 flex-shrink-0">
-            
+
             {/* Live UTC Clock */}
             <div className="hidden xl:flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-700 text-xs font-semibold shadow-2xs">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
