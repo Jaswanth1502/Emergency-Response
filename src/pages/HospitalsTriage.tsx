@@ -10,7 +10,10 @@ import {
   ShieldAlert,
   Activity,
   UserPlus,
-  X
+  X,
+  Building2,
+  Send,
+  CheckCircle2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -20,7 +23,7 @@ export interface HospitalItem {
   category: string;
   district: string;
   badge: 'Critical Surge' | 'Surge Alert' | 'Operational Normal';
-  badgeColor: string;
+  badgeStyle: string;
   occupancyPercent: number;
   occupied: number;
   total: number;
@@ -54,7 +57,7 @@ export const HospitalsTriage: React.FC = () => {
       category: 'Level-1 Trauma & Emergency Burn Center',
       district: 'Visakhapatnam Coastal AP',
       badge: 'Critical Surge',
-      badgeColor: 'bg-rose-600 text-white',
+      badgeStyle: 'bg-rose-50 text-rose-700 border-rose-200/80',
       occupancyPercent: 94,
       occupied: 488,
       total: 520,
@@ -62,7 +65,7 @@ export const HospitalsTriage: React.FC = () => {
       surgeReserve: 30,
       icuAvailable: '6 / 48',
       burnUnit: '8 Beds (Surge Active)',
-      burnColor: 'text-rose-600 font-extrabold',
+      burnColor: 'text-rose-600 font-bold',
       hazmatBeds: 12,
       waitTime: '18 min',
       phone: '+91 891 256 4891',
@@ -79,7 +82,7 @@ export const HospitalsTriage: React.FC = () => {
       category: 'Level-1 State Trauma Command Hub',
       district: 'Vijayawada Central AP',
       badge: 'Surge Alert',
-      badgeColor: 'bg-amber-500 text-white',
+      badgeStyle: 'bg-amber-50 text-amber-700 border-amber-200/80',
       occupancyPercent: 91,
       occupied: 472,
       total: 520,
@@ -87,7 +90,7 @@ export const HospitalsTriage: React.FC = () => {
       surgeReserve: 40,
       icuAvailable: '12 / 64',
       burnUnit: '4 Beds Available',
-      burnColor: 'text-emerald-600 font-bold',
+      burnColor: 'text-emerald-700 font-semibold',
       hazmatBeds: 18,
       waitTime: '14 min',
       phone: '+91 866 257 4401',
@@ -104,7 +107,7 @@ export const HospitalsTriage: React.FC = () => {
       category: 'Specialized Cardiac & Burn Resuscitation Center',
       district: 'Tirupati Shrine Corridor AP',
       badge: 'Operational Normal',
-      badgeColor: 'bg-emerald-600 text-white',
+      badgeStyle: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
       occupancyPercent: 74,
       occupied: 355,
       total: 480,
@@ -112,7 +115,7 @@ export const HospitalsTriage: React.FC = () => {
       surgeReserve: 25,
       icuAvailable: '22 / 56',
       burnUnit: '6 Beds Available',
-      burnColor: 'text-emerald-600 font-bold',
+      burnColor: 'text-emerald-700 font-semibold',
       hazmatBeds: 25,
       waitTime: '6 min',
       phone: '+91 877 228 7777',
@@ -129,7 +132,7 @@ export const HospitalsTriage: React.FC = () => {
       category: 'Regional Trauma & Chemical Exposure Center',
       district: 'Guntur Industrial Belt AP',
       badge: 'Operational Normal',
-      badgeColor: 'bg-emerald-600 text-white',
+      badgeStyle: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
       occupancyPercent: 62,
       occupied: 217,
       total: 350,
@@ -137,7 +140,7 @@ export const HospitalsTriage: React.FC = () => {
       surgeReserve: 20,
       icuAvailable: '18 / 40',
       burnUnit: '2 Beds Available',
-      burnColor: 'text-emerald-600 font-bold',
+      burnColor: 'text-emerald-700 font-semibold',
       hazmatBeds: 30,
       waitTime: '8 min',
       phone: '+91 863 223 4567',
@@ -152,7 +155,12 @@ export const HospitalsTriage: React.FC = () => {
 
   const [directedCount, setDirectedCount] = useState<Record<string, number>>({});
   const [recommendationDismissed, setRecommendationDismissed] = useState(false);
+  
+  // Modals state
   const [showAdmitModal, setShowAdmitModal] = useState(false);
+  const [showDispatchModal, setShowDispatchModal] = useState<HospitalItem | null>(null);
+  const [selectedAmbulanceUnit, setSelectedAmbulanceUnit] = useState('ALS Ambulance Unit A-01 (ETA 4 min)');
+
   const [selectedHospId, setSelectedHospId] = useState('HOSP-01');
   const [admitSeverity, setAdmitSeverity] = useState<'RED' | 'YELLOW' | 'GREEN'>('RED');
   const [admitType, setAdmitType] = useState('Thermal Burn Injury');
@@ -166,11 +174,22 @@ export const HospitalsTriage: React.FC = () => {
   const totalGreen = hospitals.reduce((sum, h) => sum + h.triageGreen, 0);
   const totalInTransit = hospitals.reduce((sum, h) => sum + h.defaultAmbulances + (directedCount[h.id] || 0), 0);
 
-  // Direct Ambulances
-  const handleDirectAmbulances = (hospId: string, hospName: string) => {
+  // Dispatch Ambulance Handler
+  const handleOpenDispatchModal = (hosp: HospitalItem) => {
+    setShowDispatchModal(hosp);
+  };
+
+  const handleConfirmAmbulanceDispatch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showDispatchModal) return;
+
+    const hospId = showDispatchModal.id;
+    const hospName = showDispatchModal.name;
     const current = directedCount[hospId] || 0;
     setDirectedCount(prev => ({ ...prev, [hospId]: current + 1 }));
-    addNotification(`AMBULANCE REROUTED: Additional medical transport dispatched to ${hospName}.`, "success");
+
+    addNotification(`AMBULANCE DISPATCHED: ${selectedAmbulanceUnit} routed directly to ${hospName}.`, "success");
+    setShowDispatchModal(null);
   };
 
   // Toggle Hospital Diversion State
@@ -295,19 +314,19 @@ export const HospitalsTriage: React.FC = () => {
             <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
               Hospitals & Medical Surge Capacity
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-extrabold border border-rose-200 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200/80">
               ● 2 SURGE ALERTS
             </span>
           </div>
           <p className="text-xs text-slate-500">
-            AP State Trauma Net, burn ICU intake queues & automated ambulance rerouting
+            AP State Trauma Net, burn ICU intake queues & automated ambulance routing
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowAdmitModal(true)}
-            className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>Admit Triage Patient</span>
@@ -316,10 +335,10 @@ export const HospitalsTriage: React.FC = () => {
           <button
             onClick={handleSyncTraumaNet}
             disabled={isSyncing}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-60"
+            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-60"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'Synchronizing Net...' : 'Sync Trauma Net'}</span>
+            <RotateCcw className={`w-3.5 h-3.5 text-slate-500 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Syncing Net...' : 'Sync Trauma Net'}</span>
           </button>
         </div>
       </div>
@@ -330,8 +349,8 @@ export const HospitalsTriage: React.FC = () => {
         {/* Total Beds */}
         <div className="liquid-glass-card p-3.5 rounded-2xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">System Bed Capacity</span>
-            <BedDouble className="w-4 h-4 text-blue-600" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">System Bed Capacity</span>
+            <BedDouble className="w-4 h-4 text-slate-600" />
           </div>
           <div className="text-lg font-black text-slate-900 font-mono">
             {totalFree} <span className="text-xs font-semibold text-slate-500">/ {totalBeds} Free</span>
@@ -344,23 +363,23 @@ export const HospitalsTriage: React.FC = () => {
         {/* Triage Queue Breakdown */}
         <div className="liquid-glass-card p-3.5 rounded-2xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Active Triage Patients</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Triage Patients</span>
             <Activity className="w-4 h-4 text-rose-500" />
           </div>
           <div className="text-lg font-black text-slate-900 font-mono">
             {totalRed + totalYellow + totalGreen} <span className="text-xs font-semibold text-slate-500">Patients</span>
           </div>
           <div className="flex items-center space-x-2 text-[10px] font-extrabold font-mono">
-            <span className="text-rose-600">🔴 {totalRed} Red</span>
-            <span className="text-amber-600">🟡 {totalYellow} Yel</span>
-            <span className="text-emerald-600">🟢 {totalGreen} Grn</span>
+            <span className="text-rose-600">● {totalRed} Immediate</span>
+            <span className="text-amber-600">● {totalYellow} Delayed</span>
+            <span className="text-emerald-600">● {totalGreen} Minor</span>
           </div>
         </div>
 
         {/* ICU & Burn Availability */}
         <div className="liquid-glass-card p-3.5 rounded-2xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">ICU & Burn Beds</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ICU & Burn Beds</span>
             <Flame className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-lg font-black text-slate-900 font-mono">
@@ -374,13 +393,13 @@ export const HospitalsTriage: React.FC = () => {
         {/* Ambulances in Transit */}
         <div className="liquid-glass-card p-3.5 rounded-2xl space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Ambulances in Transit</span>
-            <Truck className="w-4 h-4 text-cyan-600" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ambulances in Transit</span>
+            <Truck className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-lg font-black text-slate-900 font-mono">
-            {totalInTransit} <span className="text-xs font-semibold text-slate-500">Units Routing</span>
+            {totalInTransit} <span className="text-xs font-semibold text-slate-500">Units Active</span>
           </div>
-          <p className="text-[10px] text-emerald-600 font-bold">
+          <p className="text-[10px] text-emerald-600 font-semibold">
             ML Auto-Rerouting Optimization Active
           </p>
         </div>
@@ -389,17 +408,17 @@ export const HospitalsTriage: React.FC = () => {
 
       {/* ML Smart Trauma Net Auto-Divert Recommendation Banner */}
       {!recommendationDismissed && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-xs animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-amber-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-2xs animate-in fade-in">
           <div className="flex items-start space-x-3">
-            <div className="p-2 rounded-xl bg-amber-500 text-white flex-shrink-0 mt-0.5 shadow-xs">
-              <ShieldAlert className="w-5 h-5 animate-pulse" />
+            <div className="p-2 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 flex-shrink-0 mt-0.5 shadow-2xs">
+              <ShieldAlert className="w-4 h-4 text-amber-700" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <h4 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
                   ML TRAUMA NET OPTIMIZER RECOMMENDATION
                 </h4>
-                <span className="px-2 py-0.2 rounded bg-amber-200/80 text-amber-900 font-mono text-[9px] font-black">
+                <span className="px-2 py-0.2 rounded bg-amber-100 text-amber-800 font-mono text-[9px] font-bold border border-amber-200">
                   96.8% CONFIDENCE
                 </span>
               </div>
@@ -413,7 +432,7 @@ export const HospitalsTriage: React.FC = () => {
           <div className="flex items-center space-x-2 self-end md:self-center flex-shrink-0">
             <button
               onClick={handleApproveAutoDivert}
-              className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1 cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-2xs transition-all flex items-center space-x-1 cursor-pointer"
             >
               <ArrowRightLeft className="w-3.5 h-3.5" />
               <span>Approve Auto-Divert</span>
@@ -438,16 +457,16 @@ export const HospitalsTriage: React.FC = () => {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search hospitals by name, district, or category..."
-            className="w-full pl-9 pr-3 py-1.5 bg-white/80 border border-slate-200/80 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            className="w-full pl-9 pr-3 py-1.5 bg-white/80 border border-slate-200/80 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
           />
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center space-x-1 bg-white/70 p-1 rounded-xl border border-white/90 shadow-2xs">
+        <div className="flex items-center space-x-1 bg-slate-100/70 p-1 rounded-xl border border-slate-200/60 shadow-2xs">
           <button
             onClick={() => setCategoryFilter('ALL')}
             className={`px-3 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-              categoryFilter === 'ALL' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              categoryFilter === 'ALL' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             ALL HOSPITALS ({hospitals.length})
@@ -455,7 +474,7 @@ export const HospitalsTriage: React.FC = () => {
           <button
             onClick={() => setCategoryFilter('CRITICAL')}
             className={`px-3 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-              categoryFilter === 'CRITICAL' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-rose-600'
+              categoryFilter === 'CRITICAL' ? 'bg-rose-600 text-white shadow-2xs' : 'text-slate-600 hover:text-rose-600'
             }`}
           >
             SURGE WARNINGS
@@ -463,7 +482,7 @@ export const HospitalsTriage: React.FC = () => {
           <button
             onClick={() => setCategoryFilter('BURN')}
             className={`px-3 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-              categoryFilter === 'BURN' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-amber-600'
+              categoryFilter === 'BURN' ? 'bg-amber-600 text-white shadow-2xs' : 'text-slate-600 hover:text-amber-600'
             }`}
           >
             BURN UNITS
@@ -471,7 +490,7 @@ export const HospitalsTriage: React.FC = () => {
           <button
             onClick={() => setCategoryFilter('TRAUMA')}
             className={`px-3 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
-              categoryFilter === 'TRAUMA' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-blue-600'
+              categoryFilter === 'TRAUMA' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-blue-600'
             }`}
           >
             TRAUMA LEVEL-1
@@ -479,7 +498,7 @@ export const HospitalsTriage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2x2 Grid of Hospital Cards */}
+      {/* 2x2 Grid of Hospital Cards (Subtle, Refined Human Design Palette) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {filteredHospitals.map(hosp => {
           const barColor = hosp.occupancyPercent >= 90 ? 'bg-rose-500' : hosp.occupancyPercent >= 80 ? 'bg-amber-500' : 'bg-emerald-500';
@@ -489,23 +508,23 @@ export const HospitalsTriage: React.FC = () => {
             <div
               key={hosp.id}
               className={`liquid-glass-card p-5 rounded-2xl space-y-4 text-left transition-all flex flex-col justify-between border ${
-                hosp.isDiverting ? 'border-amber-500/80 bg-amber-50/20' : 'hover:-translate-y-0.5'
+                hosp.isDiverting ? 'border-amber-300 bg-amber-50/20' : 'hover:border-slate-300'
               }`}
             >
               
               {/* Header: Icon + Title + Category + Badge */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm border-2 border-white flex-shrink-0 shadow-md">
-                    🏥
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-sm border border-slate-200/80 flex-shrink-0 shadow-2xs">
+                    <Building2 className="w-4 h-4 text-slate-700" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[10px] font-mono text-slate-400 font-extrabold uppercase tracking-wider block">
+                      <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider block">
                         {hosp.id} • {hosp.district}
                       </span>
                       {hosp.surgeActive && (
-                        <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-extrabold font-mono border border-emerald-300">
+                        <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold font-mono border border-emerald-200">
                           +25 Surge Cots Active
                         </span>
                       )}
@@ -520,73 +539,76 @@ export const HospitalsTriage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-end space-y-1">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border shadow-2xs ${hosp.badgeColor}`}>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border shadow-2xs ${hosp.badgeStyle}`}>
                     ● {hosp.badge}
                   </span>
                   {hosp.isDiverting && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider animate-pulse">
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase tracking-wider">
                       DIVERSION ACTIVE
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Bed Occupancy Progress Bar */}
+              {/* Bed Occupancy Progress Bar (Subtle Slim Height) */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-slate-700">Bed Occupancy</span>
                   <span className="font-mono font-extrabold text-slate-900">
-                    {hosp.occupancyPercent}% ({hosp.occupied}/{hosp.total})
+                    {hosp.occupancyPercent}% <span className="text-slate-400 font-normal">({hosp.occupied}/{hosp.total})</span>
                   </span>
                 </div>
-                <div className="w-full h-2.5 rounded-full bg-slate-100/90 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                   <div className={`h-full ${barColor} rounded-full transition-all duration-500`} style={{ width: `${hosp.occupancyPercent}%` }} />
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span className="text-emerald-600 font-bold">{hosp.freeBeds} Beds Free</span>
+                  <span className="text-emerald-700 font-bold">{hosp.freeBeds} Beds Free</span>
                   <span>Surge Reserve: +{hosp.surgeReserve} Cots</span>
                 </div>
               </div>
 
-              {/* Triage Queue Breakdown Pills */}
-              <div className="p-3 bg-white/70 rounded-xl border border-white/90 shadow-2xs space-y-1.5">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
+              {/* Triage Queue Breakdown Pills (Subtle Minimalist Human Design) */}
+              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-200/60 shadow-2xs space-y-1.5">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
                   LIVE TRIAGE QUEUE ({hosp.triageRed + hosp.triageYellow + hosp.triageGreen} PATIENTS)
                 </span>
                 <div className="grid grid-cols-3 gap-1.5 text-center text-xs font-mono font-bold">
-                  <div className="bg-rose-50 text-rose-700 p-1 rounded-lg border border-rose-200">
-                    🔴 {hosp.triageRed} Immediate
+                  <div className="bg-white/90 text-slate-800 p-1.5 rounded-lg border border-slate-200/80 flex items-center justify-center space-x-1">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" />
+                    <span>{hosp.triageRed} Immediate</span>
                   </div>
-                  <div className="bg-amber-50 text-amber-700 p-1 rounded-lg border border-amber-200">
-                    🟡 {hosp.triageYellow} Delayed
+                  <div className="bg-white/90 text-slate-800 p-1.5 rounded-lg border border-slate-200/80 flex items-center justify-center space-x-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span>{hosp.triageYellow} Delayed</span>
                   </div>
-                  <div className="bg-emerald-50 text-emerald-700 p-1 rounded-lg border border-emerald-200">
-                    🟢 {hosp.triageGreen} Minor
+                  <div className="bg-white/90 text-slate-800 p-1.5 rounded-lg border border-slate-200/80 flex items-center justify-center space-x-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>{hosp.triageGreen} Minor</span>
                   </div>
                 </div>
               </div>
 
-              {/* Metrics Row: ICU, Burn Unit, Wait Time */}
-              <div className="grid grid-cols-3 gap-2 p-3 bg-white/60 rounded-xl border border-white/80 text-center shadow-2xs">
+              {/* Department Metrics: ICU, Burn Unit, Wait Time */}
+              <div className="grid grid-cols-3 gap-2 p-2.5 bg-white/70 rounded-xl border border-slate-200/60 text-center shadow-2xs">
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">ICU Available</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">ICU Available</span>
                   <span className="text-xs font-mono font-extrabold text-slate-900 mt-0.5 block">{hosp.icuAvailable}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Burn Unit</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Burn Unit</span>
                   <span className={`text-xs block ${hosp.burnColor}`}>{hosp.burnUnit}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">ER Wait Time</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">ER Wait Time</span>
                   <span className="text-xs font-mono font-extrabold text-slate-900 mt-0.5 block">{hosp.waitTime}</span>
                 </div>
               </div>
 
-              {/* Action Buttons Toolbar */}
-              <div className="pt-2 border-t border-white/60 flex flex-wrap items-center justify-between gap-2">
+              {/* Action Buttons Toolbar & Clear Ambulance Dispatch CTA */}
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                 <a
                   href={`tel:${hosp.phone}`}
-                  className="flex items-center space-x-1.5 text-xs font-mono text-slate-500 hover:text-slate-900 font-bold"
+                  className="flex items-center space-x-1.5 text-xs font-mono text-slate-500 hover:text-slate-900 font-semibold"
                 >
                   <Phone className="w-3.5 h-3.5 text-slate-400" />
                   <span>{hosp.phone}</span>
@@ -598,12 +620,12 @@ export const HospitalsTriage: React.FC = () => {
                     onClick={() => handleActivateSurge(hosp.id, hosp.name)}
                     className={`px-2.5 py-1.5 text-[10px] font-extrabold rounded-xl transition-all cursor-pointer border shadow-2xs ${
                       hosp.surgeActive
-                        ? 'bg-emerald-600 text-white border-emerald-700'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                         : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
                     }`}
                     title="Deploy 25 Emergency Field Cots"
                   >
-                    {hosp.surgeActive ? '✓ Surge (+25 Active)' : '+ Surge Cots'}
+                    {hosp.surgeActive ? '✓ Surge (+25 Cots)' : '+ Surge Cots'}
                   </button>
 
                   {/* Toggle Diversion Button */}
@@ -611,7 +633,7 @@ export const HospitalsTriage: React.FC = () => {
                     onClick={() => handleToggleDiversion(hosp.id, hosp.name)}
                     className={`px-2.5 py-1.5 text-[10px] font-extrabold rounded-xl transition-all cursor-pointer border shadow-2xs ${
                       hosp.isDiverting
-                        ? 'bg-amber-600 text-white border-amber-700'
+                        ? 'bg-amber-50 text-amber-800 border-amber-300'
                         : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
                     }`}
                     title="Toggle Non-Critical Transit Diversion"
@@ -619,13 +641,17 @@ export const HospitalsTriage: React.FC = () => {
                     {hosp.isDiverting ? '✓ Diverting' : 'Divert Transit'}
                   </button>
 
-                  {/* Direct Ambulances CTA */}
+                  {/* Clear Dispatch Ambulance CTA with Helper Badge */}
                   <button
-                    onClick={() => handleDirectAmbulances(hosp.id, hosp.name)}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-all shadow-2xs cursor-pointer flex items-center space-x-1"
+                    onClick={() => handleOpenDispatchModal(hosp)}
+                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-all shadow-2xs cursor-pointer flex items-center space-x-1.5"
+                    title="Dispatch an emergency ambulance unit directly to this facility"
                   >
                     <Truck className="w-3.5 h-3.5" />
-                    <span>Direct Transit ({totalDirected})</span>
+                    <span>Dispatch Ambulance</span>
+                    <span className="px-1.5 py-0.2 rounded-md bg-blue-700 text-white font-mono text-[9px] font-bold">
+                      {totalDirected} En Route
+                    </span>
                   </button>
                 </div>
               </div>
@@ -634,6 +660,78 @@ export const HospitalsTriage: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Ambulance Dispatch Modal */}
+      {showDispatchModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white/95 backdrop-blur-xl border border-white rounded-2xl p-6 shadow-2xl max-w-md w-full space-y-4 text-left animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <Truck className="w-5 h-5 text-blue-600" />
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base">
+                    Dispatch Ambulance Unit
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Assign transit unit to {showDispatchModal.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDispatchModal(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmAmbulanceDispatch} className="space-y-4">
+              
+              <div>
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                  SELECT AVAILABLE AMBULANCE / TRANSIT UNIT
+                </label>
+                <select
+                  value={selectedAmbulanceUnit}
+                  onChange={e => setSelectedAmbulanceUnit(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                >
+                  <option value="ALS Ambulance Unit A-01 (ETA 4 min)">
+                    ALS Ambulance Unit A-01 (ETA 4 min) • 2 Triage Beds
+                  </option>
+                  <option value="Rapid Triage Squad A-05 (ETA 6 min)">
+                    Rapid Triage Squad A-05 (ETA 6 min) • Burn Specialist
+                  </option>
+                  <option value="Trauma Transport Unit A-08 (ETA 8 min)">
+                    Trauma Transport Unit A-08 (ETA 8 min) • Ventilator Ready
+                  </option>
+                  <option value="APDRF Medical Escort Squad M-03 (ETA 10 min)">
+                    APDRF Medical Escort Squad M-03 (ETA 10 min) • Mass Casualty
+                  </option>
+                </select>
+              </div>
+
+              <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-100 text-xs text-blue-900 space-y-1 font-medium">
+                <div className="flex items-center space-x-1.5 font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                  <span>Optimal Route Selected</span>
+                </div>
+                <p className="text-[11px] text-blue-800">
+                  Unit will be assigned exclusively to {showDispatchModal.name} ({showDispatchModal.freeBeds} beds free).
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md cursor-pointer transition-all flex items-center justify-center space-x-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Confirm & Dispatch Unit</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Patient Admission Simulation Modal */}
       {showAdmitModal && (
@@ -658,7 +756,7 @@ export const HospitalsTriage: React.FC = () => {
               
               {/* Select Destination Hospital */}
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
                   TARGET EMERGENCY MEDICAL CENTER
                 </label>
                 <select
@@ -676,7 +774,7 @@ export const HospitalsTriage: React.FC = () => {
 
               {/* Triage Tag Severity */}
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
                   TRIAGE CLASSIFICATION TAG
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -685,7 +783,7 @@ export const HospitalsTriage: React.FC = () => {
                     onClick={() => setAdmitSeverity('RED')}
                     className={`py-2 text-xs font-extrabold rounded-xl border transition-all cursor-pointer ${
                       admitSeverity === 'RED'
-                        ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
+                        ? 'bg-rose-600 text-white border-rose-700 shadow-2xs'
                         : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
                     }`}
                   >
@@ -696,7 +794,7 @@ export const HospitalsTriage: React.FC = () => {
                     onClick={() => setAdmitSeverity('YELLOW')}
                     className={`py-2 text-xs font-extrabold rounded-xl border transition-all cursor-pointer ${
                       admitSeverity === 'YELLOW'
-                        ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
+                        ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
                         : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                     }`}
                   >
@@ -707,7 +805,7 @@ export const HospitalsTriage: React.FC = () => {
                     onClick={() => setAdmitSeverity('GREEN')}
                     className={`py-2 text-xs font-extrabold rounded-xl border transition-all cursor-pointer ${
                       admitSeverity === 'GREEN'
-                        ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                        ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
                         : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                     }`}
                   >
@@ -718,7 +816,7 @@ export const HospitalsTriage: React.FC = () => {
 
               {/* Injury Type Input */}
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
                   PRIMARY INJURY / DIAGNOSTIC CATEGORY
                 </label>
                 <input
