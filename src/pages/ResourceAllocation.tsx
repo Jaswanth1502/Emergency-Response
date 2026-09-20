@@ -19,8 +19,7 @@ import {
   History,
   Send,
   MapPin,
-  Compass,
-  ArrowRight
+  Filter
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { OpenStreetMap } from '../components/map/OpenStreetMap';
@@ -33,7 +32,10 @@ export const ResourceAllocation: React.FC = () => {
   const [agentApproved, setAgentApproved] = useState(false);
   const [agentDeclined, setAgentDeclined] = useState(false);
   const [pastApprovalsOpen, setPastApprovalsOpen] = useState(false);
-  const [unitTypeFilter, setUnitTypeFilter] = useState('ALL');
+
+  // Filter Keys State
+  const [unitTypeFilter, setUnitTypeFilter] = useState<'ALL' | 'FIRE' | 'MEDICAL' | 'RESCUE' | 'POLICE'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'AVAILABLE' | 'DEPLOYED'>('ALL');
   const [selectedIncidentId, setSelectedIncidentId] = useState('INC-2026-0891');
 
   // Dispatch Dialog State
@@ -71,13 +73,31 @@ export const ResourceAllocation: React.FC = () => {
     addNotification(`DIRECT DISPATCH: ${targetUnit?.name || unitId} dispatched to ${targetInc?.title || selectedIncidentId}.`, "success");
   };
 
+  // Robust Unit Filtering logic so all Filter Keys work smoothly
   const filteredUnits = resources.filter(res => {
-    if (unitTypeFilter === 'ALL') return true;
-    if (unitTypeFilter === 'FIRE') return res.id.includes('FIRE');
-    if (unitTypeFilter === 'MEDICAL') return res.id.includes('AMB');
-    if (unitTypeFilter === 'RESCUE') return res.id.includes('RSC');
-    if (unitTypeFilter === 'POLICE') return res.id.includes('POL');
-    return true;
+    let matchType = true;
+    const resId = res.id.toUpperCase();
+    const resType = (res.type || '').toUpperCase();
+    const resName = (res.name || '').toUpperCase();
+
+    if (unitTypeFilter === 'FIRE') {
+      matchType = resId.includes('FIRE') || resType.includes('FIRE') || resName.includes('FIRE') || resName.includes('PUMPER') || resName.includes('FOAM');
+    } else if (unitTypeFilter === 'MEDICAL') {
+      matchType = resId.includes('AMB') || resType.includes('AMB') || resType.includes('MED') || resName.includes('AMBULANCE');
+    } else if (unitTypeFilter === 'RESCUE') {
+      matchType = resId.includes('USAR') || resId.includes('RSC') || resType.includes('USAR') || resType.includes('RESCUE') || resName.includes('SEARCH') || resName.includes('RESCUE');
+    } else if (unitTypeFilter === 'POLICE') {
+      matchType = resId.includes('POL') || resType.includes('POL') || resName.includes('POLICE') || resName.includes('TRAFFIC');
+    }
+
+    let matchStatus = true;
+    if (statusFilter === 'AVAILABLE') {
+      matchStatus = res.status === 'AVAILABLE';
+    } else if (statusFilter === 'DEPLOYED') {
+      matchStatus = res.status === 'DEPLOYED';
+    }
+
+    return matchType && matchStatus;
   });
 
   const activeTargetIncident = incidents.find(i => i.id === selectedIncidentId) || incidents[0];
@@ -207,7 +227,7 @@ export const ResourceAllocation: React.FC = () => {
               </div>
               <div className="space-y-1.5">
                 {pastApprovals.map(item => (
-                  <div key={item.id} className="p-2 bg-slate-50 rounded-lg flex items-center justify-between">
+                  <div key={`past-${item.id}`} className="p-2 bg-slate-50 rounded-lg flex items-center justify-between">
                     <div>
                       <span className="font-bold text-slate-800 block text-[11px]">{item.title}</span>
                       <span className="text-[10px] text-slate-500">{item.target} • {item.officer}</span>
@@ -233,7 +253,7 @@ export const ResourceAllocation: React.FC = () => {
         {/* Left: Emergency Fleet Matrix with Dispatch Buttons & Route Destination Info (7 cols) */}
         <div className="xl:col-span-7 space-y-3">
           
-          <div className="flex items-center justify-between liquid-glass-card p-3 rounded-2xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between liquid-glass-card p-3 rounded-2xl gap-3">
             <div>
               <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
                 Emergency Fleet Matrix & Dispatch Controls
@@ -241,136 +261,173 @@ export const ResourceAllocation: React.FC = () => {
               <p className="text-[11px] text-slate-400">Live GPS telemetry, unit dispatch actions & destination route tracking</p>
             </div>
 
-            <select
-              value={unitTypeFilter}
-              onChange={e => setUnitTypeFilter(e.target.value)}
-              className="px-3 py-1.5 bg-white/80 border border-white/90 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
-            >
-              <option value="ALL">All Unit Types</option>
-              <option value="FIRE">Fire & HazMat</option>
-              <option value="MEDICAL">Ambulances</option>
-              <option value="RESCUE">USAR & Rescue</option>
-              <option value="POLICE">Police Units</option>
-            </select>
+            {/* Interactive Filter Keys for Unit Types & Statuses */}
+            <div className="flex items-center space-x-2 overflow-x-auto flex-shrink-0">
+              
+              {/* Unit Type Filter Keys */}
+              <div className="flex items-center space-x-1 bg-white/70 p-1 rounded-xl border border-white/90 shadow-2xs">
+                <Filter className="w-3.5 h-3.5 text-slate-400 ml-1 mr-0.5" />
+                {(['ALL', 'FIRE', 'MEDICAL', 'RESCUE', 'POLICE'] as const).map(typeKey => (
+                  <button
+                    key={`type-key-${typeKey}`}
+                    onClick={() => setUnitTypeFilter(typeKey)}
+                    className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
+                      unitTypeFilter === typeKey
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {typeKey}
+                  </button>
+                ))}
+              </div>
+
+              {/* Status Filter Keys */}
+              <div className="flex items-center space-x-1 bg-white/70 p-1 rounded-xl border border-white/90 shadow-2xs">
+                {(['ALL', 'AVAILABLE', 'DEPLOYED'] as const).map(statusKey => (
+                  <button
+                    key={`status-key-${statusKey}`}
+                    onClick={() => setStatusFilter(statusKey)}
+                    className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all cursor-pointer ${
+                      statusFilter === statusKey
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {statusKey === 'ALL' ? 'All Status' : statusKey}
+                  </button>
+                ))}
+              </div>
+
+            </div>
           </div>
 
           {/* Unit Cards Grid with Interactive Dispatch & Route Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[580px] overflow-y-auto pr-1">
-            {filteredUnits.slice(0, 10).map((unit) => {
-              const isOnScene = unit.status === 'DEPLOYED' && (unit.etaMinutes === 0 || (unit as any).speed === 0);
-              const isEnRoute = unit.status === 'DEPLOYED' && !isOnScene;
-              const isAvailable = unit.status === 'AVAILABLE';
+            {filteredUnits.length === 0 ? (
+              <div className="col-span-2 p-8 text-center text-slate-400 font-bold text-xs bg-white/40 rounded-2xl border border-white/60">
+                No tactical units match the selected filter keys.
+              </div>
+            ) : (
+              filteredUnits.map((unit) => {
+                const isOnScene = unit.status === 'DEPLOYED' && (unit.etaMinutes === 0 || (unit as any).speed === 0);
+                const isEnRoute = unit.status === 'DEPLOYED' && !isOnScene;
+                const isAvailable = unit.status === 'AVAILABLE';
 
-              const destinationIncident =
-                incidents.find(i => unit.assignedIncident?.includes(i.id) || i.id === selectedIncidentId) ||
-                activeTargetIncident;
+                const destinationIncident =
+                  incidents.find(i => unit.assignedIncident?.includes(i.id) || i.id === selectedIncidentId) ||
+                  activeTargetIncident;
 
-              return (
-                <div
-                  key={unit.id}
-                  onClick={() => setSelectedUnitIdForRoute(unit.id)}
-                  className={`liquid-glass-card p-4 rounded-2xl space-y-3 text-left transition-all cursor-pointer ${
-                    selectedUnitIdForRoute === unit.id ? 'ring-2 ring-blue-500 shadow-md' : 'hover:border-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-slate-400 font-bold">{unit.id}</span>
-                    {isOnScene ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> On Scene
-                      </span>
-                    ) : isEnRoute ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> En Route
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Available
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <h4 className="font-extrabold text-slate-900 text-xs tracking-tight">{unit.name}</h4>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                      📍 Depot: {(unit as any).location || 'Sector Station Depot'}
-                    </p>
-                    <p className="text-[10px] text-slate-400">👤 Crew: {(unit as any).crew || 3} responders</p>
-                  </div>
-
-                  {/* Dispatch Route Destination Details Box */}
-                  <div className="p-2.5 rounded-xl bg-white/70 border border-white/90 space-y-1 text-xs text-slate-800 shadow-2xs">
-                    <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                      <span>DISPATCH DESTINATION</span>
-                      {isEnRoute && <span className="text-amber-600">⚡ Green Wave</span>}
+                return (
+                  <div
+                    key={`unit-card-${unit.id}`}
+                    onClick={() => setSelectedUnitIdForRoute(unit.id)}
+                    className={`liquid-glass-card p-4 rounded-2xl space-y-3 text-left transition-all cursor-pointer ${
+                      selectedUnitIdForRoute === unit.id ? 'ring-2 ring-blue-500 shadow-md' : 'hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-400 font-bold">{unit.id}</span>
+                      {isOnScene ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> On Scene
+                        </span>
+                      ) : isEnRoute ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> En Route
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Available
+                        </span>
+                      )}
                     </div>
 
-                    {!isAvailable ? (
-                      <div>
-                        <span className="font-extrabold text-blue-700 block text-xs truncate">
-                          📍 [{destinationIncident.id}] {destinationIncident.title}
-                        </span>
-                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mt-1">
-                          <span>Route: Corridor 4 Arterial</span>
-                          <span className="font-bold text-amber-600">ETA: {unit.etaMinutes || 4}m</span>
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-xs tracking-tight">{unit.name}</h4>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        📍 Depot: {(unit as any).location || 'Sector Station Depot'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">👤 Crew: {(unit as any).crew || 3} responders</p>
+                    </div>
+
+                    {/* Dispatch Route Destination Details Box */}
+                    <div className="p-2.5 rounded-xl bg-white/70 border border-white/90 space-y-1 text-xs text-slate-800 shadow-2xs">
+                      <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                        <span>DISPATCH DESTINATION</span>
+                        {isEnRoute && <span className="text-amber-600">⚡ Green Wave</span>}
+                      </div>
+
+                      {!isAvailable ? (
+                        <div>
+                          <span className="font-extrabold text-blue-700 block text-xs truncate">
+                            📍 [{destinationIncident.id}] {destinationIncident.title}
+                          </span>
+                          <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mt-1">
+                            <span>Route: Corridor 4 Arterial</span>
+                            <span className="font-bold text-amber-600">ETA: {unit.etaMinutes || 4}m</span>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <span className="text-slate-500 text-xs italic block">
-                          Ready for dispatch to active target
-                        </span>
-                        <span className="font-bold text-slate-700 text-[10px] block mt-0.5">
-                          Target: [{activeTargetIncident.id}] {activeTargetIncident.title}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                      ) : (
+                        <div>
+                          <span className="text-slate-500 text-xs italic block">
+                            Ready for dispatch to active target
+                          </span>
+                          <span className="font-bold text-slate-700 text-[10px] block mt-0.5">
+                            Target: [{activeTargetIncident.id}] {activeTargetIncident.title}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Dispatch & Route Action Buttons */}
-                  <div className="pt-2 border-t border-white/60 flex items-center justify-between gap-2">
-                    {isAvailable ? (
-                      <>
+                    {/* Dispatch & Route Action Buttons */}
+                    <div className="pt-2 border-t border-white/60 flex items-center justify-between gap-2">
+                      {isAvailable ? (
+                        <>
+                          <button
+                            key={`dispatch-btn-${unit.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDeployForUnit(unit.id);
+                            }}
+                            className="flex-1 py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                          >
+                            <Send className="w-3 h-3" />
+                            <span>Dispatch Unit</span>
+                          </button>
+
+                          <button
+                            key={`quick-btn-${unit.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleQuickDispatch(unit.id);
+                            }}
+                            className="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 font-extrabold text-[10px] uppercase rounded-xl border border-blue-200 cursor-pointer"
+                            title="Quick dispatch to selected target incident"
+                          >
+                            ⚡ Quick
+                          </button>
+                        </>
+                      ) : (
                         <button
+                          key={`route-btn-${unit.id}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenDeployForUnit(unit.id);
+                            setSelectedUnitIdForRoute(unit.id);
+                            addNotification(`ROUTE FOCUS: Tracking dispatch route for ${unit.name} to ${destinationIncident.title}.`, "info");
                           }}
-                          className="flex-1 py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                          className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer"
                         >
-                          <Send className="w-3 h-3" />
-                          <span>Dispatch Unit</span>
+                          <Navigation className="w-3 h-3 text-cyan-400" />
+                          <span>View Dispatch Route</span>
                         </button>
+                      )}
+                    </div>
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleQuickDispatch(unit.id);
-                          }}
-                          className="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 font-extrabold text-[10px] uppercase rounded-xl border border-blue-200 cursor-pointer"
-                          title="Quick dispatch to selected target incident"
-                        >
-                          ⚡ Quick
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedUnitIdForRoute(unit.id);
-                          addNotification(`ROUTE FOCUS: Tracking dispatch route for ${unit.name} to ${destinationIncident.title}.`, "info");
-                        }}
-                        className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer"
-                      >
-                        <Navigation className="w-3 h-3 text-cyan-400" />
-                        <span>View Dispatch Route</span>
-                      </button>
-                    )}
                   </div>
-
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
         </div>
@@ -394,7 +451,7 @@ export const ResourceAllocation: React.FC = () => {
               className="w-full px-3 py-2 bg-white/80 border border-white/90 rounded-xl text-xs font-bold text-slate-900 focus:outline-none cursor-pointer shadow-2xs"
             >
               {incidents.map(i => (
-                <option key={i.id} value={i.id}>
+                <option key={`target-inc-${i.id}`} value={i.id}>
                   [{i.id}] • {i.type} - {i.title} ({i.severity})
                 </option>
               ))}
