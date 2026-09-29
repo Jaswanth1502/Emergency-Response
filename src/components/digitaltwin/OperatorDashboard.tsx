@@ -198,8 +198,27 @@ export const OperatorDashboard: React.FC = () => {
   };
 
   const [activeTrackModal, setActiveTrackModal] = useState<EmergencyResource | null>(null);
+  const [telemetryLatOffset, setTelemetryLatOffset] = useState(0);
+  const [telemetryLngOffset, setTelemetryLngOffset] = useState(0);
+  const [telemetrySpeed, setTelemetrySpeed] = useState(48);
+
+  useEffect(() => {
+    if (!activeTrackModal) {
+      setTelemetryLatOffset(0);
+      setTelemetryLngOffset(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setTelemetryLatOffset(prev => prev + 0.00012);
+      setTelemetryLngOffset(prev => prev + 0.00018);
+      setTelemetrySpeed(46 + Math.floor(Math.random() * 22));
+    }, 450);
+    return () => clearInterval(interval);
+  }, [activeTrackModal]);
 
   const handleTrackResource = (resId: string, name: string) => {
+    setTelemetryLatOffset(0);
+    setTelemetryLngOffset(0);
     const targetRes = resources.find(r => r.resourceId === resId || r.id === resId) || {
       resourceId: resId,
       id: resId,
@@ -1003,15 +1022,15 @@ export const OperatorDashboard: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center pt-1">
                 <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                   <span className="text-[9px] text-slate-400 font-bold block">LATITUDE</span>
-                  <span className="font-mono text-xs font-bold text-white">{activeTrackModal.latitude.toFixed(4)}°N</span>
+                  <span className="font-mono text-xs font-bold text-white">{(activeTrackModal.latitude + telemetryLatOffset).toFixed(4)}°N</span>
                 </div>
                 <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                   <span className="text-[9px] text-slate-400 font-bold block">LONGITUDE</span>
-                  <span className="font-mono text-xs font-bold text-white">{activeTrackModal.longitude.toFixed(4)}°E</span>
+                  <span className="font-mono text-xs font-bold text-white">{(activeTrackModal.longitude + telemetryLngOffset).toFixed(4)}°E</span>
                 </div>
                 <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                   <span className="text-[9px] text-slate-400 font-bold block">SPEED</span>
-                  <span className="font-mono text-xs font-bold text-emerald-400">48 km/h</span>
+                  <span className="font-mono text-xs font-bold text-emerald-400">{telemetrySpeed} km/h</span>
                 </div>
                 <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                   <span className="text-[9px] text-slate-400 font-bold block">BATTERY/FUEL</span>

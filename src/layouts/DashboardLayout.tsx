@@ -420,19 +420,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex-shrink-0">
 
           {/* Left Title & Status Pill */}
-          <div className="flex items-center space-x-3 min-w-0">
+          <div className="flex items-center space-x-3 min-w-0 flex-shrink">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 lg:hidden focus:outline-none cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 lg:hidden focus:outline-none cursor-pointer flex-shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="text-left truncate">
-              <div className="flex items-center space-x-2">
+            <div className="text-left min-w-0 flex flex-col justify-center">
+              <div className="flex items-center space-x-2 min-w-0">
                 <h1 className="font-extrabold text-slate-900 text-sm lg:text-base tracking-tight truncate">
                   {headerInfo.title}
                 </h1>
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border flex-shrink-0 whitespace-nowrap ${
                   currentRole === 'ADMIN' ? 'bg-rose-50 text-rose-700 border-rose-200' :
                   currentRole === 'OPERATOR' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                   'bg-indigo-50 text-indigo-700 border-indigo-200'
@@ -440,14 +440,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   ● ROLE: {currentRole}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium truncate hidden sm:block">
+              <p className="text-[11px] text-slate-500 font-medium truncate hidden sm:block whitespace-nowrap leading-tight mt-0.5">
                 {headerInfo.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Center Search Input */}
-          <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-md mx-4">
+          {/* Center Search Input & Quick Command Dropdown */}
+          <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-md mx-4 relative">
             <div className="relative w-full">
               <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
               <input
@@ -458,10 +458,54 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 onChange={e => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-8 py-1.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 transition-all shadow-xs"
               />
-              <kbd className="absolute right-2.5 top-2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs pointer-events-none">
-                ⌘K
-              </kbd>
+              {searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              ) : (
+                <kbd className="absolute right-2.5 top-2 px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs pointer-events-none">
+                  ⌘K
+                </kbd>
+              )}
             </div>
+
+            {/* Command Palette Dropdown */}
+            {searchQuery.trim().length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-left animate-in fade-in duration-150">
+                <div className="p-2 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span>Quick Navigation</span>
+                  <span>ESC to close</span>
+                </div>
+                <div className="max-h-64 overflow-y-auto p-1 space-y-0.5">
+                  {visibleNavSections.flatMap(s => s.items)
+                    .filter(i => i.label.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map(item => (
+                      <button
+                        key={item.path}
+                        onClick={() => {
+                          navigate(item.path);
+                          setSearchQuery('');
+                        }}
+                        className="w-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl flex items-center justify-between transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          <span className="text-slate-400">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-400">{item.path}</span>
+                      </button>
+                    ))}
+                  {visibleNavSections.flatMap(s => s.items).filter(i => i.label.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                    <div className="p-3 text-center text-xs text-slate-400 font-medium">
+                      No matching views found for "{searchQuery}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Action Widgets */}

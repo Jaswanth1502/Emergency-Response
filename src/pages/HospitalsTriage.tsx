@@ -24,7 +24,9 @@ import {
   Radio,
   Clock,
   Zap,
-  ExternalLink
+  ExternalLink,
+  Play,
+  Pause
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -184,6 +186,32 @@ export const HospitalsTriage: React.FC = () => {
     speedKmh: number;
   } | null>(null);
 
+  // Dispatch Live Route Animated Simulation State
+  const [trackProgress, setTrackProgress] = useState(25); // 0 to 100 percent along route
+  const [isTrackingPlaying, setIsTrackingPlaying] = useState(true);
+  const [trackSimSpeed, setTrackSimSpeed] = useState(1);
+  const [liveSpeedFluctuated, setLiveSpeedFluctuated] = useState(68);
+
+  // Real-Time Moving Dispatch Simulation Effect
+  useEffect(() => {
+    if (!activeLiveTrackModal || !isTrackingPlaying) return;
+
+    const interval = setInterval(() => {
+      setTrackProgress(prev => {
+        if (prev >= 100) {
+          setIsTrackingPlaying(false);
+          return 100;
+        }
+        return Math.min(100, prev + 0.6 * trackSimSpeed);
+      });
+
+      // Realistic speed fluctuation around 68 km/h
+      setLiveSpeedFluctuated(62 + Math.floor(Math.random() * 16));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [activeLiveTrackModal, isTrackingPlaying, trackSimSpeed]);
+
   // Radio comms modal state
   const [showRadioCommsModal, setShowRadioCommsModal] = useState<{ unitName: string; hospName: string } | null>(null);
   const [isTransmitting, setIsTransmitting] = useState(false);
@@ -290,6 +318,8 @@ export const HospitalsTriage: React.FC = () => {
     setShowDispatchModal(null);
 
     // Immediately present the Live Route Direction & Telemetry Tracking Modal
+    setTrackProgress(12);
+    setIsTrackingPlaying(true);
     setActiveLiveTrackModal({
       hosp: hospTarget,
       unitName: unitNameClean,
@@ -301,6 +331,8 @@ export const HospitalsTriage: React.FC = () => {
   };
 
   const handleOpenLiveTrackerForHospital = (hosp: HospitalItem) => {
+    setTrackProgress(25);
+    setIsTrackingPlaying(true);
     setActiveLiveTrackModal({
       hosp,
       unitName: `ALS Ambulance Unit A-0${(hosp.occupied % 4) + 1}`,
@@ -1036,120 +1068,310 @@ export const HospitalsTriage: React.FC = () => {
               </button>
             </div>
 
-            {/* Live Telemetry Summary Stats (Clean Crisp White/Slate Cards) */}
-            <div className="grid grid-cols-3 gap-2.5">
-              <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
-                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Live Speed</span>
-                <span className="text-base font-black text-blue-700 mt-0.5 block">{activeLiveTrackModal.speedKmh} <span className="text-xs text-slate-500">km/h</span></span>
-              </div>
-              <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
-                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Distance Left</span>
-                <span className="text-base font-black text-amber-700 mt-0.5 block">{activeLiveTrackModal.distanceKm} <span className="text-xs text-slate-500">km</span></span>
-              </div>
-              <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
-                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">ETA Arrival</span>
-                <span className="text-base font-black text-emerald-700 mt-0.5 block">{activeLiveTrackModal.etaMinutes} <span className="text-xs text-slate-500">min 45s</span></span>
-              </div>
-            </div>
+            {/* Live Telemetry Summary Stats (Dynamic Calculated Real-Time Cards) */}
+            {(() => {
+              const totalDist = activeLiveTrackModal.distanceKm || 3.2;
+              const calcDistanceLeft = Math.max(0, totalDist * (1 - trackProgress / 100)).toFixed(1);
+              const totalSecs = 285;
+              const remSecs = Math.max(0, Math.round(totalSecs * (1 - trackProgress / 100)));
+              const calcEtaMin = Math.floor(remSecs / 60);
+              const calcEtaSec = remSecs % 60;
+              const currentSpeed = trackProgress >= 100 ? 0 : liveSpeedFluctuated;
 
-            {/* Visual Route Path & Turn-by-Turn Navigation Card (Medical Grade Clean Design) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center space-x-1">
-                  <Compass className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Turn-By-Turn Route Guidance & Directions</span>
-                </span>
-                <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Green Corridor Active
-                </span>
-              </div>
-
-              {/* Realistic Route Guidance Container (Clean Light Medical Styling) */}
-              <div className="p-4 bg-slate-50/90 rounded-2xl space-y-3.5 border border-slate-200/90 shadow-xs">
-                
-                {/* Visual Route Line */}
-                <div className="relative h-14 w-full flex items-center justify-between px-3">
-                  <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1.5 bg-slate-200 rounded-full" />
-                  <div className="absolute left-6 right-[62%] top-1/2 -translate-y-1/2 h-1.5 bg-blue-600 rounded-full" />
-                  <div className="absolute left-[38%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-md flex items-center justify-center animate-bounce">
-                    <Truck className="w-3 h-3 text-white" />
-                  </div>
-
-                  {/* Waypoint Nodes */}
-                  <div className="relative z-10 flex flex-col items-center space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-[10px] font-black flex items-center justify-center shadow-xs">
-                      A
+              return (
+                <>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
+                      <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Live Speed</span>
+                      <span className="text-base font-black text-blue-700 mt-0.5 block">{currentSpeed} <span className="text-xs text-slate-500">km/h</span></span>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-700">Depot</span>
-                  </div>
-
-                  <div className="relative z-10 flex flex-col items-center space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-mono text-[10px] font-black flex items-center justify-center border border-slate-300">
-                      B
+                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
+                      <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Distance Left</span>
+                      <span className="text-base font-black text-amber-700 mt-0.5 block">{calcDistanceLeft} <span className="text-xs text-slate-500">km</span></span>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-600">Beach Rd</span>
-                  </div>
-
-                  <div className="relative z-10 flex flex-col items-center space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-mono text-[10px] font-black flex items-center justify-center border border-slate-300">
-                      C
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-600">Port Hub</span>
-                  </div>
-
-                  <div className="relative z-10 flex flex-col items-center space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-black flex items-center justify-center shadow-xs">
-                      H
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700">KGH ER</span>
-                  </div>
-                </div>
-
-                {/* Step-by-Step Directions */}
-                <div className="space-y-2.5 pt-3 border-t border-slate-200/80">
-                  <div className="flex items-start space-x-2.5 text-xs">
-                    <div className="p-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 mt-0.5">
-                      <MapPin className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-slate-900">Origin Departure:</span>
-                      <p className="text-[11px] text-slate-600 font-semibold">Vizag Central Standby Depot • Departed {activeLiveTrackModal.dispatchTime}</p>
+                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-center shadow-2xs font-mono">
+                      <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">ETA Arrival</span>
+                      <span className="text-base font-black text-emerald-700 mt-0.5 block">
+                        {trackProgress >= 100 ? (
+                          <span className="text-xs font-bold text-emerald-600">Arrived</span>
+                        ) : (
+                          <>{calcEtaMin} <span className="text-xs text-slate-500">min {calcEtaSec < 10 ? '0' : ''}{calcEtaSec}s</span></>
+                        )}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-2.5 text-xs">
-                    <div className="p-1 rounded-lg bg-sky-50 text-sky-600 border border-sky-100 mt-0.5">
-                      <Navigation className="w-3.5 h-3.5 rotate-45" />
+                  {/* Visual Route Path & Interactive Live GPS Tracking Controls */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center space-x-1">
+                        <Compass className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Turn-By-Turn Route Guidance & Live GPS Tracking</span>
+                      </span>
+                      <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Green Corridor Active
+                      </span>
                     </div>
-                    <div>
-                      <span className="font-extrabold text-blue-700">Active Leg (1.2 km):</span>
-                      <p className="text-[11px] text-slate-700 font-medium">Turn right onto Beach Road Expressway. Traffic signals set to green wave priority.</p>
+
+                    {/* Simulation Play / Pause / Speed Control Rail */}
+                    <div className="flex items-center justify-between bg-slate-100/90 p-2 rounded-xl border border-slate-200/80 text-xs">
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          onClick={() => setIsTrackingPlaying(!isTrackingPlaying)}
+                          className={`px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 transition-all cursor-pointer ${
+                            isTrackingPlaying
+                              ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xs'
+                              : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                          }`}
+                        >
+                          {isTrackingPlaying ? (
+                            <>
+                              <Pause className="w-3 h-3 fill-current" />
+                              <span>Pause Track</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-3 h-3 fill-current" />
+                              <span>Resume Dispatch</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setTrackProgress(0);
+                            setIsTrackingPlaying(true);
+                          }}
+                          className="px-2 py-1 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg font-bold flex items-center space-x-1 cursor-pointer transition-all text-[11px]"
+                          title="Restart Dispatch from Depot A"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Restart Route</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center space-x-1">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase mr-1">Sim Speed:</span>
+                        {[1, 2, 5].map(spd => (
+                          <button
+                            key={spd}
+                            onClick={() => setTrackSimSpeed(spd)}
+                            className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-black transition-all cursor-pointer ${
+                              trackSimSpeed === spd
+                                ? 'bg-blue-600 text-white shadow-xs'
+                                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            {spd}x
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Realistic Route Guidance Container (Clean Light Medical Styling) */}
+                    <div className="p-4 bg-slate-50/90 rounded-2xl space-y-4 border border-slate-200/90 shadow-xs">
+                      
+                      {/* Visual Route Line & Animated Vehicle Marker */}
+                      <div className="relative h-16 w-full flex items-center justify-between px-4 select-none">
+                        {/* Background Rail */}
+                        <div className="absolute left-7 right-7 top-1/2 -translate-y-1/2 h-2 bg-slate-200 rounded-full overflow-hidden">
+                          {/* Animated Active Progress Line */}
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-600 via-sky-500 to-emerald-500 transition-all duration-300 ease-linear rounded-full"
+                            style={{ width: `${trackProgress}%` }}
+                          />
+                        </div>
+
+                        {/* Moving Vehicle Marker */}
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 transition-all duration-300 ease-linear flex flex-col items-center group cursor-grab"
+                          style={{ left: `calc(1.75rem + (100% - 3.5rem) * ${trackProgress / 100})` }}
+                        >
+                          {/* Live Speed Badge callout */}
+                          <div className="mb-1 px-1.5 py-0.5 bg-slate-900 text-white rounded text-[9px] font-mono font-bold whitespace-nowrap shadow-md flex items-center space-x-1 group-hover:scale-110 transition-transform">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                            <span>{currentSpeed} km/h</span>
+                          </div>
+
+                          {/* Pulsing Vehicle Circle Icon */}
+                          <div className="relative w-7 h-7 rounded-full bg-blue-600 border-2 border-white shadow-lg flex items-center justify-center">
+                            <span className="absolute inset-0 rounded-full bg-blue-500/40 animate-ping" />
+                            <Truck className="w-3.5 h-3.5 text-white relative z-10 animate-pulse" />
+                          </div>
+                        </div>
+
+                        {/* Waypoint Nodes: A (0%), B (33%), C (66%), H (100%) */}
+                        {/* Waypoint A */}
+                        <div className="relative z-10 flex flex-col items-center space-y-1">
+                          <div className={`w-7 h-7 rounded-full font-mono text-[10px] font-black flex items-center justify-center shadow-xs transition-all ${
+                            trackProgress >= 0 ? 'bg-blue-600 text-white ring-2 ring-blue-400/30' : 'bg-slate-200 text-slate-600'
+                          }`}>
+                            A
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-700">Depot</span>
+                        </div>
+
+                        {/* Waypoint B */}
+                        <div className="relative z-10 flex flex-col items-center space-y-1">
+                          <div className={`w-7 h-7 rounded-full font-mono text-[10px] font-black flex items-center justify-center transition-all ${
+                            trackProgress >= 33
+                              ? 'bg-blue-600 text-white ring-2 ring-blue-400/40 shadow-sm scale-105'
+                              : 'bg-slate-200 text-slate-700 border border-slate-300'
+                          }`}>
+                            {trackProgress >= 33 ? <CheckCircle2 className="w-4 h-4 text-white" /> : 'B'}
+                          </div>
+                          <span className={`text-[10px] font-bold ${trackProgress >= 33 ? 'text-blue-700 font-extrabold' : 'text-slate-600'}`}>
+                            Beach Rd
+                          </span>
+                        </div>
+
+                        {/* Waypoint C */}
+                        <div className="relative z-10 flex flex-col items-center space-y-1">
+                          <div className={`w-7 h-7 rounded-full font-mono text-[10px] font-black flex items-center justify-center transition-all ${
+                            trackProgress >= 66
+                              ? 'bg-blue-600 text-white ring-2 ring-blue-400/40 shadow-sm scale-105'
+                              : 'bg-slate-200 text-slate-700 border border-slate-300'
+                          }`}>
+                            {trackProgress >= 66 ? <CheckCircle2 className="w-4 h-4 text-white" /> : 'C'}
+                          </div>
+                          <span className={`text-[10px] font-bold ${trackProgress >= 66 ? 'text-blue-700 font-extrabold' : 'text-slate-600'}`}>
+                            Port Hub
+                          </span>
+                        </div>
+
+                        {/* Waypoint H */}
+                        <div className="relative z-10 flex flex-col items-center space-y-1">
+                          <div className={`w-7 h-7 rounded-full font-mono text-[10px] font-black flex items-center justify-center transition-all ${
+                            trackProgress >= 100
+                              ? 'bg-emerald-600 text-white ring-4 ring-emerald-400/40 shadow-md scale-110 animate-bounce'
+                              : 'bg-slate-200 text-slate-700 border border-slate-300'
+                          }`}>
+                            H
+                          </div>
+                          <span className={`text-[10px] font-bold ${trackProgress >= 100 ? 'text-emerald-700 font-extrabold' : 'text-slate-600'}`}>
+                            KGH ER
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Interactive Progress Scrubber */}
+                      <div className="px-2 pt-1">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value={trackProgress}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setTrackProgress(val);
+                            if (val >= 100) {
+                              setIsTrackingPlaying(false);
+                            }
+                          }}
+                          className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                          title="Scrub dispatch position manually"
+                        />
+                        <div className="flex justify-between text-[9px] font-mono text-slate-400 font-bold mt-0.5">
+                          <span>0% (Depot)</span>
+                          <span>{Math.round(trackProgress)}% Live Route Progress</span>
+                          <span>100% (Destination)</span>
+                        </div>
+                      </div>
+
+                      {/* Step-by-Step Directions with Dynamic Active Leg Highlighting */}
+                      <div className="space-y-2 pt-2 border-t border-slate-200/80">
+                        <div className={`flex items-start space-x-2.5 text-xs p-2 rounded-xl transition-colors ${
+                          trackProgress < 33 ? 'bg-blue-50/80 border border-blue-200/80' : 'opacity-75'
+                        }`}>
+                          <div className={`p-1 rounded-lg ${trackProgress >= 33 ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-500 text-white'}`}>
+                            {trackProgress >= 33 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <MapPin className="w-3.5 h-3.5" />}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-extrabold text-slate-900">Origin Departure:</span>
+                              {trackProgress < 33 && (
+                                <span className="text-[9px] font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded animate-pulse">
+                                  ACTIVE LEG
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-600 font-semibold">
+                              Vizag Central Standby Depot • Departed {activeLiveTrackModal.dispatchTime}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`flex items-start space-x-2.5 text-xs p-2 rounded-xl transition-colors ${
+                          trackProgress >= 33 && trackProgress < 66 ? 'bg-blue-50/80 border border-blue-200/80' : trackProgress >= 66 ? 'opacity-75' : 'opacity-60'
+                        }`}>
+                          <div className={`p-1 rounded-lg ${trackProgress >= 66 ? 'bg-emerald-100 text-emerald-700' : trackProgress >= 33 ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                            {trackProgress >= 66 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Navigation className="w-3.5 h-3.5 rotate-45" />}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-extrabold text-blue-700">Beach Rd Expressway (1.2 km):</span>
+                              {trackProgress >= 33 && trackProgress < 66 && (
+                                <span className="text-[9px] font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded animate-pulse">
+                                  ACTIVE TRANSIT
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-700 font-medium">
+                              Turn right onto Beach Road Expressway. Traffic signals set to green wave priority.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`flex items-start space-x-2.5 text-xs p-2 rounded-xl transition-colors ${
+                          trackProgress >= 66 && trackProgress < 100 ? 'bg-amber-50/80 border border-amber-200/80' : trackProgress >= 100 ? 'opacity-75' : 'opacity-60'
+                        }`}>
+                          <div className={`p-1 rounded-lg ${trackProgress >= 100 ? 'bg-emerald-100 text-emerald-700' : trackProgress >= 66 ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                            {trackProgress >= 100 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Navigation className="w-3.5 h-3.5" />}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-extrabold text-amber-800">Port Hub Overpass (1.5 km):</span>
+                              {trackProgress >= 66 && trackProgress < 100 && (
+                                <span className="text-[9px] font-bold bg-amber-600 text-white px-1.5 py-0.5 rounded animate-pulse">
+                                  APPROACHING
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-600 font-medium">
+                              Continue past Harbour Traffic Overpass directly onto Emergency Command Corridor.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`flex items-start space-x-2.5 text-xs p-2 rounded-xl transition-colors ${
+                          trackProgress >= 100 ? 'bg-emerald-50 border border-emerald-300' : 'opacity-60'
+                        }`}>
+                          <div className={`p-1 rounded-lg ${trackProgress >= 100 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-extrabold text-emerald-800">Destination Target:</span>
+                              {trackProgress >= 100 && (
+                                <span className="text-[9px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded animate-bounce">
+                                  ARRIVED ON SCENE
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-700 font-medium">
+                              {activeLiveTrackModal.hosp.name} (Triage Gate B • Emergency Bay 04 Reserved)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
-
-                  <div className="flex items-start space-x-2.5 text-xs">
-                    <div className="p-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 mt-0.5">
-                      <Navigation className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-amber-800">Next Leg (1.5 km):</span>
-                      <p className="text-[11px] text-slate-600 font-medium">Continue past Harbour Traffic Overpass directly onto Emergency Command Corridor.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2.5 text-xs">
-                    <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 mt-0.5">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-emerald-800">Destination Target:</span>
-                      <p className="text-[11px] text-slate-700 font-medium">{activeLiveTrackModal.hosp.name} (Triage Gate B • Emergency Bay 04 Reserved)</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
+                </>
+              );
+            })()}
 
             {/* Tactical Action Buttons */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
