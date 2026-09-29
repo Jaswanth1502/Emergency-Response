@@ -185,103 +185,112 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deployResource = (resourceId: string, incidentId: string) => {
+    const matchingRes = resources.find(r => r.id === resourceId);
+    const matchingInc = incidents.find(i => i.id === incidentId);
+    const resourceName = matchingRes ? matchingRes.name : `Unit ${resourceId}`;
+    const incidentTitle = matchingInc ? matchingInc.title : incidentId;
+
     setResources(prev => prev.map(res => {
       if (res.id === resourceId) {
         return {
           ...res,
           status: 'DEPLOYED',
-          etaMinutes: Math.floor(Math.random() * 8) + 2,
-          capacityLabel: 'Engaged on emergency tactical unit'
-        };
+          etaMinutes: Math.floor(Math.random() * 6) + 2,
+          capacityLabel: `Dispatched to ${incidentId}`,
+          assignedIncident: `${incidentId} • ${incidentTitle}`
+        } as any;
       }
       return res;
     }));
 
     setIncidents(prev => prev.map(inc => {
       if (inc.id === incidentId) {
-        const matchingRes = resources.find(r => r.id === resourceId);
-        const resourceName = matchingRes ? matchingRes.name : `Unit ${resourceId}`;
         const newTimelineEvent = {
           id: `T-DISP-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          event: `Dispatched & Allocated resource: ${resourceName}`,
+          event: `Dispatched & Allocated tactical unit: ${resourceName}`,
           actor: currentUser?.name || 'Tactical Supervisor',
           type: 'dispatch' as const
         };
+        const currentAssigned = inc.assignedResources || [];
+        const nextAssigned = currentAssigned.includes(resourceId)
+          ? currentAssigned
+          : [...currentAssigned, resourceId];
+
         return {
           ...inc,
           status: inc.status === 'ACTIVE' ? 'DISPATCHED' : inc.status,
-          assignedResources: [...inc.assignedResources, resourceId],
-          timeline: [newTimelineEvent, ...inc.timeline]
+          assignedResources: nextAssigned,
+          timeline: [newTimelineEvent, ...(inc.timeline || [])]
         };
       }
       return inc;
     }));
 
-    const targetIncident = incidents.find(i => i.id === incidentId);
-    const resourceObj = resources.find(r => r.id === resourceId);
-    addNotification(`TACTICAL DISPATCH: ${resourceObj?.name || 'Resource'} assigned to ${targetIncident?.title || 'incident'}.`, 'info');
+    addNotification(`TACTICAL DISPATCH SUCCESSFUL: ${resourceName} dispatched to [${incidentId}].`, 'success');
   };
 
   const resolveIncident = (incidentId: string) => {
+    const incident = incidents.find(i => i.id === incidentId);
+    
     setIncidents(prev => prev.map(inc => {
       if (inc.id === incidentId) {
         const newEvent = {
           id: `T-RES-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          event: `Incident status updated to RESOLVED. All units returning to base.`,
+          event: `Incident status updated to RESOLVED by ${currentUser?.name || 'Commander'}. All units recalled.`,
           actor: currentUser?.name || 'Commander-in-charge',
           type: 'resolution' as const
         };
         return {
           ...inc,
           status: 'RESOLVED',
-          timeline: [newEvent, ...inc.timeline]
+          timeline: [newEvent, ...(inc.timeline || [])]
         };
       }
       return inc;
     }));
 
-    const incident = incidents.find(i => i.id === incidentId);
     if (incident) {
-      const assignedIds = incident.assignedResources;
+      const assignedIds = incident.assignedResources || [];
       setResources(prev => prev.map(res => {
         if (assignedIds.includes(res.id)) {
           return {
             ...res,
             status: 'AVAILABLE',
-            capacityLabel: 'Ready for dispatch'
-          };
+            capacityLabel: 'Ready for dispatch',
+            assignedIncident: 'Standby Ready'
+          } as any;
         }
         return res;
       }));
-      addNotification(`INCIDENT RESOLVED: ${incident.title}`, 'info');
+      addNotification(`INCIDENT RESOLVED: ${incident.title} marked as RESOLVED. All units returning to base.`, 'success');
     }
   };
 
   const escalateIncident = (incidentId: string) => {
+    const target = incidents.find(i => i.id === incidentId);
+
     setIncidents(prev => prev.map(inc => {
       if (inc.id === incidentId) {
         const newEvent = {
           id: `T-ESC-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          event: `Incident HAZARD LEVEL ESCALATED to Critical level. Inter-agency mutual aid request triggered.`,
+          event: `Incident HAZARD LEVEL ESCALATED to CRITICAL by ${currentUser?.name || 'Chief Commander'}. Regional mutual aid broadcast triggered.`,
           actor: currentUser?.name || 'Chief Commander',
           type: 'alert' as const
         };
         return {
           ...inc,
           severity: 'CRITICAL',
-          timeline: [newEvent, ...inc.timeline]
+          riskScore: Math.min(100, (inc.riskScore || 80) + 12),
+          timeline: [newEvent, ...(inc.timeline || [])]
         };
       }
       return inc;
     }));
     
-    const target = incidents.find(i => i.id === incidentId);
-    if (target) {
-      addNotification(`CRITICAL ESCALATION: Mutual aid requested for "${target.title}"!`, 'error');
-    }
+    addNotification(`CRITICAL ESCALATION: Mutual aid broadcast sent for "${target?.title || incidentId}"!`, 'error');
   };
 
   // ML Engine Execution

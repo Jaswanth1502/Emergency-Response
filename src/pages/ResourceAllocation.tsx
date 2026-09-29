@@ -17,7 +17,7 @@ import { OpenStreetMap } from '../components/map/OpenStreetMap';
 import { DeployResourceDialog } from '../components/dialogs/DeployResourceDialog';
 
 export const ResourceAllocation: React.FC = () => {
-  const { resources, incidents, deployResource, addNotification } = useApp();
+  const { resources, incidents, deployResource, addNotification, currentRole, currentUser } = useApp();
 
   const [reasoningOpen, setReasoningOpen] = useState(true);
   const [agentApproved, setAgentApproved] = useState(false);
@@ -29,7 +29,7 @@ export const ResourceAllocation: React.FC = () => {
   const [selectedUnitForDeploy, setSelectedUnitForDeploy] = useState<string | undefined>(undefined);
 
   const pastApprovals = [
-    { id: 'APP-101', time: '14:25 UTC', title: 'Foam Unit F-01 Dispatched', target: 'INC-2026-0889 • Industrial HazMat', status: 'COMPLETED', officer: 'Cmdr. Vance' },
+    { id: 'APP-101', time: '14:25 UTC', title: 'Foam Unit F-01 Dispatched', target: 'INC-2026-0889 • Industrial HazMat', status: 'COMPLETED', officer: currentUser?.name || 'Command Staff' },
     { id: 'APP-102', time: '12:10 UTC', title: 'Ambulance A-02 & Drone Fleet Delta', target: 'INC-2026-0885 • Evacuation Corridor', status: 'COMPLETED', officer: 'Capt. Sharma' }
   ];
 
@@ -41,7 +41,7 @@ export const ResourceAllocation: React.FC = () => {
 
   const handleDeclineDispatch = () => {
     setAgentDeclined(true);
-    addNotification("AI RECOMMENDATION DECLINED by Cmdr. Justin Vance.", "warning");
+    addNotification(`AI RECOMMENDATION DECLINED by ${currentUser?.name || 'Officer'}.`, "warning");
   };
 
   const handleOpenDeployForUnit = (unitId: string) => {
@@ -71,27 +71,29 @@ export const ResourceAllocation: React.FC = () => {
 
       {/* AI Recommendation Card (Apple Liquid Glassmorphism) */}
       {!agentDeclined && (
-        <div className="liquid-glass-blue rounded-2xl p-5 space-y-3.5 shadow-xs">
+        <div className="liquid-glass-blue rounded-2xl p-5 space-y-4 border border-blue-200/80 shadow-xs">
           
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-extrabold text-blue-700 uppercase tracking-wider">
-                RECOMMENDATION
+              <div className="p-1.5 rounded-xl bg-blue-100 text-blue-700 border border-blue-200">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-xs font-extrabold text-blue-900 uppercase tracking-wider">
+                TACTICAL AI DISPATCH RECOMMENDATION
               </span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-white/90 text-blue-700 text-xs font-extrabold border border-blue-200 shadow-2xs">
-              94% confidence
+            <span className="px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-black shadow-2xs">
+              94% Confidence Match
             </span>
           </div>
 
           {/* Title & Description */}
           <div className="space-y-1">
-            <h3 className="font-extrabold text-slate-900 text-sm lg:text-base tracking-tight">
+            <h3 className="font-extrabold text-slate-900 text-base lg:text-lg tracking-tight">
               Dispatch Foam Carrier 03 & Pre-alert Burn ICU H03
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed font-medium">
               Based on 485°C thermal surge and hydrocarbon solvent risk in B2, recommend deploying Foam Unit F-04 (ETA 2m) and redirecting ALS Ambulance A-05 from Apollo Health City depot.
             </p>
           </div>
@@ -100,33 +102,42 @@ export const ResourceAllocation: React.FC = () => {
           <div className="pt-1">
             <button
               onClick={() => setReasoningOpen(!reasoningOpen)}
-              className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
+              className="flex items-center space-x-1.5 text-xs font-extrabold text-slate-700 hover:text-slate-900 cursor-pointer"
             >
               <span>Explainable Reasoning Chain (3 factors)</span>
               {reasoningOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
 
             {reasoningOpen && (
-              <div className="mt-2 pl-3 border-l-2 border-blue-300/80 space-y-1 text-xs text-slate-600">
-                <p>• Chemical solvent storage detected within 25m radius of 6F fire spread plume.</p>
-                <p>• Water stream alone poses Boiling Liquid Expanding Vapor Explosion risk (BLEVE).</p>
-                <p>• Traffic light preemption along 1st St corridor reduces arrival latency by 140s.</p>
+              <div className="mt-2.5 grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="p-2.5 bg-white/80 rounded-xl border border-blue-100 text-xs text-slate-700 flex items-start space-x-2 shadow-2xs">
+                  <span className="text-rose-500 font-bold">🔥</span>
+                  <span>Chemical solvent storage within 25m radius of 6F fire spread plume.</span>
+                </div>
+                <div className="p-2.5 bg-white/80 rounded-xl border border-blue-100 text-xs text-slate-700 flex items-start space-x-2 shadow-2xs">
+                  <span className="text-amber-500 font-bold">⚠️</span>
+                  <span>Water stream alone poses BLEVE explosion hazard risk.</span>
+                </div>
+                <div className="p-2.5 bg-white/80 rounded-xl border border-blue-100 text-xs text-slate-700 flex items-start space-x-2 shadow-2xs">
+                  <span className="text-blue-600 font-bold">⚡</span>
+                  <span>Traffic light preemption along 1st St corridor reduces arrival latency by 140s.</span>
+                </div>
               </div>
             )}
           </div>
 
           {/* Past Approvals Link & Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 border-t border-white/60 gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 border-t border-white/60 gap-3">
             <div className="flex items-center space-x-3 text-xs text-slate-500">
               <button
                 onClick={() => setPastApprovalsOpen(!pastApprovalsOpen)}
-                className="font-semibold text-blue-700 hover:underline cursor-pointer flex items-center space-x-1"
+                className="font-extrabold text-blue-700 hover:underline cursor-pointer flex items-center space-x-1"
               >
-                <History className="w-3.5 h-3.5" />
+                <History className="w-3.5 h-3.5 text-blue-600" />
                 <span>View Past Approvals ({pastApprovals.length})</span>
               </button>
               <span>•</span>
-              <span className="text-[11px]">Updated 12 sec ago</span>
+              <span className="text-[11px] font-medium">Updated 12 sec ago</span>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -134,16 +145,16 @@ export const ResourceAllocation: React.FC = () => {
                 <>
                   <button
                     onClick={handleDeclineDispatch}
-                    className="px-4 py-2 liquid-glass-pill hover:bg-white text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center space-x-1 cursor-pointer shadow-2xs"
+                    className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center space-x-1 cursor-pointer shadow-2xs"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Decline</span>
                   </button>
                   <button
                     onClick={handleApproveDispatch}
-                    className="px-5 py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-xs rounded-xl shadow-md shadow-orange-500/20 transition-all flex items-center space-x-1.5 cursor-pointer"
+                    className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95"
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Approve Dispatch</span>
                   </button>
                 </>
@@ -204,18 +215,18 @@ export const ResourceAllocation: React.FC = () => {
         {/* Left: Emergency Fleet Matrix (7 cols) */}
         <div className="xl:col-span-7 space-y-3">
           
-          <div className="flex items-center justify-between liquid-glass-card p-3 rounded-2xl">
+          <div className="flex items-center justify-between liquid-glass-card p-3.5 rounded-2xl shadow-xs">
             <div>
               <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
                 Emergency Fleet Matrix
               </h3>
-              <p className="text-[11px] text-slate-400">Live GPS telemetry & dynamic unit assignment</p>
+              <p className="text-[11px] text-slate-500 font-medium">Live GPS telemetry & dynamic unit assignment</p>
             </div>
 
             <select
               value={unitTypeFilter}
               onChange={e => setUnitTypeFilter(e.target.value)}
-              className="px-3 py-1.5 bg-white/80 border border-white/90 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer shadow-2xs"
             >
               <option value="ALL">All Unit Types</option>
               <option value="FIRE">Fire & HazMat</option>
@@ -235,20 +246,20 @@ export const ResourceAllocation: React.FC = () => {
               return (
                 <div
                   key={unit.id}
-                  className="liquid-glass-card p-3.5 rounded-2xl space-y-2 text-left hover:-translate-y-0.5 transition-all"
+                  className="liquid-glass-card p-4 rounded-2xl space-y-2.5 text-left hover:-translate-y-0.5 transition-all flex flex-col justify-between border hover:border-slate-300 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono text-slate-400 font-bold">{unit.id}</span>
                     {isOnScene ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold border border-blue-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> On Scene
                       </span>
                     ) : isEnRoute ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold border border-amber-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> En Route
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Available
                       </span>
                     )}
@@ -256,17 +267,17 @@ export const ResourceAllocation: React.FC = () => {
 
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-xs tracking-tight">{unit.name}</h4>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">📍 {(unit as any).location || 'San Francisco'}</p>
-                    <p className="text-[10px] text-slate-400">👤 Crew: {(unit as any).crew || 3} responders</p>
+                    <p className="text-[11px] text-slate-500 truncate font-medium mt-0.5">📍 {(unit as any).location || 'San Francisco'}</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">👤 Crew: {(unit as any).crew || 3} responders</p>
                   </div>
 
-                  <div className="p-2 rounded-xl bg-white/60 border border-white/80 text-[11px] font-semibold text-slate-700 shadow-2xs">
-                    <span className="text-slate-400 text-[10px] block">Assigned:</span>
-                    <span className="truncate block font-bold text-blue-700">{(unit as any).assignedIncident || 'Standby Ready'}</span>
+                  <div className="p-2 rounded-xl bg-white/70 border border-white/90 text-[11px] font-semibold text-slate-700 shadow-2xs">
+                    <span className="text-slate-400 text-[10px] block font-extrabold uppercase tracking-wider">Assigned Target:</span>
+                    <span className="truncate block font-extrabold text-blue-700">{(unit as any).assignedIncident || 'Standby Ready'}</span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-white/60 text-[10px] font-mono text-slate-500">
-                    <span className="flex items-center gap-1">
+                  <div className="flex items-center justify-between pt-1 border-t border-white/60 text-[10px] font-mono text-slate-500 font-bold">
+                    <span className="flex items-center gap-1 text-emerald-700">
                       <BatteryCharging className="w-3 h-3 text-emerald-500" />
                       {(unit as any).fuel || unit.capacityPercent || 88}%
                     </span>
@@ -280,15 +291,22 @@ export const ResourceAllocation: React.FC = () => {
                           e.stopPropagation();
                           handleOpenDeployForUnit(unit.id);
                         }}
-                        className="w-full py-2 bg-[#F58220] hover:bg-[#E07010] text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Dispatch Unit</span>
+                        <span>Deploy Unit</span>
                       </button>
                     ) : (
-                      <span className="text-[10px] font-mono text-slate-500 font-bold block py-1 text-center w-full">
-                        Unit Deployed
-                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDeployForUnit(unit.id);
+                        }}
+                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                      >
+                        <Send className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Re-Assign Unit</span>
+                      </button>
                     )}
                   </div>
                 </div>

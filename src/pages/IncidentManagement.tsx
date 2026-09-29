@@ -26,7 +26,7 @@ import { OpenStreetMap } from '../components/map/OpenStreetMap';
 
 export const IncidentManagement: React.FC = () => {
   const navigate = useNavigate();
-  const { incidents } = useApp();
+  const { incidents, currentRole } = useApp();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('ALL');
@@ -45,7 +45,7 @@ export const IncidentManagement: React.FC = () => {
       if (e.key === '1') setViewMode('table');
       if (e.key === '2') setViewMode('cards');
       if (e.key === '3') setViewMode('map');
-      if (e.key.toLowerCase() === 'n') {
+      if (e.key.toLowerCase() === 'n' && currentRole !== 'ANALYST') {
         e.preventDefault();
         setFormOpen(true);
       }
@@ -56,7 +56,7 @@ export const IncidentManagement: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [currentRole]);
 
   const getDisasterIcon = (type: string) => {
     const t = type.toLowerCase();
@@ -236,15 +236,22 @@ export const IncidentManagement: React.FC = () => {
             </button>
           </div>
 
-          {/* New Incident Trigger */}
-          <button
-            onClick={() => setFormOpen(true)}
-            title="Create New Incident (Press N)"
-            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center space-x-1 cursor-pointer transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Incident</span>
-          </button>
+          {/* New Incident Trigger or Analyst Dataset Badge */}
+          {currentRole !== 'ANALYST' ? (
+            <button
+              onClick={() => setFormOpen(true)}
+              title="Create New Incident (Press N)"
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center space-x-1 cursor-pointer transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Incident</span>
+            </button>
+          ) : (
+            <span className="px-3.5 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 font-extrabold text-xs rounded-xl shadow-2xs flex items-center space-x-1">
+              <Shield className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Analyst Dataset View</span>
+            </span>
+          )}
 
         </div>
 

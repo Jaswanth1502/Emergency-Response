@@ -10,11 +10,15 @@ export const DigitalTwin: React.FC = () => {
     currentRole === 'ANALYST' ? 'ANALYST' : 'OPERATOR'
   );
 
+  React.useEffect(() => {
+    setActiveViewMode(currentRole === 'ANALYST' ? 'ANALYST' : 'OPERATOR');
+  }, [currentRole]);
+
   return (
     <div className="space-y-4 text-left font-sans select-none">
       
       {/* Top Header & Role Workspace Selector Bar */}
-      <div className="liquid-glass-card p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+      <div className="liquid-glass-card p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
         
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-xl bg-[#0B132B] text-cyan-400 flex items-center justify-center shadow-md flex-shrink-0">
@@ -25,12 +29,16 @@ export const DigitalTwin: React.FC = () => {
               <h1 className="font-extrabold text-slate-900 text-sm lg:text-base tracking-tight">
                 3D DIGITAL TWIN ECOSYSTEM
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 text-[10px] font-black border border-cyan-200">
-                MAPLIBRE 3D + OPENSTREETMAP
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                currentRole === 'ADMIN' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                currentRole === 'OPERATOR' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                'bg-indigo-50 text-indigo-700 border-indigo-200'
+              }`}>
+                {currentRole} WORKSPACE ACTIVE
               </span>
             </div>
             <p className="text-[11px] text-slate-500 font-medium">
-              Autonomous Coordination Agents & Predictive Resource Allocation
+              {currentRole === 'ANALYST' ? 'Predictive Physics, Spatial Plume Analytics & Environmental Telemetry' : 'Real-time 3D Command Console, Live Unit Dispatch & Tactical Overlays'}
             </p>
           </div>
         </div>

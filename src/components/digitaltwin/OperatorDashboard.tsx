@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Flame,
   AlertTriangle,
@@ -13,7 +14,9 @@ import {
   Navigation,
   Send,
   Bell,
-  RefreshCw
+  RefreshCw,
+  Compass,
+  MapPin
 } from 'lucide-react';
 import { Google3DMap } from './Google3DMap';
 import { EmergencyLegend } from './EmergencyLegend';
@@ -33,6 +36,9 @@ import {
 
 export const OperatorDashboard: React.FC = () => {
   const { addNotification, activeModels, retrainModelJob } = useApp();
+  const location = useLocation();
+  const focusState = location.state as { focusUnitId?: string; focusUnitName?: string; targetHospName?: string } | null;
+
   const unifiedModel = activeModels.find(m => m.id === 'ML-UNIFIED-10') || activeModels[0];
   const [incidents, setIncidents] = useState<EmergencyIncident[]>([]);
   const [safeZones, setSafeZones] = useState<SafeZone[]>([]);
@@ -45,6 +51,13 @@ export const OperatorDashboard: React.FC = () => {
 
   const [mapMode, setMapMode] = useState<'NORMAL' | 'SATELLITE'>('NORMAL');
   const [activeTab, setActiveTab] = useState<'ALL' | 'INCIDENTS' | 'RESOURCES' | 'HOSPITALS' | 'SENSORS' | 'EVACUATION'>('ALL');
+
+  useEffect(() => {
+    if (focusState?.focusUnitName) {
+      setActiveTab('RESOURCES');
+      addNotification(`COMMAND MAP FOCUSED: ${focusState.focusUnitName} en route to ${focusState.targetHospName || 'Target Hospital'}. Active GPS path loaded.`, "info");
+    }
+  }, [location.state]);
 
   // Map Layers state
   const [layers, setLayers] = useState<MapLayerState>({
@@ -370,42 +383,42 @@ export const OperatorDashboard: React.FC = () => {
       </div>
 
       {/* 1.5 Real-Time AI Model Training & Data Synchronization Banner */}
-      <div className="bg-slate-900 text-white p-3.5 rounded-2xl border border-cyan-500/30 shadow-lg flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-white/95 backdrop-blur-md text-slate-900 p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center flex-shrink-0 animate-pulse">
-            <Cpu className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+            <Cpu className="w-4.5 h-4.5 text-blue-600" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-cyan-400 tracking-wide uppercase text-[11px]">
+              <span className="font-extrabold text-slate-900 tracking-tight uppercase text-xs">
                 ⚡ AI CONTINUOUS MULTI-TASK RETRAINING ACTIVE
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200/80">
                 ● Auto-Tuned on Data Change
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Model: <strong className="text-slate-200">{unifiedModel?.name || 'Unified Emergency Multi-Task Transformer'}</strong> • Training precision dynamically synchronized with live telemetry.
+            <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
+              Model: <strong className="text-slate-900 font-bold">{unifiedModel?.name || 'Unified Emergency Multi-Task Transformer'}</strong> • Training precision dynamically synchronized with live telemetry.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700/80">
+        <div className="flex items-center space-x-4 bg-slate-50/90 px-3.5 py-1.5 rounded-xl border border-slate-200/90 shadow-2xs">
           <div className="text-right">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Accuracy</p>
-            <p className="text-sm font-black text-emerald-400 font-mono">{unifiedModel?.accuracy || 97.8}%</p>
+            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Accuracy</p>
+            <p className="text-sm font-extrabold text-emerald-700 font-sans tracking-tight">{unifiedModel?.accuracy || 97.8}%</p>
           </div>
-          <div className="h-6 w-px bg-slate-700" />
+          <div className="h-6 w-px bg-slate-200" />
           <div className="text-right">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Epochs Trained</p>
-            <p className="text-sm font-black text-cyan-300 font-mono">{unifiedModel?.epochsTrained || 16}</p>
+            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Epochs Trained</p>
+            <p className="text-sm font-extrabold text-slate-900 font-sans tracking-tight">{unifiedModel?.epochsTrained || 16}</p>
           </div>
-          <div className="h-6 w-px bg-slate-700" />
+          <div className="h-6 w-px bg-slate-200" />
           <button
             onClick={() => retrainModelJob(unifiedModel?.id || 'ML-UNIFIED-10', 5)}
-            className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 shadow-2xs"
+            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center space-x-1.5 shadow-xs active:scale-95"
           >
-            <RefreshCw className="w-3 h-3" />
+            <RefreshCw className="w-3.5 h-3.5" />
             <span>Force Retrain</span>
           </button>
         </div>

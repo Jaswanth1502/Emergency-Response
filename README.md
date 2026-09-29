@@ -175,6 +175,49 @@ npm run preview
 
 ---
 
+## 🌐 Deployment Instructions
+
+### 1. Deploying to Vercel (Recommended)
+1. Push this repository to GitHub (`https://github.com/Jaswanth1502/Emergency-Response.git`).
+2. Import the project in [Vercel](https://vercel.com).
+3. Select **Vite** as the Framework Preset.
+4. Set Build Command to `npm run build` and Output Directory to `dist`.
+5. Click **Deploy**.
+
+### 2. Deploying to Netlify
+1. Log in to [Netlify](https://netlify.com) and click **Add new site** > **Import an existing project**.
+2. Connect your GitHub account and select `Jaswanth1502/Emergency-Response`.
+3. Set:
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+4. Click **Deploy site**.
+
+### 3. Docker Container Deployment
+Create a `Dockerfile` in the root directory:
+```dockerfile
+# Step 1: Build static bundle
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Step 2: Serve using NGINX
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+Build and run container:
+```bash
+docker build -t aegis-twin .
+docker run -p 8080:80 aegis-twin
+```
+
+---
+
 ## 📂 Project Structure
 
 ```

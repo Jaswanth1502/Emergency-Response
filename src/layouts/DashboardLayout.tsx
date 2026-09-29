@@ -89,30 +89,37 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     };
   }, [userDropdownOpen]);
 
+  const getInitials = (name?: string) => {
+    if (!name) return 'EU';
+    const parts = name.split(' ');
+    return parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : parts[0].substring(0, 2).toUpperCase();
+  };
+
   const navSections: { heading: string; items: { label: string; path: string; icon: React.ReactNode; badge?: string; badgeColor?: string; roles?: UserRole[] }[] }[] = [
     {
       heading: 'EMERGENCY CONTROL PLATFORM',
       items: [
-        { label: 'Dashboard', path: '/dashboard', icon: <LayoutGrid className="w-4 h-4" /> },
-        { label: 'Incidents', path: '/incidents', icon: <Flame className="w-4 h-4 text-rose-500" />, badge: '12', badgeColor: 'bg-rose-500 text-white' },
-        { label: 'Resources', path: '/resources', icon: <GitFork className="w-4 h-4 text-blue-500" />, badge: '8', badgeColor: 'bg-blue-600 text-white' },
-        { label: 'Hospitals', path: '/hospitals', icon: <Building2 className="w-4 h-4 text-emerald-500" />, badge: '146 Beds', badgeColor: 'bg-emerald-600 text-white' },
-        { label: 'Sensors', path: '/sensors', icon: <Cpu className="w-4 h-4 text-purple-500" /> },
-        { label: 'Evacuation', path: '/evacuation', icon: <Milestone className="w-4 h-4 text-amber-500" /> },
-        { label: 'Alerts', path: '/alerts', icon: <Bell className="w-4 h-4 text-rose-400" />, badge: '3', badgeColor: 'bg-rose-600 text-white' },
-        { label: 'Analytics', path: '/analytics', icon: <BarChart3 className="w-4 h-4 text-sky-500" /> },
-        { label: 'Users', path: '/users', icon: <ShieldCheck className="w-4 h-4 text-slate-500" /> }
+        { label: 'Dashboard', path: '/dashboard', icon: <LayoutGrid className="w-4 h-4" />, roles: ['ADMIN', 'OPERATOR', 'ANALYST'] },
+        { label: 'Incidents', path: '/incidents', icon: <Flame className="w-4 h-4 text-rose-500" />, badge: '12', badgeColor: 'bg-rose-500 text-white', roles: ['ADMIN', 'OPERATOR', 'ANALYST'] },
+        { label: 'Resources', path: '/resources', icon: <GitFork className="w-4 h-4 text-blue-500" />, badge: '8', badgeColor: 'bg-blue-600 text-white', roles: ['ADMIN', 'OPERATOR'] },
+        { label: 'Hospitals', path: '/hospitals', icon: <Building2 className="w-4 h-4 text-emerald-500" />, badge: '146 Beds', badgeColor: 'bg-emerald-600 text-white', roles: ['ADMIN', 'OPERATOR', 'ANALYST'] },
+        { label: 'Sensors', path: '/sensors', icon: <Cpu className="w-4 h-4 text-purple-500" />, roles: ['ADMIN', 'ANALYST'] },
+        { label: 'Evacuation', path: '/evacuation', icon: <Milestone className="w-4 h-4 text-amber-500" />, roles: ['ADMIN', 'OPERATOR', 'ANALYST'] },
+        { label: 'Alerts', path: '/alerts', icon: <Bell className="w-4 h-4 text-rose-400" />, badge: '3', badgeColor: 'bg-rose-600 text-white', roles: ['ADMIN', 'OPERATOR'] },
+        { label: 'Analytics', path: '/analytics', icon: <BarChart3 className="w-4 h-4 text-sky-500" />, roles: ['ADMIN', 'ANALYST'] },
+        { label: 'Users & Personnel', path: '/users', icon: <ShieldCheck className="w-4 h-4 text-slate-500" />, roles: ['ADMIN'] }
       ]
     },
     {
       heading: 'EXTENDED TACTICAL MODULES',
       items: [
-        { label: 'Digital Twin 3D', path: '/digital-twin', icon: <Box className="w-4 h-4" /> },
-        { label: 'Emergency Fleet', path: '/fleet', icon: <Truck className="w-4 h-4" /> },
-        { label: 'Incident Reports', path: '/reports', icon: <FileText className="w-4 h-4" /> }
+        { label: 'Digital Twin 3D', path: '/digital-twin', icon: <Box className="w-4 h-4" />, roles: ['ADMIN', 'OPERATOR', 'ANALYST'] },
+        { label: 'Emergency Fleet', path: '/fleet', icon: <Truck className="w-4 h-4" />, roles: ['ADMIN', 'OPERATOR'] },
+        { label: 'Incident Reports', path: '/reports', icon: <FileText className="w-4 h-4" />, roles: ['ADMIN', 'OPERATOR', 'ANALYST'] }
       ]
     }
   ];
+
   const visibleNavSections = navSections.map(section => ({
     ...section,
     items: section.items.filter(item => !item.roles || item.roles.includes(currentRole))
@@ -123,21 +130,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     if (p.startsWith('/incidents')) {
       return {
         title: 'Incident Catalog & Workspace',
-        subtitle: 'Real-time Triage, Assessment & Response Records',
+        subtitle: currentRole === 'ANALYST' ? 'Risk Intelligence, Spatial Patterns & Incident Dataset' : 'Real-time Triage, Assessment & Response Records',
         badge: '2 CRITICAL'
       };
     }
     if (p.startsWith('/digital-twin')) {
       return {
         title: '3D Smart City Digital Twin',
-        subtitle: 'Real-time Telemetry, Spatial Plumes & Predictive Physics',
+        subtitle: currentRole === 'ANALYST' ? 'Spatial Plumes, Multi-Hazard Physics & Predictive Risk' : 'Real-time Telemetry, 3D Command Console & Tactical Units',
         badge: '2 CRITICAL'
       };
     }
     if (p.startsWith('/resources')) {
       return {
-        title: 'Predictive Resource Dispatch',
-        subtitle: 'Autonomous AI Recommendation & Dispatch Matrix',
+        title: 'Resource Allocation & Dispatch',
+        subtitle: currentRole === 'ANALYST' ? 'Fleet Load Distribution & Response Latency Benchmarks' : 'Autonomous AI Recommendation & Dispatch Matrix',
         badge: '2 CRITICAL'
       };
     }
@@ -190,6 +197,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         badge: '2 CRITICAL'
       };
     }
+    if (p.startsWith('/users') || p.startsWith('/administration')) {
+      return {
+        title: 'EOC Administration Core',
+        subtitle: 'Governance, User Provisioning & Platform Service Health',
+        badge: 'ADMIN ONLY'
+      };
+    }
     return {
       title: currentRole === 'ADMIN' ? 'Administrative Oversight' : currentRole === 'ANALYST' ? 'Urban Risk Intelligence' : 'Tactical Operations Console',
       subtitle: currentRole === 'ADMIN' ? 'Governance, platform readiness & city-wide controls' : currentRole === 'ANALYST' ? 'Telemetry, forecasts & decision intelligence' : 'Live incident response, dispatch & field coordination',
@@ -199,6 +213,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   const headerInfo = getPageHeader();
   const unreadNotifCount = notifications.filter(n => !n.read).length || 1;
+  const userInitials = getInitials(currentUser?.name);
 
   return (
     <div className="h-screen w-screen bg-gradient-to-b from-[#E2E8F0]/80 via-[#F8FAFC] to-white text-slate-800 flex font-sans antialiased overflow-hidden">
@@ -298,70 +313,93 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             </div>
           )}
 
-          {/* Commander Profile Button */}
+          {/* Commander Profile Button & Direct Logout */}
           <div className="relative">
-            <button
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'justify-between p-2'} rounded-xl bg-slate-50/90 hover:bg-white border border-slate-200/80 transition-all shadow-2xs cursor-pointer group`}
-              title={collapsed ? "Cmdr. Justin Vance (Click for menu)" : undefined}
-            >
-              <div className="flex items-center space-x-2.5 min-w-0">
-                <div className="relative flex-shrink-0">
-                  <div className="w-8 h-8 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-                    JV
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className={`flex-1 flex items-center ${collapsed ? 'justify-center p-1.5' : 'justify-between p-2'} rounded-xl bg-slate-50/90 hover:bg-white border border-slate-200/80 transition-all shadow-2xs cursor-pointer group`}
+                title={collapsed ? `${currentUser?.name || 'User'} (${currentRole})` : undefined}
+              >
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <div className="relative flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-lg font-extrabold text-xs flex items-center justify-center shadow-xs text-white ${
+                      currentRole === 'ADMIN' ? 'bg-rose-600' : currentRole === 'OPERATOR' ? 'bg-sky-600' : 'bg-indigo-600'
+                    }`}>
+                      {userInitials}
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                  {!collapsed && (
+                    <div className="text-left leading-none min-w-0">
+                      <span className="text-xs font-bold text-slate-900 block truncate group-hover:text-blue-600 transition-colors">
+                        {currentUser?.name || 'EOC User'}
+                      </span>
+                      <div className="flex items-center space-x-1.5 mt-1">
+                        <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded font-mono ${
+                          currentRole === 'ADMIN' ? 'bg-rose-100 text-rose-700' : currentRole === 'OPERATOR' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
+                        }`}>
+                          {currentRole}
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-400">{currentUser?.id || 'USR-001'}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {!collapsed && (
-                  <div className="text-left leading-none min-w-0">
-                    <span className="text-xs font-bold text-slate-900 block truncate group-hover:text-blue-600 transition-colors">
-                      {currentUser?.name || 'EOC User'}
-                    </span>
-                    <div className="flex items-center space-x-1.5 mt-1">
-                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-700 font-mono">
-                        {currentRole}
-                      </span>
-                      <span className="text-[9px] font-mono text-slate-400">EOC-7049</span>
-                    </div>
-                  </div>
+                  <ChevronUp className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
                 )}
-              </div>
+              </button>
+
               {!collapsed && (
-                <ChevronUp className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                <button
+                  onClick={() => navigate('/login')}
+                  className="p-2.5 rounded-xl bg-slate-50/90 hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 border border-slate-200/80 transition-all cursor-pointer flex-shrink-0 shadow-2xs"
+                  title="Logout Terminal (Redirect to Login)"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               )}
-            </button>
+            </div>
 
             {/* Commander Profile Popover Menu */}
             {userDropdownOpen && (
-              <div className={`absolute ${collapsed ? 'left-full ml-3 bottom-0 w-56' : 'bottom-full mb-2 left-0 right-0 w-full'} bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-bottom-2`}>
-                <div className="px-3 py-1.5 border-b border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Commander</p>
+              <div className={`absolute ${collapsed ? 'left-full ml-3 bottom-0 w-64' : 'bottom-full mb-2 left-0 right-0 w-full'} bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-left animate-in fade-in slide-in-from-bottom-2`}>
+                <div className="px-3 py-2 border-b border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Personnel Profile</p>
                   <p className="text-xs font-bold text-slate-900 mt-0.5">{currentUser?.name || 'EOC User'}</p>
-                  <p className="text-[10px] text-slate-500 font-mono">{currentUser?.agency || 'Emergency Operations Center'} • {currentUser?.id || 'EOC-7049'}</p>
+                  <p className="text-[10px] text-slate-500 font-mono">{currentUser?.agency || 'Emergency Operations Center'} • {currentUser?.id}</p>
                 </div>
                 <div className="py-1">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1">Switch Role</p>
-                  {(['ADMIN', 'OPERATOR', 'ANALYST'] as const).map(role => (
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1">Switch Role Profile</p>
+                  {([
+                    { role: 'ADMIN', label: 'ADMINISTRATOR', desc: 'Full system governance & user management' },
+                    { role: 'OPERATOR', label: 'OPERATOR', desc: 'Tactical command & field unit dispatch' },
+                    { role: 'ANALYST', label: 'ANALYST', desc: 'Urban risk intelligence & ML modeling' }
+                  ] as const).map(item => (
                     <button
-                      key={role}
-                      onClick={() => { setCurrentRole(role); setUserDropdownOpen(false); }}
-                      className={`w-full px-3 py-1.5 text-xs text-left font-semibold flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer ${currentRole === role ? 'text-blue-600 font-bold bg-blue-50/60' : 'text-slate-700'}`}
+                      key={item.role}
+                      onClick={() => { setCurrentRole(item.role); setUserDropdownOpen(false); }}
+                      className={`w-full px-3 py-2 text-xs text-left font-semibold flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer ${currentRole === item.role ? 'text-blue-600 font-bold bg-blue-50/60' : 'text-slate-700'}`}
                     >
-                      <span className="flex items-center space-x-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 opacity-70" />
-                        <span>Role: {role}</span>
-                      </span>
-                      {currentRole === role && <span className="text-xs font-bold text-blue-600">✓</span>}
+                      <div className="flex items-start space-x-2">
+                        <ShieldCheck className="w-3.5 h-3.5 mt-0.5 opacity-70 flex-shrink-0" />
+                        <div>
+                          <span className="block font-extrabold text-xs">Role: {item.role}</span>
+                          <span className="block text-[10px] font-normal text-slate-500 leading-tight">{item.desc}</span>
+                        </div>
+                      </div>
+                      {currentRole === item.role && <span className="text-xs font-bold text-blue-600 ml-2">✓</span>}
                     </button>
                   ))}
                 </div>
                 <div className="border-t border-slate-100 pt-1">
                   <button
-                    onClick={() => { setUserDropdownOpen(false); navigate('/'); }}
-                    className="w-full px-3 py-1.5 text-xs text-left text-rose-600 hover:bg-rose-50 font-semibold transition-colors cursor-pointer flex items-center justify-between"
+                    onClick={() => { setUserDropdownOpen(false); navigate('/login'); }}
+                    className="w-full px-3 py-2 text-xs text-left text-rose-600 hover:bg-rose-50 font-bold transition-colors cursor-pointer flex items-center justify-between"
                   >
                     <span className="flex items-center space-x-1.5">
-                      <LogOut className="w-3.5 h-3.5" />
+                      <LogOut className="w-3.5 h-3.5 text-rose-600" />
                       <span>Logout Terminal</span>
                     </span>
                     <span className="text-[10px] font-mono opacity-70">ESC</span>
@@ -394,8 +432,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 <h1 className="font-extrabold text-slate-900 text-sm lg:text-base tracking-tight truncate">
                   {headerInfo.title}
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-extrabold uppercase border border-rose-200 animate-pulse">
-                  ● {headerInfo.badge}
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                  currentRole === 'ADMIN' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                  currentRole === 'OPERATOR' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                  'bg-indigo-50 text-indigo-700 border-indigo-200'
+                }`}>
+                  ● ROLE: {currentRole}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium truncate hidden sm:block">
@@ -422,7 +464,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             </div>
           </div>
 
-          {/* Right Action Widgets (Profile removed from top right) */}
+          {/* Right Action Widgets */}
           <div className="flex items-center space-x-2.5 flex-shrink-0">
 
             {/* Live UTC Clock */}
@@ -453,14 +495,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               )}
             </button>
 
-            {/* Filter / Quick Dispatch button */}
-            <button
-              onClick={() => setIncidentFormOpen(true)}
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-600 transition-all shadow-2xs cursor-pointer hidden sm:block"
-              title="Quick Dispatch Control"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
+            {/* Quick Dispatch / Role Action control button */}
+            {currentRole !== 'ANALYST' ? (
+              <button
+                onClick={() => setIncidentFormOpen(true)}
+                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-2xs cursor-pointer hidden sm:flex items-center space-x-1.5 text-xs font-bold"
+                title="Quick Dispatch Control"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="hidden md:inline">Quick Dispatch</span>
+              </button>
+            ) : (
+              <span className="px-2.5 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-extrabold hidden sm:inline-flex items-center space-x-1">
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>Analyst Mode</span>
+              </span>
+            )}
 
           </div>
 
@@ -506,7 +556,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               </div>
 
               <nav className="p-4 space-y-4 overflow-y-auto flex-1 text-left">
-                {navSections.map((sec, idx) => (
+                {visibleNavSections.map((sec, idx) => (
                   <div key={idx} className="space-y-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{sec.heading}</p>
                     {sec.items.map(item => (
@@ -531,12 +581,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               <div className="p-4 border-t border-slate-100 bg-slate-50/80 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center">
-                      JV
+                    <div className={`w-8 h-8 rounded-lg font-extrabold text-xs flex items-center justify-center text-white ${
+                      currentRole === 'ADMIN' ? 'bg-rose-600' : currentRole === 'OPERATOR' ? 'bg-sky-600' : 'bg-indigo-600'
+                    }`}>
+                      {userInitials}
                     </div>
                     <div className="text-left leading-none">
-                      <span className="text-xs font-bold text-slate-900 block">Cmdr. Justin Vance</span>
-                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5">EOC Lead Operator</span>
+                      <span className="text-xs font-bold text-slate-900 block">{currentUser?.name || 'EOC User'}</span>
+                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5">{currentRole} • {currentUser?.agency}</span>
                     </div>
                   </div>
                   <button

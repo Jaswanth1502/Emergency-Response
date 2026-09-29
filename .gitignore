@@ -36,5 +36,8 @@ __pycache__/
 
 # Local agents / GSD workflows
 .agent/
+.gemini/
+.gsd/
+.DS_Store
 
 
