@@ -11,7 +11,9 @@ import json
 # Ensure current script directory is in Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# pyrefly: ignore [missing-import]
 import torch
+# pyrefly: ignore [missing-import]
 from torch.utils.data import DataLoader
 
 from unified_transformer import (

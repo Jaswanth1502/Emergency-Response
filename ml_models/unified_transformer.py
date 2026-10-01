@@ -9,9 +9,13 @@ Framework: PyTorch
 Model: 7-Task Shared-Backbone Multi-Task Transformer
 """
 
+# pyrefly: ignore [missing-import]
 import torch
+# pyrefly: ignore [missing-import]
 import torch.nn as nn
+# pyrefly: ignore [missing-import]
 import torch.nn.functional as F
+# pyrefly: ignore [missing-import]
 from torch.utils.data import Dataset, DataLoader
 from typing import Dict, List, Tuple, Any
 
