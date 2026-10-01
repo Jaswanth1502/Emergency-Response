@@ -68,6 +68,33 @@ flowchart TD
 
 ---
 
+## 🤖 PyTorch Unified Multi-Task Emergency Transformer (`ml_models/`)
+
+AEGIS TWIN includes a deep learning **Multi-Task Transformer Neural Network** implemented in PyTorch (`ml_models/unified_transformer.py`). A 6-layer shared Transformer Encoder backbone (`d_model=256`, 8 attention heads) maps high-frequency IoT sensor telemetry and spatial context into 7 concurrent prediction heads:
+
+1. **Incident Type Classification** (10 Hazard Classes: Structural Fire, Flash Flood, Toxic Leak, Landslide, etc.) — **`81.67%` Accuracy**
+2. **Severity Classification** (4 Levels: Low, Medium, High, Critical) — **`77.25%` Accuracy**
+3. **Continuous Risk Score Regression** — **`0.0715` MAE**
+4. **Trapped Persons Priority Ranking**
+5. **Multi-Label Resource Allocation**
+6. **Hospital Surge Load Forecasting**
+7. **Sensor Anomaly Detection**
+
+### 🏋️ Running PyTorch Model Training & Export
+
+```bash
+# 1. Activate Python 3.11 Virtual Environment
+source .venv/bin/activate
+
+# 2. Run Multi-Task Transformer Training (15 Epochs)
+python ml_models/train.py
+```
+
+* **Model Weights Checkpoint:** Saved to [`ml_models/best_emergency_transformer.pth`](file:///Users/perlajaswanthsurya/Desktop/Emergency-Response-main/ml_models/best_emergency_transformer.pth) (59.11 MB).
+* **Model Metadata:** Stored in [`ml_models/model_metadata.json`](file:///Users/perlajaswanthsurya/Desktop/Emergency-Response-main/ml_models/model_metadata.json).
+
+---
+
 ## 📸 Key Features & Operational Modules
 
 ### 1. 🌌 Command Center & Real-Time Situational Awareness (`/dashboard`)
@@ -222,9 +249,11 @@ docker run -p 8080:80 aegis-twin
 
 ```
 .
-├── ml_models/            # PyTorch Deep Learning Models & Training Scripts
-│   ├── unified_transformer.py  # Multi-Task Transformer Model for Crisis Intelligence
-│   └── train.py               # Training Pipeline & Dataset Calibration
+├── ml_models/            # PyTorch Deep Learning Models & Training Pipeline
+│   ├── unified_transformer.py  # 6-Layer Multi-Task Transformer (256d, 8-Heads, 7 Prediction Heads)
+│   ├── train.py               # Multi-Task PyTorch Model Training Runner & Validation Loop
+│   ├── model_metadata.json    # Trained Model Architecture & Accuracy Metadata
+│   └── best_emergency_transformer.pth # Pre-Trained Model Weights Checkpoint (59.11 MB)
 ├── src/
 │   ├── components/       # UI components (map, digital twin, dialogs, charts, notifications)
 │   │   ├── digitaltwin/   # OperatorDashboard, AnalystDashboard, AdminDashboard, Google3DMap, MapLibreMap
